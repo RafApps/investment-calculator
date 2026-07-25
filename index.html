@@ -180,7 +180,7 @@
     <p class="chart-title">Portfolio growth</p>
     <div class="legend">
       <span><span class="dot" style="background:#94a3b8"></span>Contributed</span>
-      <span><span class="dot" style="background:#2a78d6"></span>Invested value (total)</span>
+      <span><span class="dot" style="background:#334155"></span>Invested value (total)</span>
       <span><span class="dot" style="background:#c98500"></span>Cash from dividends</span>
       <span><span class="dot" style="background:#2a78d6"></span>VOO</span>
       <span><span class="dot" style="background:#eb6834"></span>QQQ</span>
@@ -260,7 +260,7 @@
     <div class="legend">
       <span><span class="dot" style="background:#94a3b8"></span>Your contributions</span>
       <span><span class="dot" style="background:#1baf7a"></span>+ Employer match</span>
-      <span><span class="dot" style="background:#2a78d6"></span>Portfolio value</span>
+      <span><span class="dot" style="background:#334155"></span>Portfolio value</span>
     </div>
     <div class="chart-wrap"><canvas id="k-growth-chart"></canvas></div>
 
@@ -277,6 +277,8 @@ const RATES = {
 const CASH_COLOR = '#c98500';
 const CONTRIB_COLOR = '#94a3b8';
 const MATCH_COLOR = '#1baf7a';
+const TOTAL_COLOR = '#334155';
+const TOTAL_FILL = 'rgba(51,65,85,0.12)';
 const IRS_401K_LIMIT_2026 = 24500;
 
 function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
@@ -378,7 +380,7 @@ function initPersonalCharts() {
     data: {
       labels: [],
       datasets: [
-        { label: 'Invested value (total)', data: [], borderColor: '#2a78d6', backgroundColor: 'rgba(42,120,214,0.12)', borderWidth: 2, pointRadius: 0, fill: true, stack: 'g', tension: 0.15 },
+        { label: 'Invested value (total)', data: [], borderColor: TOTAL_COLOR, backgroundColor: TOTAL_FILL, borderWidth: 2, pointRadius: 0, fill: true, stack: 'g', tension: 0.15 },
         { label: 'Cash from dividends', data: [], borderColor: CASH_COLOR, backgroundColor: 'rgba(201,133,0,0.18)', borderWidth: 1.5, pointRadius: 0, fill: true, stack: 'g', tension: 0.15 },
         { label: 'Contributed', data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, borderDash: [4, 3], pointRadius: 0, stack: 'c', fill: false, tension: 0 },
         { label: 'VOO', data: [], borderColor: RATES.voo.color, backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [2, 2], pointRadius: 0, stack: 'v', fill: false, tension: 0.15 },
@@ -554,7 +556,7 @@ function initK401Chart() {
     data: {
       labels: [],
       datasets: [
-        { label: 'Portfolio value', data: [], borderColor: '#2a78d6', backgroundColor: 'rgba(42,120,214,0.12)', borderWidth: 2, pointRadius: 0, fill: true, tension: 0.15 },
+        { label: 'Portfolio value', data: [], borderColor: TOTAL_COLOR, backgroundColor: TOTAL_FILL, borderWidth: 2, pointRadius: 0, fill: true, tension: 0.15 },
         { label: '+ Employer match', data: [], borderColor: MATCH_COLOR, backgroundColor: 'transparent', borderWidth: 2, borderDash: [4, 3], pointRadius: 0, fill: false, tension: 0 },
         { label: 'Your contributions', data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, borderDash: [4, 3], pointRadius: 0, fill: false, tension: 0 },
       ],
