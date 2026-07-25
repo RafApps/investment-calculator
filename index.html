@@ -40,8 +40,9 @@
   .tab-btn.active { background: white; color: var(--text); font-weight: 500; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
   .panel { display: none; }
   .panel.active { display: block; }
-  .strategies { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-  .strat-btn { font-size: 12px; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: white; color: var(--text-secondary); cursor: pointer; }
+  .strategies { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 20px; }
+  @media (min-width: 560px) { .strategies { grid-template-columns: repeat(4, 1fr); } }
+  .strat-btn { font-size: 12px; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: white; color: var(--text-secondary); cursor: pointer; text-align: center; }
   .strat-btn.active { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
   .row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
   .row label { width: 128px; flex-shrink: 0; font-size: 13px; color: var(--text-secondary); display: flex; align-items: center; gap: 8px; }
@@ -54,7 +55,7 @@
   .mode-toggle { display: flex; gap: 2px; background: var(--bg-gray); border-radius: 6px; padding: 2px; }
   .mode-btn { font-size: 12px; padding: 4px 10px; border-radius: 4px; border: none; background: transparent; color: var(--text-secondary); cursor: pointer; }
   .mode-btn.active { background: white; color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
-  .effective { margin-left: auto; font-size: 13px; font-weight: 500; font-family: monospace; color: #374151; }
+  .effective { flex-basis: 100%; margin-left: 138px; font-size: 12px; font-weight: 500; font-family: monospace; color: var(--text-secondary); }
   .switch { position: relative; width: 44px; height: 24px; border-radius: 12px; border: none; cursor: pointer; background: #d1d5db; transition: background 0.2s; flex-shrink: 0; }
   .switch.on { background: var(--blue); }
   .switch-knob { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: white; border-radius: 50%; box-shadow: 0 1px 2px rgba(0,0,0,0.2); transition: transform 0.2s; }
