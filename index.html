@@ -51,7 +51,8 @@
   .num-input.wide { width: 90px; text-align: left; }
   .unit { font-size: 13px; color: var(--text-secondary); }
   .dot { width: 8px; height: 8px; border-radius: 2px; display: inline-block; flex-shrink: 0; }
-  hr { border: none; border-top: 1px solid #f3f4f6; margin: 20px 0; }
+  .section { margin-bottom: 28px; }
+  .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin: 0 0 14px; }
   .mode-toggle { display: flex; gap: 2px; background: var(--bg-gray); border-radius: 6px; padding: 2px; }
   .mode-btn { font-size: 12px; padding: 4px 10px; border-radius: 4px; border: none; background: transparent; color: var(--text-secondary); cursor: pointer; }
   .mode-btn.active { background: white; color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
@@ -91,181 +92,202 @@
 
   <!-- PERSONAL TAB -->
   <div class="panel active" id="panel-personal">
-    <div class="strategies" id="p-strategies">
-      <button class="strat-btn" data-voo="60" data-qqq="25" data-schd="15">Growth-tilted</button>
-      <button class="strat-btn active" data-voo="50" data-qqq="25" data-schd="25">Balanced</button>
-      <button class="strat-btn" data-voo="50" data-qqq="15" data-schd="35">Income-leaning</button>
-      <button class="strat-btn" data-voo="70" data-qqq="0" data-schd="30">Simplified 2-fund</button>
-    </div>
-
-    <div class="row">
-      <label><span class="dot" style="background:#2a78d6"></span>VOO · 1.1% div</label>
-      <input type="range" min="0" max="100" step="1" value="50" id="p-voo-range">
-      <input type="number" min="0" max="100" value="50" id="p-voo-num" class="num-input">
-      <span class="unit">%</span>
-    </div>
-    <div class="row">
-      <label><span class="dot" style="background:#eb6834"></span>QQQ · 0.4% div</label>
-      <input type="range" min="0" max="100" step="1" value="25" id="p-qqq-range">
-      <input type="number" min="0" max="100" value="25" id="p-qqq-num" class="num-input">
-      <span class="unit">%</span>
-    </div>
-    <div class="row">
-      <label><span class="dot" style="background:#1baf7a"></span>SCHD · 3.2% div</label>
-      <input type="range" min="0" max="100" step="1" value="25" id="p-schd-range">
-      <input type="number" min="0" max="100" value="25" id="p-schd-num" class="num-input">
-      <span class="unit">%</span>
-    </div>
-
-    <div class="row">
-      <label>Starting balance</label>
-      <span class="unit">$</span>
-      <input type="number" min="0" max="5000000" value="0" id="p-starting" class="num-input wide">
-    </div>
-
-    <hr>
-
-    <div class="row">
-      <label>Contribution</label>
-      <div class="mode-toggle">
-        <button class="mode-btn active" id="p-mode-dollar" onclick="setPersonalMode('dollar')">Fixed $</button>
-        <button class="mode-btn" id="p-mode-percent" onclick="setPersonalMode('percent')">% of salary</button>
+    <div class="section">
+      <p class="section-title">Allocation</p>
+      <div class="strategies" id="p-strategies">
+        <button class="strat-btn" data-voo="60" data-qqq="25" data-schd="15">Growth-tilted</button>
+        <button class="strat-btn active" data-voo="50" data-qqq="25" data-schd="25">Balanced</button>
+        <button class="strat-btn" data-voo="50" data-qqq="15" data-schd="35">Income-leaning</button>
+        <button class="strat-btn" data-voo="70" data-qqq="0" data-schd="30">Simplified 2-fund</button>
       </div>
-      <span class="effective" id="p-effective-monthly">= $500/mo</span>
-    </div>
 
-    <div class="row" id="p-monthly-row">
-      <label>Monthly</label>
-      <span class="unit">$</span>
-      <input type="number" min="0" max="5000" value="500" id="p-monthly" class="num-input wide">
-    </div>
-
-    <div id="p-percent-fields" style="display:none;">
       <div class="row">
-        <label>Annual salary</label>
+        <label><span class="dot" style="background:#2a78d6"></span>VOO · 1.1% div</label>
+        <input type="range" min="0" max="100" step="1" value="50" id="p-voo-range">
+        <input type="number" min="0" max="100" value="50" id="p-voo-num" class="num-input">
+        <span class="unit">%</span>
+      </div>
+      <div class="row">
+        <label><span class="dot" style="background:#eb6834"></span>QQQ · 0.4% div</label>
+        <input type="range" min="0" max="100" step="1" value="25" id="p-qqq-range">
+        <input type="number" min="0" max="100" value="25" id="p-qqq-num" class="num-input">
+        <span class="unit">%</span>
+      </div>
+      <div class="row">
+        <label><span class="dot" style="background:#1baf7a"></span>SCHD · 3.2% div</label>
+        <input type="range" min="0" max="100" step="1" value="25" id="p-schd-range">
+        <input type="number" min="0" max="100" value="25" id="p-schd-num" class="num-input">
+        <span class="unit">%</span>
+      </div>
+
+      <div class="row">
+        <label>Starting balance</label>
         <span class="unit">$</span>
-        <input type="number" min="0" max="2000000" value="70000" id="p-salary" class="num-input wide">
+        <input type="number" min="0" max="5000000" value="0" id="p-starting" class="num-input wide">
       </div>
+    </div>
+
+    <div class="section">
+      <p class="section-title">Contribution</p>
       <div class="row">
-        <label>% invested</label>
-        <input type="number" min="0" max="100" step="1" value="10" id="p-salary-pct" class="num-input">
-        <span class="unit">%</span>
+        <label>Amount</label>
+        <div class="mode-toggle">
+          <button class="mode-btn active" id="p-mode-dollar" onclick="setPersonalMode('dollar')">Fixed $</button>
+          <button class="mode-btn" id="p-mode-percent" onclick="setPersonalMode('percent')">% of salary</button>
+        </div>
+        <span class="effective" id="p-effective-monthly">= $500/mo</span>
       </div>
+
+      <div class="row" id="p-monthly-row">
+        <label>Monthly</label>
+        <span class="unit">$</span>
+        <input type="number" min="0" max="5000" value="500" id="p-monthly" class="num-input wide">
+      </div>
+
+      <div id="p-percent-fields" style="display:none;">
+        <div class="row">
+          <label>Annual salary</label>
+          <span class="unit">$</span>
+          <input type="number" min="0" max="2000000" value="70000" id="p-salary" class="num-input wide">
+        </div>
+        <div class="row">
+          <label>% invested</label>
+          <input type="number" min="0" max="100" step="1" value="10" id="p-salary-pct" class="num-input">
+          <span class="unit">%</span>
+        </div>
+        <div class="row">
+          <label>Annual raise</label>
+          <input type="number" min="0" max="50" step="0.5" value="3" id="p-salary-growth" class="num-input">
+          <span class="unit">%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <p class="section-title">Time horizon &amp; dividends</p>
       <div class="row">
-        <label>Annual raise</label>
-        <input type="number" min="0" max="50" step="0.5" value="3" id="p-salary-growth" class="num-input">
-        <span class="unit">%</span>
+        <label>Years</label>
+        <input type="number" min="1" max="80" value="25" id="p-years" class="num-input">
+        <span class="unit">yrs</span>
+      </div>
+
+      <div class="row">
+        <label>Dividends</label>
+        <button class="switch on" id="p-reinvest-switch" onclick="togglePersonalReinvest()"><span class="switch-knob"></span></button>
+        <span class="unit" id="p-reinvest-label">Reinvested (DRIP)</span>
       </div>
     </div>
 
-    <div class="row">
-      <label>Years</label>
-      <input type="number" min="1" max="80" value="25" id="p-years" class="num-input">
-      <span class="unit">yrs</span>
-    </div>
+    <div class="section">
+      <p class="section-title">Results</p>
+      <div class="stats">
+        <div class="stat"><p class="stat-label">Starting balance</p><p class="stat-value" id="p-stat-starting">$0</p></div>
+        <div class="stat"><p class="stat-label">Contributed</p><p class="stat-value" id="p-stat-contributed">$0</p></div>
+        <div class="stat"><p class="stat-label">Invested value</p><p class="stat-value" id="p-stat-invested">$0</p></div>
+        <div class="stat"><p class="stat-label">Cash (not reinvested)</p><p class="stat-value" id="p-stat-cash">$0</p></div>
+        <div class="stat blue"><p class="stat-label">Total net worth</p><p class="stat-value" id="p-stat-total">$0</p></div>
+      </div>
 
-    <div class="row">
-      <label>Dividends</label>
-      <button class="switch on" id="p-reinvest-switch" onclick="togglePersonalReinvest()"><span class="switch-knob"></span></button>
-      <span class="unit" id="p-reinvest-label">Reinvested (DRIP)</span>
-    </div>
+      <p class="chart-title">Portfolio growth</p>
+      <div class="legend">
+        <span><span class="dot" style="background:#94a3b8"></span>Contributed</span>
+        <span><span class="dot" style="background:#334155"></span>Invested value (total)</span>
+        <span><span class="dot" style="background:#c98500"></span>Cash from dividends</span>
+        <span><span class="dot" style="background:#2a78d6"></span>VOO</span>
+        <span><span class="dot" style="background:#eb6834"></span>QQQ</span>
+        <span><span class="dot" style="background:#1baf7a"></span>SCHD</span>
+      </div>
+      <div class="chart-wrap"><canvas id="p-growth-chart"></canvas></div>
 
-    <div class="stats">
-      <div class="stat"><p class="stat-label">Starting balance</p><p class="stat-value" id="p-stat-starting">$0</p></div>
-      <div class="stat"><p class="stat-label">Contributed</p><p class="stat-value" id="p-stat-contributed">$0</p></div>
-      <div class="stat"><p class="stat-label">Invested value</p><p class="stat-value" id="p-stat-invested">$0</p></div>
-      <div class="stat"><p class="stat-label">Cash (not reinvested)</p><p class="stat-value" id="p-stat-cash">$0</p></div>
-      <div class="stat blue"><p class="stat-label">Total net worth</p><p class="stat-value" id="p-stat-total">$0</p></div>
-    </div>
+      <p class="chart-title">Estimated annual dividend payout by fund</p>
+      <div class="legend">
+        <span><span class="dot" style="background:#2a78d6"></span>VOO</span>
+        <span><span class="dot" style="background:#eb6834"></span>QQQ</span>
+        <span><span class="dot" style="background:#1baf7a"></span>SCHD</span>
+      </div>
+      <div class="chart-wrap"><canvas id="p-div-chart"></canvas></div>
 
-    <p class="chart-title">Portfolio growth</p>
-    <div class="legend">
-      <span><span class="dot" style="background:#94a3b8"></span>Contributed</span>
-      <span><span class="dot" style="background:#334155"></span>Invested value (total)</span>
-      <span><span class="dot" style="background:#c98500"></span>Cash from dividends</span>
-      <span><span class="dot" style="background:#2a78d6"></span>VOO</span>
-      <span><span class="dot" style="background:#eb6834"></span>QQQ</span>
-      <span><span class="dot" style="background:#1baf7a"></span>SCHD</span>
+      <p class="footnote" id="p-footnote"></p>
     </div>
-    <div class="chart-wrap"><canvas id="p-growth-chart"></canvas></div>
-
-    <p class="chart-title">Estimated annual dividend payout by fund</p>
-    <div class="legend">
-      <span><span class="dot" style="background:#2a78d6"></span>VOO</span>
-      <span><span class="dot" style="background:#eb6834"></span>QQQ</span>
-      <span><span class="dot" style="background:#1baf7a"></span>SCHD</span>
-    </div>
-    <div class="chart-wrap"><canvas id="p-div-chart"></canvas></div>
-
-    <p class="footnote" id="p-footnote"></p>
   </div>
 
   <!-- 401(K) TAB -->
   <div class="panel" id="panel-401k">
-    <div class="row">
-      <label>Expected return</label>
-      <input type="number" min="0" max="30" step="0.5" value="7" id="k-return" class="num-input">
-      <span class="unit">% / yr</span>
-    </div>
-    <p class="footnote" style="margin-top:-8px;margin-bottom:20px;">Diversified 401(k) plans have historically returned around 5-8% annually; 7% is a commonly cited long-run average.</p>
+    <div class="section">
+      <p class="section-title">Growth assumptions</p>
+      <div class="row">
+        <label>Expected return</label>
+        <input type="number" min="0" max="30" step="0.5" value="7" id="k-return" class="num-input">
+        <span class="unit">% / yr</span>
+      </div>
+      <p class="footnote" style="margin-top:-8px;margin-bottom:20px;">Diversified 401(k) plans have historically returned around 5-8% annually; 7% is a commonly cited long-run average.</p>
 
-    <div class="row">
-      <label>Starting balance</label>
-      <span class="unit">$</span>
-      <input type="number" min="0" max="5000000" value="0" id="k-starting" class="num-input wide">
-    </div>
-
-    <hr>
-
-    <div class="row">
-      <label>Annual salary</label>
-      <span class="unit">$</span>
-      <input type="number" min="0" max="2000000" value="70000" id="k-salary" class="num-input wide">
-    </div>
-    <div class="row">
-      <label>Your contribution</label>
-      <input type="number" min="0" max="100" step="1" value="10" id="k-contrib-pct" class="num-input">
-      <span class="unit">% of salary</span>
-    </div>
-    <div class="row">
-      <label>Employer match</label>
-      <input type="number" min="0" max="200" step="1" value="50" id="k-match-rate" class="num-input">
-      <span class="unit">% up to</span>
-      <input type="number" min="0" max="100" step="1" value="6" id="k-match-cap" class="num-input">
-      <span class="unit">% of salary</span>
-    </div>
-    <div class="row">
-      <label>Annual raise</label>
-      <input type="number" min="0" max="50" step="0.5" value="3" id="k-growth" class="num-input">
-      <span class="unit">%</span>
-    </div>
-    <div class="row">
-      <label>Years</label>
-      <input type="number" min="1" max="80" value="25" id="k-years" class="num-input">
-      <span class="unit">yrs</span>
+      <div class="row">
+        <label>Starting balance</label>
+        <span class="unit">$</span>
+        <input type="number" min="0" max="5000000" value="0" id="k-starting" class="num-input wide">
+      </div>
     </div>
 
-    <div class="warn" id="k-warn" style="display:none;">
-      Your contribution rate hits the 2026 IRS employee deferral limit of $24,500/year in at least one year of this projection, so it's capped there for that year onward.
+    <div class="section">
+      <p class="section-title">Salary &amp; contributions</p>
+      <div class="row">
+        <label>Annual salary</label>
+        <span class="unit">$</span>
+        <input type="number" min="0" max="2000000" value="70000" id="k-salary" class="num-input wide">
+      </div>
+      <div class="row">
+        <label>Your contribution</label>
+        <input type="number" min="0" max="100" step="1" value="10" id="k-contrib-pct" class="num-input">
+        <span class="unit">% of salary</span>
+      </div>
+      <div class="row">
+        <label>Employer match</label>
+        <input type="number" min="0" max="200" step="1" value="50" id="k-match-rate" class="num-input">
+        <span class="unit">% up to</span>
+        <input type="number" min="0" max="100" step="1" value="6" id="k-match-cap" class="num-input">
+        <span class="unit">% of salary</span>
+      </div>
+      <div class="row">
+        <label>Annual raise</label>
+        <input type="number" min="0" max="50" step="0.5" value="3" id="k-growth" class="num-input">
+        <span class="unit">%</span>
+      </div>
     </div>
 
-    <div class="stats">
-      <div class="stat"><p class="stat-label">Starting balance</p><p class="stat-value" id="k-stat-starting">$0</p></div>
-      <div class="stat"><p class="stat-label">Your contributions</p><p class="stat-value" id="k-stat-employee">$0</p></div>
-      <div class="stat green"><p class="stat-label">Employer match</p><p class="stat-value" id="k-stat-employer">$0</p></div>
-      <div class="stat"><p class="stat-label">Combined contributed</p><p class="stat-value" id="k-stat-combined">$0</p></div>
-      <div class="stat blue"><p class="stat-label">Final value</p><p class="stat-value" id="k-stat-final">$0</p></div>
+    <div class="section">
+      <p class="section-title">Time horizon</p>
+      <div class="row">
+        <label>Years</label>
+        <input type="number" min="1" max="80" value="25" id="k-years" class="num-input">
+        <span class="unit">yrs</span>
+      </div>
+
+      <div class="warn" id="k-warn" style="display:none;">
+        Your contribution rate hits the 2026 IRS employee deferral limit of $24,500/year in at least one year of this projection, so it's capped there for that year onward.
+      </div>
     </div>
 
-    <p class="chart-title">401(k) growth</p>
-    <div class="legend">
-      <span><span class="dot" style="background:#94a3b8"></span>Your contributions</span>
-      <span><span class="dot" style="background:#1baf7a"></span>+ Employer match</span>
-      <span><span class="dot" style="background:#334155"></span>Portfolio value</span>
-    </div>
-    <div class="chart-wrap"><canvas id="k-growth-chart"></canvas></div>
+    <div class="section">
+      <p class="section-title">Results</p>
+      <div class="stats">
+        <div class="stat"><p class="stat-label">Starting balance</p><p class="stat-value" id="k-stat-starting">$0</p></div>
+        <div class="stat"><p class="stat-label">Your contributions</p><p class="stat-value" id="k-stat-employee">$0</p></div>
+        <div class="stat green"><p class="stat-label">Employer match</p><p class="stat-value" id="k-stat-employer">$0</p></div>
+        <div class="stat"><p class="stat-label">Combined contributed</p><p class="stat-value" id="k-stat-combined">$0</p></div>
+        <div class="stat blue"><p class="stat-label">Final value</p><p class="stat-value" id="k-stat-final">$0</p></div>
+      </div>
 
-    <p class="footnote">2026 IRS employee deferral limit is $24,500 (before any age-50+ catch-up). Employer match assumes immediate full vesting and doesn't model plan-specific vesting schedules, the combined $72,000 employee-plus-employer cap (rarely reached at typical contribution levels), or taxes owed on withdrawal.</p>
+      <p class="chart-title">401(k) growth</p>
+      <div class="legend">
+        <span><span class="dot" style="background:#94a3b8"></span>Your contributions</span>
+        <span><span class="dot" style="background:#1baf7a"></span>+ Employer match</span>
+        <span><span class="dot" style="background:#334155"></span>Portfolio value</span>
+      </div>
+      <div class="chart-wrap"><canvas id="k-growth-chart"></canvas></div>
+
+      <p class="footnote">2026 IRS employee deferral limit is $24,500 (before any age-50+ catch-up). Employer match assumes immediate full vesting and doesn't model plan-specific vesting schedules, the combined $72,000 employee-plus-employer cap (rarely reached at typical contribution levels), or taxes owed on withdrawal.</p>
+    </div>
   </div>
 </div>
 
