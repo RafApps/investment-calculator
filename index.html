@@ -143,18 +143,11 @@
     background: var(--surface-2); border: 1px solid var(--border);
     border-radius: 10px; padding: 4px; margin: 16px 0;
   }
-  @media (min-width: 700px) { .tabs { display: inline-grid; grid-template-columns: auto auto; } }
   .tab-btn {
     min-height: 44px; padding: 0 22px; font-size: 15px; border: none; border-radius: 7px;
     background: transparent; color: var(--text-2); cursor: pointer;
   }
   .tab-btn[aria-selected=true] { background: var(--surface); color: var(--text); font-weight: 600; box-shadow: var(--shadow); }
-  .seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 3px; gap: 3px; }
-  .seg button {
-    min-height: 40px; padding: 0 12px; font-size: 14px; border: none; border-radius: 6px;
-    background: transparent; color: var(--text-2); cursor: pointer;
-  }
-  .seg button.active { background: var(--surface); color: var(--text); font-weight: 600; box-shadow: var(--shadow); }
   .strategies { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
   .strat-btn {
     min-height: 44px; padding: 6px 8px; font-size: 13px; border: 1px solid var(--border); border-radius: 8px;
@@ -220,6 +213,12 @@
   .lg-sw.box { height: 10px; width: 10px; border: none; border-radius: 3px; }
   .chart-wrap { position: relative; width: 100%; height: 280px; margin-bottom: 22px; }
   .footnote { font-size: 12px; color: var(--text-2); line-height: 1.5; margin: 0 0 8px; }
+  .subtabs { display: flex; gap: 22px; border-bottom: 1px solid var(--border); margin: 0 0 10px; }
+  .subtab {
+    min-height: 44px; padding: 0 2px; margin-bottom: -1px; font-size: 15px; background: none; border: none;
+    border-bottom: 2px solid transparent; color: var(--text-2); cursor: pointer;
+  }
+  .subtab[aria-selected=true] { color: var(--text); font-weight: 600; border-bottom-color: var(--accent); }
   [hidden] { display: none !important; }
   .num.sel { width: auto; max-width: 100%; text-align: left; padding: 0 8px; cursor: pointer; }
   .cap { display: block; font-style: normal; font-size: 11px; color: var(--amber-ink); }
@@ -263,7 +262,7 @@
       </div>
       <div class="field">
         <label for="s-salary">Annual salary</label>
-        <div class="ctl"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="2000000" value="70000" id="s-salary" class="num wide"><span class="unit">/ yr</span></div>
+        <div class="ctl"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="2000000" value="70000" step="100" id="s-salary" class="num wide"><span class="unit">/ yr</span></div>
       </div>
       <div class="field">
         <label for="s-raise">Annual raise</label>
@@ -303,13 +302,19 @@
           <div class="stat"><p class="stat-label">Cash (not reinvested)</p><p class="stat-value" id="p-stat-cash">$0</p></div>
         </div>
 
-        <h3>Portfolio growth</h3>
-        <div class="legend" id="p-growth-legend"></div>
-        <div class="chart-wrap"><canvas id="p-growth-chart" role="img" aria-label="Portfolio growth over time"></canvas></div>
-
-        <h3>Estimated annual dividend payout by fund</h3>
-        <div class="legend" id="p-div-legend"></div>
-        <div class="chart-wrap"><canvas id="p-div-chart" role="img" aria-label="Annual dividend payout by fund"></canvas></div>
+        <div class="subtabs" role="tablist" aria-label="Chart">
+          <button class="subtab" id="p-view-growth-btn" role="tab" aria-selected="true" aria-controls="p-view-growth" type="button">Portfolio growth</button>
+          <button class="subtab" id="p-view-div-btn" role="tab" aria-selected="false" aria-controls="p-view-div" type="button">Dividend payout</button>
+        </div>
+        <div id="p-view-growth" role="tabpanel">
+          <div class="legend" id="p-growth-legend"></div>
+          <div class="chart-wrap"><canvas id="p-growth-chart" role="img" aria-label="Portfolio growth over time"></canvas></div>
+        </div>
+        <div id="p-view-div" role="tabpanel" hidden>
+          <p class="hint">Estimated annual dividend payout by fund</p>
+          <div class="legend" id="p-div-legend"></div>
+          <div class="chart-wrap"><canvas id="p-div-chart" role="img" aria-label="Annual dividend payout by fund"></canvas></div>
+        </div>
 
         <p class="footnote" id="p-footnote"></p>
         <details class="why"><summary>Where do these numbers come from?</summary><div id="p-why-body"></div></details>
@@ -320,19 +325,24 @@
           <h3>Starting point</h3>
           <div class="field">
             <label for="p-starting">Starting balance</label>
-            <div class="ctl"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="5000000" value="0" id="p-starting" class="num wide"></div>
+            <div class="ctl"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="5000000" value="0" step="100" id="p-starting" class="num wide"></div>
           </div>
         </div>
 
         <div class="section">
           <h3>Contributions</h3>
-          <div class="seg" id="p-mode">
-            <button type="button" class="active" id="p-mode-dollar">Fixed $ / month</button>
-            <button type="button" id="p-mode-percent">% of salary</button>
+          <div class="field">
+            <label for="p-mode">Contribute</label>
+            <div class="ctl">
+              <select id="p-mode" class="num sel">
+                <option value="dollar" selected>A fixed $ amount</option>
+                <option value="percent">A % of salary</option>
+              </select>
+            </div>
           </div>
           <div id="p-monthly-row" class="field">
             <label for="p-monthly">Per month</label>
-            <div class="ctl"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="50000" value="500" id="p-monthly" class="num wide"></div>
+            <div class="ctl"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="50000" value="500" step="100" id="p-monthly" class="num wide"></div>
           </div>
           <div id="p-percent-fields" style="display:none;">
             <div class="field">
@@ -398,7 +408,7 @@
     <div class="layout">
       <section class="card results-col" aria-label="401(k) results">
         <div class="stats">
-          <div class="stat hero"><p class="stat-label">Final 401(k) value</p><p class="stat-value" id="k-stat-final">$0</p></div>
+          <div class="stat hero"><p class="stat-label">Total 401(k) value</p><p class="stat-value" id="k-stat-final">$0</p></div>
           <div class="stat"><p class="stat-label">Starting balance</p><p class="stat-value" id="k-stat-starting">$0</p></div>
           <div class="stat"><p class="stat-label">Your contributions</p><p class="stat-value" id="k-stat-employee">$0</p></div>
           <div class="stat green"><p class="stat-label">Employer match</p><p class="stat-value" id="k-stat-employer">$0</p></div>
@@ -419,7 +429,7 @@
           <h3>Starting point</h3>
           <div class="field">
             <label for="k-starting">Starting balance</label>
-            <div class="ctl"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="5000000" value="0" id="k-starting" class="num wide"></div>
+            <div class="ctl"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="5000000" value="0" step="100" id="k-starting" class="num wide"></div>
           </div>
         </div>
 
@@ -497,6 +507,7 @@ let pMode = 'dollar';
 let pReinvest = true;
 let inflOn = false;
 let pCustomOpen = false;
+let pView = 'growth';
 
 function kLimit() { return Number($('k-limit').value) || 15000; }
 
@@ -591,8 +602,12 @@ document.querySelectorAll('#p-strategies .strat-btn').forEach((btn) => {
 
 /* ---------------- toggles ---------------- */
 function renderToggles() {
-  $('p-mode-dollar').classList.toggle('active', pMode === 'dollar');
-  $('p-mode-percent').classList.toggle('active', pMode === 'percent');
+  $('p-mode').value = pMode;
+  $('p-view-growth').hidden = pView !== 'growth';
+  $('p-view-div').hidden = pView !== 'div';
+  $('p-view-growth-btn').setAttribute('aria-selected', String(pView === 'growth'));
+  $('p-view-div-btn').setAttribute('aria-selected', String(pView === 'div'));
+  [pGrowthChart, pDivChart].forEach((c) => c && c.resize());
   $('p-monthly-row').style.display = pMode === 'dollar' ? 'flex' : 'none';
   $('p-percent-fields').style.display = pMode === 'percent' ? 'block' : 'none';
   $('p-reinvest-switch').setAttribute('aria-checked', String(pReinvest));
@@ -603,8 +618,9 @@ function renderToggles() {
   $('p-custom-btn').setAttribute('aria-expanded', String(pCustomOpen));
   $('p-custom-btn').textContent = pCustomOpen ? 'Hide custom percentages' : 'Customize percentages';
 }
-$('p-mode-dollar').addEventListener('click', () => { pMode = 'dollar'; renderToggles(); recomputeAll(); });
-$('p-mode-percent').addEventListener('click', () => { pMode = 'percent'; renderToggles(); recomputeAll(); });
+$('p-view-growth-btn').addEventListener('click', () => { pView = 'growth'; renderToggles(); saveState(); });
+$('p-view-div-btn').addEventListener('click', () => { pView = 'div'; renderToggles(); saveState(); });
+$('p-mode').addEventListener('change', (e) => { pMode = e.target.value === 'percent' ? 'percent' : 'dollar'; renderToggles(); recomputeAll(); });
 $('p-reinvest-switch').addEventListener('click', () => { pReinvest = !pReinvest; renderToggles(); recomputeAll(); });
 $('p-custom-btn').addEventListener('click', () => { pCustomOpen = !pCustomOpen; renderToggles(); saveState(); });
 $('s-infl-switch').addEventListener('click', () => { inflOn = !inflOn; renderToggles(); recomputeAll(); });
@@ -621,7 +637,7 @@ function saveState() {
   try {
     const inputs = {};
     document.querySelectorAll('input[type=number], select').forEach((el) => { inputs[el.id] = el.value; });
-    localStorage.setItem(STORE_KEY, JSON.stringify({ inputs, pAlloc, pMode, pReinvest, inflOn, pCustomOpen, tab: currentTab }));
+    localStorage.setItem(STORE_KEY, JSON.stringify({ inputs, pAlloc, pMode, pReinvest, inflOn, pCustomOpen, pView, tab: currentTab }));
   } catch (e) { /* storage unavailable: the calculator still works, it just won't remember */ }
 }
 
@@ -642,6 +658,7 @@ function loadState() {
     if (typeof d.pReinvest === 'boolean') pReinvest = d.pReinvest;
     if (typeof d.inflOn === 'boolean') inflOn = d.inflOn;
     if (typeof d.pCustomOpen === 'boolean') pCustomOpen = d.pCustomOpen;
+    if (d.pView === 'growth' || d.pView === 'div') pView = d.pView;
     if (d.tab === 'personal' || d.tab === '401k') currentTab = d.tab;
   } catch (e) { /* ignore a corrupt or unavailable store */ }
 }
