@@ -340,9 +340,20 @@
               </select>
             </div>
           </div>
-          <div id="p-monthly-row" class="field">
-            <label for="p-monthly">Per month</label>
-            <div class="ctl"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="50000" value="500" step="100" id="p-monthly" class="num wide"></div>
+          <div id="p-monthly-row">
+            <div class="field">
+              <label for="p-freq">How often</label>
+              <div class="ctl">
+                <select id="p-freq" class="num sel">
+                  <option value="biweekly" selected>Every two weeks</option>
+                  <option value="monthly">Monthly</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label for="p-monthly" id="p-amount-lbl">Per paycheck</label>
+              <div class="ctl"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="50000" value="250" step="50" id="p-monthly" class="num wide"></div>
+            </div>
           </div>
           <div id="p-percent-fields" style="display:none;">
             <div class="field">
@@ -350,7 +361,7 @@
               <div class="ctl"><input type="number" inputmode="numeric" min="0" max="100" step="1" value="10" id="p-salary-pct" class="num"><span class="unit">%</span></div>
             </div>
           </div>
-          <p class="hint" id="p-effective-monthly">= $500 / month</p>
+          <p class="hint" id="p-effective-monthly"></p>
         </div>
 
         <div class="section">
@@ -509,6 +520,8 @@ let inflOn = false;
 let pCustomOpen = false;
 let pView = 'growth';
 
+function payPerYear() { return $('p-freq').value === 'monthly' ? 12 : 26; }
+
 function kLimit() { return Number($('k-limit').value) || 15000; }
 
 function matchesPreset() {
@@ -608,7 +621,8 @@ function renderToggles() {
   $('p-view-growth-btn').setAttribute('aria-selected', String(pView === 'growth'));
   $('p-view-div-btn').setAttribute('aria-selected', String(pView === 'div'));
   [pGrowthChart, pDivChart].forEach((c) => c && c.resize());
-  $('p-monthly-row').style.display = pMode === 'dollar' ? 'flex' : 'none';
+  $('p-monthly-row').style.display = pMode === 'dollar' ? 'block' : 'none';
+  $('p-amount-lbl').textContent = payPerYear() === 26 ? 'Per paycheck' : 'Per month';
   $('p-percent-fields').style.display = pMode === 'percent' ? 'block' : 'none';
   $('p-reinvest-switch').setAttribute('aria-checked', String(pReinvest));
   $('p-reinvest-label').textContent = pReinvest ? 'Reinvested (DRIP)' : 'Paid out as cash';
@@ -620,6 +634,7 @@ function renderToggles() {
 }
 $('p-view-growth-btn').addEventListener('click', () => { pView = 'growth'; renderToggles(); saveState(); });
 $('p-view-div-btn').addEventListener('click', () => { pView = 'div'; renderToggles(); saveState(); });
+$('p-freq').addEventListener('change', () => { renderToggles(); recomputeAll(); });
 $('p-mode').addEventListener('change', (e) => { pMode = e.target.value === 'percent' ? 'percent' : 'dollar'; renderToggles(); recomputeAll(); });
 $('p-reinvest-switch').addEventListener('click', () => { pReinvest = !pReinvest; renderToggles(); recomputeAll(); });
 $('p-custom-btn').addEventListener('click', () => { pCustomOpen = !pCustomOpen; renderToggles(); saveState(); });
@@ -660,6 +675,7 @@ function loadState() {
     if (typeof d.pCustomOpen === 'boolean') pCustomOpen = d.pCustomOpen;
     if (d.pView === 'growth' || d.pView === 'div') pView = d.pView;
     if (d.tab === 'personal' || d.tab === '401k') currentTab = d.tab;
+    if (!d.inputs || !('p-freq' in d.inputs)) $('p-freq').value = 'monthly';
   } catch (e) { /* ignore a corrupt or unavailable store */ }
 }
 
@@ -865,15 +881,19 @@ function simPersonal(p, delta) {
 function computePersonal(s) {
   const start = num('p-starting');
   const pct = num('p-salary-pct');
-  const baseMonthly = pMode === 'dollar' ? num('p-monthly') : Math.round(((s.salary * pct) / 100 / 12) * 100) / 100;
+  const perYear = payPerYear();
+  const baseMonthly = pMode === 'dollar' ? (num('p-monthly') * perYear) / 12 : Math.round(((s.salary * pct) / 100 / 12) * 100) / 100;
   const p = {
-    start, monthly: baseMonthly, growth: pMode === 'percent' ? s.raise : 0,
+    start, monthly: baseMonthly, perYear, growth: pMode === 'percent' ? s.raise : 0,
     years: s.years, alloc: pAlloc, reinvest: pReinvest, inflRate: s.inflRate,
   };
 
+  const perCheck = (baseMonthly * 12) / 26;
   $('p-effective-monthly').textContent = pMode === 'dollar'
-    ? '= ' + fmt(baseMonthly) + ' / month (stays fixed each year)'
-    : '= ' + fmt(baseMonthly) + ' / month now, from a ' + fmt(s.salary) + ' salary growing ' + s.raise + '% a year';
+    ? (perYear === 26
+        ? '= about ' + fmt(baseMonthly) + ' / month on average (26 paychecks a year). Stays fixed each year.'
+        : '= ' + fmt(baseMonthly) + ' / month. Stays fixed each year.')
+    : '= ' + fmt(baseMonthly) + ' / month now (about ' + fmt(perCheck) + ' per bi-weekly paycheck), from a ' + fmt(s.salary) + ' salary growing ' + s.raise + '% a year';
 
   const base = simPersonal(p, 0);
   const low = simPersonal(p, LOW_DELTA);
@@ -921,6 +941,7 @@ function computePersonal(s) {
     ") are held at today's levels for the whole period. The low and high cases shift every fund's return by " + LOW_DELTA + ' and +' + HIGH_DELTA +
     ' points a year to show sensitivity; they are not a forecast range.' +
     (pMode === 'percent' ? ' Monthly contributions grow each year with your annual raise.' : '') +
+    (pMode === 'dollar' && payPerYear() === 26 ? ' Bi-weekly contributions are modeled as 26 paychecks a year, spread evenly across the months.' : '') +
     (inflOn ? " Figures are in today's dollars at " + num('s-infl-rate') + '% annual inflation.' : '');
 
   return { final: finalTotal, p, series: Array.from({ length: N + 1 }, (_, y) => (base.invested[y] + base.cash[y]) * d(y)) };
@@ -1010,10 +1031,11 @@ function updateGoal(s, P, K) {
   const gap = goal - (P.final + K.final);
   const unit = simPersonal(Object.assign({}, P.p, { start: 0, monthly: 1, growth: 0 }), 0);
   const perDollar = (unit.invested[N] + unit.cash[N]) * deflator(s.inflRate, N);
-  const extra = perDollar > 0 ? Math.ceil(gap / perDollar / 5) * 5 : 0;
+  const perYear = P.p.perYear || 12;
+  const extra = perDollar > 0 ? Math.ceil(((gap / perDollar) * 12) / perYear / 5) * 5 : 0;
   el.className = 'goal-result';
   el.textContent = 'Personal + 401(k) together land about ' + fmt(gap) + ' short of ' + short(goal) + ' after ' + N + ' years.' +
-    (extra > 0 ? ' Adding about ' + fmt(extra) + ' a month to your personal account would close the gap.' : '');
+    (extra > 0 ? ' Adding about ' + fmt(extra) + (perYear === 26 ? ' per paycheck' : ' a month') + ' to your personal account would close the gap.' : '');
 }
 
 /* ---------------- sources ---------------- */
