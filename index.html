@@ -3,328 +3,498 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
 <title>Investment Growth Calculator</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
   :root {
-    --border: #e5e7eb;
-    --text: #111827;
-    --text-secondary: #6b7280;
-    --text-muted: #9ca3af;
-    --bg-gray: #f9fafb;
-    --bg-blue: #eff6ff;
-    --bg-green: #ecfdf5;
-    --bg-amber: #fffbeb;
-    --blue: #2a78d6;
+    color-scheme: light dark;
+    --bg: #f3f4f6;
+    --surface: #ffffff;
+    --surface-2: #f6f7f9;
+    --border: #e3e6ea;
+    --text: #14181f;
+    --text-2: #5b6472;
+    --text-3: #8a93a1;
+    --accent: #2a78d6;
+    --accent-ink: #1d4ed8;
+    --accent-bg: #eaf2fd;
+    --accent-border: #a9c8f2;
+    --green-bg: #e8f7f0;
+    --green-ink: #0b7a55;
+    --amber-bg: #fff7e0;
+    --amber-border: #f1d98a;
+    --amber-ink: #8a5a00;
+    --switch-off: #cbd1d9;
+    --chart-text: #7b8494;
+    --chart-grid: #e9ecf0;
+    --total: #334155;
+    --total-fill: rgba(51,65,85,0.12);
+    --shadow: 0 1px 2px rgba(16,24,40,0.06);
   }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e1116;
+      --surface: #171b22;
+      --surface-2: #1f242d;
+      --border: #2b323d;
+      --text: #eceff4;
+      --text-2: #a4adbb;
+      --text-3: #7d8797;
+      --accent: #5b9bf0;
+      --accent-ink: #8db8f7;
+      --accent-bg: #19283d;
+      --accent-border: #2f4d78;
+      --green-bg: #12291f;
+      --green-ink: #5fd0a2;
+      --amber-bg: #2b2412;
+      --amber-border: #5a4a1d;
+      --amber-ink: #e6c067;
+      --switch-off: #3a4350;
+      --chart-text: #8d97a7;
+      --chart-grid: #262c36;
+      --total: #e2e8f0;
+      --total-fill: rgba(226,232,240,0.10);
+      --shadow: none;
+    }
+  }
+
   * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background: #f3f4f6;
     margin: 0;
-    padding: 24px 12px;
+    background: var(--bg);
     color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.4;
   }
+  button, input { font-family: inherit; color: inherit; }
+  .num, .stat-value, .sum-value, .sum-part b { font-variant-numeric: tabular-nums; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ---------- sticky summary ---------- */
+  .summary {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  .summary-inner {
+    max-width: 1040px; margin: 0 auto; padding: 10px 16px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  }
+  .sum-label { display: block; font-size: 12px; color: var(--text-2); }
+  .sum-value { display: block; font-size: 26px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.1; }
+  .sum-parts { display: flex; gap: 18px; }
+  .sum-part { text-align: right; }
+  .sum-part span { display: block; font-size: 12px; color: var(--text-2); }
+  .sum-part b { display: block; font-size: 15px; font-weight: 600; }
+  @media (max-width: 380px) {
+    .summary-inner { padding: 8px 12px; gap: 8px; }
+    .sum-value { font-size: 21px; }
+    .sum-parts { gap: 10px; }
+    .sum-part b { font-size: 13px; }
+    .page { padding-left: 12px; padding-right: 12px; }
+  }
+
+  /* ---------- page ---------- */
+  .page { max-width: 1040px; margin: 0 auto; padding: 20px 16px 56px; }
+  h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; margin: 0 0 4px; }
+  .subtitle { font-size: 14px; color: var(--text-2); margin: 0 0 18px; }
   .card {
-    max-width: 780px;
-    margin: 0 auto;
-    background: white;
-    border-radius: 12px;
-    border: 1px solid var(--border);
-    padding: 24px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px; box-shadow: var(--shadow);
   }
-  h1 { font-size: 18px; font-weight: 600; margin: 0 0 2px; }
-  .subtitle { font-size: 14px; color: var(--text-secondary); margin: 0 0 20px; }
-  .tabs { display: flex; gap: 4px; background: var(--bg-gray); border-radius: 8px; padding: 4px; width: fit-content; margin-bottom: 24px; }
-  .tab-btn { font-size: 14px; padding: 6px 14px; border-radius: 6px; border: none; background: transparent; color: var(--text-secondary); cursor: pointer; }
-  .tab-btn.active { background: white; color: var(--text); font-weight: 500; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+  h2 { font-size: 16px; font-weight: 600; margin: 0; }
+  h3 { font-size: 14px; font-weight: 600; margin: 0 0 10px; color: var(--text); }
+  .link-btn {
+    background: none; border: none; padding: 8px 4px; font-size: 13px; color: var(--accent-ink);
+    cursor: pointer; text-decoration: underline; text-underline-offset: 2px;
+  }
+
+  /* ---------- fields ---------- */
+  .shared-grid { display: grid; grid-template-columns: 1fr; column-gap: 32px; }
+  @media (min-width: 700px) { .shared-grid { grid-template-columns: 1fr 1fr; } .field.wide { grid-column: 1 / -1; } }
+  .field { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; }
+  .field > label, .field > .lbl { font-size: 14px; color: var(--text); }
+  .ctl { display: flex; align-items: center; justify-content: flex-end; gap: 6px; flex-wrap: wrap; }
+  .unit { font-size: 14px; color: var(--text-2); white-space: nowrap; }
+  .ctl > .unit:last-child { min-width: 38px; }
+  .ctl.nowrap { flex-wrap: nowrap; }
+  @media (max-width: 380px) { .field { flex-wrap: wrap; } .ctl.nowrap { flex-wrap: wrap; } }
+  .field > .lbl { flex-shrink: 0; }
+  .num {
+    width: 72px; height: 40px; padding: 0 8px; text-align: right;
+    font-size: 16px; /* 16px stops iOS from zooming on focus */
+    border: 1px solid var(--border); border-radius: 8px;
+    background: var(--surface-2);
+  }
+  .num.wide { width: 112px; }
+  .num:focus { outline: 2px solid var(--accent); outline-offset: 0; background: var(--surface); }
+  .hint { font-size: 12px; color: var(--text-2); margin: 0 0 10px; }
+  .section { padding-top: 16px; margin-top: 16px; border-top: 1px solid var(--border); }
+  .section:first-child { padding-top: 0; margin-top: 0; border-top: none; }
+
+  /* ---------- tabs + segmented ---------- */
+  .tabs {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 4px; margin: 16px 0;
+  }
+  @media (min-width: 700px) { .tabs { display: inline-grid; grid-template-columns: auto auto; } }
+  .tab-btn {
+    min-height: 44px; padding: 0 22px; font-size: 15px; border: none; border-radius: 7px;
+    background: transparent; color: var(--text-2); cursor: pointer;
+  }
+  .tab-btn[aria-selected=true] { background: var(--surface); color: var(--text); font-weight: 600; box-shadow: var(--shadow); }
+  .seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 3px; gap: 3px; }
+  .seg button {
+    min-height: 40px; padding: 0 12px; font-size: 14px; border: none; border-radius: 6px;
+    background: transparent; color: var(--text-2); cursor: pointer;
+  }
+  .seg button.active { background: var(--surface); color: var(--text); font-weight: 600; box-shadow: var(--shadow); }
+  .strategies { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .strat-btn {
+    min-height: 44px; padding: 6px 8px; font-size: 13px; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--surface); color: var(--text-2); cursor: pointer;
+  }
+  .strat-btn.active { background: var(--accent-bg); border-color: var(--accent-border); color: var(--accent-ink); font-weight: 600; }
+
+  /* ---------- switch ---------- */
+  .switch {
+    position: relative; width: 52px; height: 30px; flex-shrink: 0; border: none; border-radius: 15px;
+    background: var(--switch-off); cursor: pointer; transition: background .2s;
+  }
+  .switch[aria-checked=true] { background: var(--accent); }
+  .switch::after {
+    content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%;
+    background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.25); transition: transform .2s;
+  }
+  .switch[aria-checked=true]::after { transform: translateX(22px); }
+  @media (prefers-reduced-motion: reduce) { .switch, .switch::after { transition: none; } }
+
+  /* ---------- allocation ---------- */
+  .alloc { margin-bottom: 8px; }
+  .alloc-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .alloc-head label { font-size: 14px; display: flex; align-items: center; gap: 8px; }
+  .alloc-head .muted { color: var(--text-2); font-size: 12px; }
+  .alloc input[type=range] { width: 100%; height: 32px; margin: 0; accent-color: var(--accent); }
+  .dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; flex-shrink: 0; }
+  .alloc-bar { display: flex; height: 26px; border-radius: 6px; overflow: hidden; background: var(--surface-2); margin: 4px 0 8px; }
+  .alloc-bar span { display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; transition: width .15s; }
+  @media (prefers-reduced-motion: reduce) { .alloc-bar span { transition: none; } }
+
+  /* ---------- layout ---------- */
   .panel { display: none; }
   .panel.active { display: block; }
-  .strategies { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 20px; }
-  @media (min-width: 560px) { .strategies { grid-template-columns: repeat(4, 1fr); } }
-  .strat-btn { font-size: 12px; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: white; color: var(--text-secondary); cursor: pointer; text-align: center; }
-  .strat-btn.active { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
-  .row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
-  .row label { width: 128px; flex-shrink: 0; font-size: 13px; color: var(--text-secondary); display: flex; align-items: center; gap: 8px; }
-  .row input[type=range] { flex: 1; min-width: 80px; accent-color: var(--blue); }
-  .num-input { width: 48px; text-align: right; font-size: 13px; font-family: 'SFMono-Regular', Consolas, monospace; border: 1px solid var(--border); border-radius: 4px; padding: 3px 6px; }
-  .num-input.wide { width: 90px; text-align: left; }
-  .unit { font-size: 13px; color: var(--text-secondary); }
-  .dot { width: 8px; height: 8px; border-radius: 2px; display: inline-block; flex-shrink: 0; }
-  .section { margin-bottom: 28px; }
-  .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin: 0 0 14px; }
-  .mode-toggle { display: flex; gap: 2px; background: var(--bg-gray); border-radius: 6px; padding: 2px; }
-  .mode-btn { font-size: 12px; padding: 4px 10px; border-radius: 4px; border: none; background: transparent; color: var(--text-secondary); cursor: pointer; }
-  .mode-btn.active { background: white; color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
-  .effective { flex-basis: 100%; margin-left: 138px; font-size: 12px; font-weight: 500; font-family: monospace; color: var(--text-secondary); }
-  .switch { position: relative; width: 44px; height: 24px; border-radius: 12px; border: none; cursor: pointer; background: #d1d5db; transition: background 0.2s; flex-shrink: 0; }
-  .switch.on { background: var(--blue); }
-  .switch-knob { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: white; border-radius: 50%; box-shadow: 0 1px 2px rgba(0,0,0,0.2); transition: transform 0.2s; }
-  .switch.on .switch-knob { transform: translateX(20px); }
-  .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 20px 0; }
-  @media (min-width: 560px) { .stats { grid-template-columns: repeat(5, 1fr); } }
-  .stat { background: var(--bg-gray); border-radius: 8px; padding: 12px; }
-  .stat.blue { background: var(--bg-blue); }
-  .stat.green { background: var(--bg-green); }
-  .stat-label { font-size: 12px; color: var(--text-secondary); margin: 0 0 4px; }
-  .stat.blue .stat-label { color: #1d4ed8; }
-  .stat.green .stat-label { color: #047857; }
-  .stat-value { font-size: 16px; font-weight: 600; font-family: monospace; margin: 0; }
-  .stat.blue .stat-value { color: #1d4ed8; }
-  .stat.green .stat-value { color: #047857; }
-  .warn { background: var(--bg-amber); border: 1px solid #fde68a; border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #92400e; margin-bottom: 20px; }
-  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; }
-  .legend span { display: flex; align-items: center; gap: 4px; }
-  .chart-title { font-size: 14px; font-weight: 500; color: #374151; margin: 0 0 8px; }
-  .chart-wrap { position: relative; width: 100%; height: 260px; margin-bottom: 24px; }
-  .footnote { font-size: 11px; color: var(--text-muted); margin-top: 20px; line-height: 1.5; }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .layout > * { min-width: 0; }
+  @media (min-width: 900px) {
+    .layout { grid-template-columns: 340px minmax(0, 1fr); align-items: start; }
+    .inputs-col { grid-column: 1; grid-row: 1; }
+    .results-col { grid-column: 2; grid-row: 1; }
+  }
+
+  /* ---------- results ---------- */
+  .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+  @media (min-width: 560px) { .stats { grid-template-columns: repeat(3, 1fr); } }
+  .stat { background: var(--surface-2); border-radius: 10px; padding: 12px; }
+  .stat.hero { grid-column: 1 / -1; background: var(--accent-bg); }
+  .stat-label { font-size: 12px; color: var(--text-2); margin: 0 0 2px; }
+  .stat-value { font-size: 17px; font-weight: 600; margin: 0; }
+  .stat.hero .stat-label { color: var(--accent-ink); font-size: 13px; }
+  .stat.hero .stat-value { font-size: 30px; font-weight: 700; color: var(--accent-ink); letter-spacing: -0.01em; }
+  .stat.green .stat-value { color: var(--green-ink); }
+  .warn { background: var(--amber-bg); border: 1px solid var(--amber-border); color: var(--amber-ink); border-radius: 8px; padding: 10px 12px; font-size: 13px; margin-top: 12px; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 6px; margin-bottom: 6px; }
+  .lg {
+    display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 10px;
+    font-size: 12px; border: 1px solid var(--border); border-radius: 16px;
+    background: var(--surface); color: var(--text-2); cursor: pointer;
+  }
+  .lg[aria-pressed=false] { opacity: .45; text-decoration: line-through; }
+  .lg-sw { width: 16px; height: 0; border-top: 3px solid; flex-shrink: 0; }
+  .lg-sw.box { height: 10px; width: 10px; border: none; border-radius: 3px; }
+  .chart-wrap { position: relative; width: 100%; height: 280px; margin-bottom: 22px; }
+  .footnote { font-size: 12px; color: var(--text-2); line-height: 1.5; margin: 0 0 8px; }
 </style>
 </head>
 <body>
-<div class="card">
-  <h1>Investment growth calculator</h1>
-  <p class="subtitle">Model your personal brokerage account or your workplace 401(k)</p>
 
-  <div class="tabs">
-    <button class="tab-btn active" id="tab-personal-btn" onclick="switchTab('personal')">Personal investing</button>
-    <button class="tab-btn" id="tab-401k-btn" onclick="switchTab('401k')">401(k)</button>
+<header class="summary" aria-live="polite">
+  <div class="summary-inner">
+    <div>
+      <span class="sum-label" id="s-label">Combined after 25 years</span>
+      <span class="sum-value" id="s-total">$0</span>
+    </div>
+    <div class="sum-parts">
+      <div class="sum-part"><span>Personal</span><b id="s-personal">$0</b></div>
+      <div class="sum-part"><span>401(k)</span><b id="s-k401">$0</b></div>
+    </div>
+  </div>
+</header>
+
+<main class="page">
+  <h1>Investment growth calculator</h1>
+  <p class="subtitle">Model your personal brokerage account and your workplace 401(k) side by side.</p>
+
+  <section class="card" aria-labelledby="shared-h">
+    <div class="card-head">
+      <h2 id="shared-h">Applies to both accounts</h2>
+      <button class="link-btn" id="reset-btn" type="button">Reset to defaults</button>
+    </div>
+    <div class="shared-grid">
+      <div class="field">
+        <label for="s-years">Years to invest</label>
+        <div class="ctl"><input type="number" inputmode="numeric" min="1" max="80" value="25" id="s-years" class="num"><span class="unit">yrs</span></div>
+      </div>
+      <div class="field">
+        <label for="s-salary">Annual salary</label>
+        <div class="ctl"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="2000000" value="70000" id="s-salary" class="num wide"><span class="unit">/ yr</span></div>
+      </div>
+      <div class="field">
+        <label for="s-raise">Annual raise</label>
+        <div class="ctl"><input type="number" inputmode="decimal" min="0" max="50" step="0.5" value="3" id="s-raise" class="num"><span class="unit">%</span></div>
+      </div>
+      <div class="field">
+        <span class="lbl" id="s-infl-lbl">Today's dollars</span>
+        <div class="ctl nowrap">
+          <input type="number" inputmode="decimal" min="0" max="20" step="0.5" value="2.5" id="s-infl-rate" class="num" aria-label="Inflation rate per year">
+          <span class="unit">% / yr</span>
+          <button class="switch" id="s-infl-switch" type="button" role="switch" aria-checked="false" aria-labelledby="s-infl-lbl"></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="tabs" role="tablist">
+    <button class="tab-btn" id="tab-personal-btn" role="tab" aria-selected="true" aria-controls="panel-personal" type="button">Personal investing</button>
+    <button class="tab-btn" id="tab-401k-btn" role="tab" aria-selected="false" aria-controls="panel-401k" type="button">401(k)</button>
   </div>
 
   <!-- PERSONAL TAB -->
-  <div class="panel active" id="panel-personal">
-    <div class="section">
-      <p class="section-title">Allocation</p>
-      <div class="strategies" id="p-strategies">
-        <button class="strat-btn" data-voo="60" data-qqq="25" data-schd="15">Growth-tilted</button>
-        <button class="strat-btn active" data-voo="50" data-qqq="25" data-schd="25">Balanced</button>
-        <button class="strat-btn" data-voo="50" data-qqq="15" data-schd="35">Income-leaning</button>
-        <button class="strat-btn" data-voo="60" data-qqq="40" data-schd="0">Simplified 2-fund</button>
-      </div>
-
-      <div class="row">
-        <label><span class="dot" style="background:#2a78d6"></span>VOO · 1.1% div</label>
-        <input type="range" min="0" max="100" step="1" value="50" id="p-voo-range">
-        <input type="number" min="0" max="100" value="50" id="p-voo-num" class="num-input">
-        <span class="unit">%</span>
-      </div>
-      <div class="row">
-        <label><span class="dot" style="background:#eb6834"></span>QQQM · 0.4% div</label>
-        <input type="range" min="0" max="100" step="1" value="25" id="p-qqq-range">
-        <input type="number" min="0" max="100" value="25" id="p-qqq-num" class="num-input">
-        <span class="unit">%</span>
-      </div>
-      <div class="row">
-        <label><span class="dot" style="background:#1baf7a"></span>SCHD · 3.2% div</label>
-        <input type="range" min="0" max="100" step="1" value="25" id="p-schd-range">
-        <input type="number" min="0" max="100" value="25" id="p-schd-num" class="num-input">
-        <span class="unit">%</span>
-      </div>
-
-      <div class="row">
-        <label>Starting balance</label>
-        <span class="unit">$</span>
-        <input type="number" min="0" max="5000000" value="0" id="p-starting" class="num-input wide">
-      </div>
-    </div>
-
-    <div class="section">
-      <p class="section-title">Contribution</p>
-      <div class="row">
-        <label>Amount</label>
-        <div class="mode-toggle">
-          <button class="mode-btn active" id="p-mode-dollar" onclick="setPersonalMode('dollar')">Fixed $</button>
-          <button class="mode-btn" id="p-mode-percent" onclick="setPersonalMode('percent')">% of salary</button>
+  <div class="panel active" id="panel-personal" role="tabpanel" aria-labelledby="tab-personal-btn">
+    <div class="layout">
+      <section class="card results-col" aria-label="Personal investing results">
+        <div class="stats">
+          <div class="stat hero"><p class="stat-label">Total net worth</p><p class="stat-value" id="p-stat-total">$0</p></div>
+          <div class="stat"><p class="stat-label">Starting balance</p><p class="stat-value" id="p-stat-starting">$0</p></div>
+          <div class="stat"><p class="stat-label">You contributed</p><p class="stat-value" id="p-stat-contributed">$0</p></div>
+          <div class="stat green"><p class="stat-label">Investment growth</p><p class="stat-value" id="p-stat-gain">$0</p></div>
+          <div class="stat"><p class="stat-label">Invested value</p><p class="stat-value" id="p-stat-invested">$0</p></div>
+          <div class="stat"><p class="stat-label">Cash (not reinvested)</p><p class="stat-value" id="p-stat-cash">$0</p></div>
         </div>
-        <span class="effective" id="p-effective-monthly">= $500/mo</span>
-      </div>
 
-      <div class="row" id="p-monthly-row">
-        <label>Monthly</label>
-        <span class="unit">$</span>
-        <input type="number" min="0" max="5000" value="500" id="p-monthly" class="num-input wide">
-      </div>
+        <h3>Portfolio growth</h3>
+        <div class="legend" id="p-growth-legend"></div>
+        <div class="chart-wrap"><canvas id="p-growth-chart" role="img" aria-label="Portfolio growth over time"></canvas></div>
 
-      <div id="p-percent-fields" style="display:none;">
-        <div class="row">
-          <label>Annual salary</label>
-          <span class="unit">$</span>
-          <input type="number" min="0" max="2000000" value="70000" id="p-salary" class="num-input wide">
+        <h3>Estimated annual dividend payout by fund</h3>
+        <div class="legend" id="p-div-legend"></div>
+        <div class="chart-wrap"><canvas id="p-div-chart" role="img" aria-label="Annual dividend payout by fund"></canvas></div>
+
+        <p class="footnote" id="p-footnote"></p>
+      </section>
+
+      <section class="card inputs-col" aria-label="Personal investing inputs">
+        <div class="section">
+          <h3>Allocation</h3>
+          <div class="strategies" id="p-strategies">
+            <button class="strat-btn" type="button" data-voo="60" data-qqq="25" data-schd="15">Growth-tilted</button>
+            <button class="strat-btn" type="button" data-voo="50" data-qqq="25" data-schd="25">Balanced</button>
+            <button class="strat-btn" type="button" data-voo="50" data-qqq="15" data-schd="35">Income-leaning</button>
+            <button class="strat-btn" type="button" data-voo="60" data-qqq="40" data-schd="0">Simplified 2-fund</button>
+          </div>
+          <div class="alloc-bar" id="p-alloc-bar" aria-hidden="true"></div>
+          <div class="alloc">
+            <div class="alloc-head">
+              <label for="p-voo-num"><span class="dot" style="background:var(--c-voo)"></span>VOO <span class="muted" data-yield="voo"></span></label>
+              <div class="ctl"><input type="number" inputmode="numeric" min="0" max="100" value="50" id="p-voo-num" class="num"><span class="unit">%</span></div>
+            </div>
+            <input type="range" min="0" max="100" step="1" value="50" id="p-voo-range" aria-label="VOO allocation">
+          </div>
+          <div class="alloc">
+            <div class="alloc-head">
+              <label for="p-qqq-num"><span class="dot" style="background:var(--c-qqq)"></span>QQQM <span class="muted" data-yield="qqq"></span></label>
+              <div class="ctl"><input type="number" inputmode="numeric" min="0" max="100" value="25" id="p-qqq-num" class="num"><span class="unit">%</span></div>
+            </div>
+            <input type="range" min="0" max="100" step="1" value="25" id="p-qqq-range" aria-label="QQQM allocation">
+          </div>
+          <div class="alloc">
+            <div class="alloc-head">
+              <label for="p-schd-num"><span class="dot" style="background:var(--c-schd)"></span>SCHD <span class="muted" data-yield="schd"></span></label>
+              <div class="ctl"><input type="number" inputmode="numeric" min="0" max="100" value="25" id="p-schd-num" class="num"><span class="unit">%</span></div>
+            </div>
+            <input type="range" min="0" max="100" step="1" value="25" id="p-schd-range" aria-label="SCHD allocation">
+          </div>
+          <p class="hint">The three always add up to 100%. Changing one rebalances the others.</p>
         </div>
-        <div class="row">
-          <label>% invested</label>
-          <input type="number" min="0" max="100" step="1" value="10" id="p-salary-pct" class="num-input">
-          <span class="unit">%</span>
+
+        <div class="section">
+          <h3>Contributions</h3>
+          <div class="seg" id="p-mode">
+            <button type="button" class="active" id="p-mode-dollar">Fixed $ / month</button>
+            <button type="button" id="p-mode-percent">% of salary</button>
+          </div>
+          <div id="p-monthly-row" class="field">
+            <label for="p-monthly">Per month</label>
+            <div class="ctl"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="50000" value="500" id="p-monthly" class="num wide"></div>
+          </div>
+          <div id="p-percent-fields" style="display:none;">
+            <div class="field">
+              <label for="p-salary-pct">Share of salary</label>
+              <div class="ctl"><input type="number" inputmode="numeric" min="0" max="100" step="1" value="10" id="p-salary-pct" class="num"><span class="unit">%</span></div>
+            </div>
+          </div>
+          <p class="hint" id="p-effective-monthly">= $500 / month</p>
         </div>
-        <div class="row">
-          <label>Annual raise</label>
-          <input type="number" min="0" max="50" step="0.5" value="3" id="p-salary-growth" class="num-input">
-          <span class="unit">%</span>
+
+        <div class="section">
+          <h3>Starting point &amp; dividends</h3>
+          <div class="field">
+            <label for="p-starting">Starting balance</label>
+            <div class="ctl"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="5000000" value="0" id="p-starting" class="num wide"></div>
+          </div>
+          <div class="field">
+            <span class="lbl" id="p-reinvest-lbl">Reinvest dividends</span>
+            <div class="ctl nowrap">
+              <span class="unit" id="p-reinvest-label">Reinvested (DRIP)</span>
+              <button class="switch" id="p-reinvest-switch" type="button" role="switch" aria-checked="true" aria-labelledby="p-reinvest-lbl"></button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-
-    <div class="section">
-      <p class="section-title">Time horizon &amp; dividends</p>
-      <div class="row">
-        <label>Years</label>
-        <input type="number" min="1" max="80" value="25" id="p-years" class="num-input">
-        <span class="unit">yrs</span>
-      </div>
-
-      <div class="row">
-        <label>Dividends</label>
-        <button class="switch on" id="p-reinvest-switch" onclick="togglePersonalReinvest()"><span class="switch-knob"></span></button>
-        <span class="unit" id="p-reinvest-label">Reinvested (DRIP)</span>
-      </div>
-    </div>
-
-    <div class="section">
-      <p class="section-title">Results</p>
-      <div class="stats">
-        <div class="stat"><p class="stat-label">Starting balance</p><p class="stat-value" id="p-stat-starting">$0</p></div>
-        <div class="stat"><p class="stat-label">Contributed</p><p class="stat-value" id="p-stat-contributed">$0</p></div>
-        <div class="stat"><p class="stat-label">Invested value</p><p class="stat-value" id="p-stat-invested">$0</p></div>
-        <div class="stat"><p class="stat-label">Cash (not reinvested)</p><p class="stat-value" id="p-stat-cash">$0</p></div>
-        <div class="stat blue"><p class="stat-label">Total net worth</p><p class="stat-value" id="p-stat-total">$0</p></div>
-      </div>
-
-      <p class="chart-title">Portfolio growth</p>
-      <div class="legend">
-        <span><span class="dot" style="background:#94a3b8"></span>Contributed</span>
-        <span><span class="dot" style="background:#334155"></span>Invested value (total)</span>
-        <span><span class="dot" style="background:#c98500"></span>Cash from dividends</span>
-        <span><span class="dot" style="background:#2a78d6"></span>VOO</span>
-        <span><span class="dot" style="background:#eb6834"></span>QQQM</span>
-        <span><span class="dot" style="background:#1baf7a"></span>SCHD</span>
-      </div>
-      <div class="chart-wrap"><canvas id="p-growth-chart"></canvas></div>
-
-      <p class="chart-title">Estimated annual dividend payout by fund</p>
-      <div class="legend">
-        <span><span class="dot" style="background:#2a78d6"></span>VOO</span>
-        <span><span class="dot" style="background:#eb6834"></span>QQQM</span>
-        <span><span class="dot" style="background:#1baf7a"></span>SCHD</span>
-      </div>
-      <div class="chart-wrap"><canvas id="p-div-chart"></canvas></div>
-
-      <p class="footnote" id="p-footnote"></p>
+      </section>
     </div>
   </div>
 
   <!-- 401(K) TAB -->
-  <div class="panel" id="panel-401k">
-    <div class="section">
-      <p class="section-title">Growth assumptions</p>
-      <div class="row">
-        <label>Expected return</label>
-        <input type="number" min="0" max="30" step="0.5" value="7" id="k-return" class="num-input">
-        <span class="unit">% / yr</span>
-      </div>
-      <p class="footnote" style="margin-top:-8px;margin-bottom:20px;">Diversified 401(k) plans have historically returned around 5-8% annually; 7% is a commonly cited long-run average.</p>
+  <div class="panel" id="panel-401k" role="tabpanel" aria-labelledby="tab-401k-btn">
+    <div class="layout">
+      <section class="card results-col" aria-label="401(k) results">
+        <div class="stats">
+          <div class="stat hero"><p class="stat-label">Final 401(k) value</p><p class="stat-value" id="k-stat-final">$0</p></div>
+          <div class="stat"><p class="stat-label">Starting balance</p><p class="stat-value" id="k-stat-starting">$0</p></div>
+          <div class="stat"><p class="stat-label">Your contributions</p><p class="stat-value" id="k-stat-employee">$0</p></div>
+          <div class="stat green"><p class="stat-label">Employer match</p><p class="stat-value" id="k-stat-employer">$0</p></div>
+          <div class="stat"><p class="stat-label">Combined contributed</p><p class="stat-value" id="k-stat-combined">$0</p></div>
+          <div class="stat green"><p class="stat-label">Investment growth</p><p class="stat-value" id="k-stat-gain">$0</p></div>
+        </div>
 
-      <div class="row">
-        <label>Starting balance</label>
-        <span class="unit">$</span>
-        <input type="number" min="0" max="5000000" value="0" id="k-starting" class="num-input wide">
-      </div>
-    </div>
+        <h3>401(k) growth</h3>
+        <div class="legend" id="k-growth-legend"></div>
+        <div class="chart-wrap"><canvas id="k-growth-chart" role="img" aria-label="401(k) growth over time"></canvas></div>
 
-    <div class="section">
-      <p class="section-title">Salary &amp; contributions</p>
-      <div class="row">
-        <label>Annual salary</label>
-        <span class="unit">$</span>
-        <input type="number" min="0" max="2000000" value="70000" id="k-salary" class="num-input wide">
-      </div>
-      <div class="row">
-        <label>Your contribution</label>
-        <input type="number" min="0" max="100" step="1" value="10" id="k-contrib-pct" class="num-input">
-        <span class="unit">% of salary</span>
-      </div>
-      <div class="row">
-        <label>Employer match</label>
-        <input type="number" min="0" max="200" step="1" value="50" id="k-match-rate" class="num-input">
-        <span class="unit">% up to</span>
-        <input type="number" min="0" max="100" step="1" value="6" id="k-match-cap" class="num-input">
-        <span class="unit">% of salary</span>
-      </div>
-      <div class="row">
-        <label>Annual raise</label>
-        <input type="number" min="0" max="50" step="0.5" value="3" id="k-growth" class="num-input">
-        <span class="unit">%</span>
-      </div>
-    </div>
+        <p class="footnote" id="k-footnote"></p>
+      </section>
 
-    <div class="section">
-      <p class="section-title">Time horizon</p>
-      <div class="row">
-        <label>Years</label>
-        <input type="number" min="1" max="80" value="25" id="k-years" class="num-input">
-        <span class="unit">yrs</span>
-      </div>
+      <section class="card inputs-col" aria-label="401(k) inputs">
+        <div class="section">
+          <h3>Growth assumptions</h3>
+          <div class="field">
+            <label for="k-return">Expected return</label>
+            <div class="ctl"><input type="number" inputmode="decimal" min="0" max="30" step="0.5" value="7" id="k-return" class="num"><span class="unit">% / yr</span></div>
+          </div>
+          <p class="hint">Diversified 401(k) plans have historically returned around 5-8% a year; 7% is a commonly cited long-run average.</p>
+          <div class="field">
+            <label for="k-starting">Starting balance</label>
+            <div class="ctl"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="5000000" value="0" id="k-starting" class="num wide"></div>
+          </div>
+        </div>
 
-      <div class="warn" id="k-warn" style="display:none;">
-        Your contribution rate hits the 2026 IRS employee deferral limit of $24,500/year in at least one year of this projection, so it's capped there for that year onward.
-      </div>
-    </div>
-
-    <div class="section">
-      <p class="section-title">Results</p>
-      <div class="stats">
-        <div class="stat"><p class="stat-label">Starting balance</p><p class="stat-value" id="k-stat-starting">$0</p></div>
-        <div class="stat"><p class="stat-label">Your contributions</p><p class="stat-value" id="k-stat-employee">$0</p></div>
-        <div class="stat green"><p class="stat-label">Employer match</p><p class="stat-value" id="k-stat-employer">$0</p></div>
-        <div class="stat"><p class="stat-label">Combined contributed</p><p class="stat-value" id="k-stat-combined">$0</p></div>
-        <div class="stat blue"><p class="stat-label">Final value</p><p class="stat-value" id="k-stat-final">$0</p></div>
-      </div>
-
-      <p class="chart-title">401(k) growth</p>
-      <div class="legend">
-        <span><span class="dot" style="background:#94a3b8"></span>Your contributions</span>
-        <span><span class="dot" style="background:#1baf7a"></span>+ Employer match</span>
-        <span><span class="dot" style="background:#334155"></span>Portfolio value</span>
-      </div>
-      <div class="chart-wrap"><canvas id="k-growth-chart"></canvas></div>
-
-      <p class="footnote">2026 IRS employee deferral limit is $24,500 (before any age-50+ catch-up). Employer match assumes immediate full vesting and doesn't model plan-specific vesting schedules, the combined $72,000 employee-plus-employer cap (rarely reached at typical contribution levels), or taxes owed on withdrawal.</p>
+        <div class="section">
+          <h3>Contributions</h3>
+          <div class="field">
+            <label for="k-contrib-pct">Your contribution</label>
+            <div class="ctl"><input type="number" inputmode="numeric" min="0" max="100" step="1" value="10" id="k-contrib-pct" class="num"><span class="unit">% of salary</span></div>
+          </div>
+          <div class="field">
+            <label for="k-match-rate">Employer match</label>
+            <div class="ctl">
+              <input type="number" inputmode="numeric" min="0" max="200" step="1" value="50" id="k-match-rate" class="num"><span class="unit">% up to</span>
+              <input type="number" inputmode="numeric" min="0" max="100" step="1" value="6" id="k-match-cap" class="num" aria-label="Match cap, percent of salary"><span class="unit">% of salary</span>
+            </div>
+          </div>
+          <div class="warn" id="k-warn" style="display:none;">
+            Your contribution hits the 2026 IRS employee deferral limit of $24,500 a year in at least one year of this projection, so it's capped there from then on.
+          </div>
+        </div>
+      </section>
     </div>
   </div>
-</div>
+</main>
 
 <script>
 const RATES = {
-  voo: { total: 10.5, div: 1.1, label: 'VOO', color: '#2a78d6' },
-  qqq: { total: 12, div: 0.4, label: 'QQQM', color: '#eb6834' },
+  voo:  { total: 10.5,  div: 1.1, label: 'VOO',  color: '#2a78d6' },
+  qqq:  { total: 12,    div: 0.4, label: 'QQQM', color: '#eb6834' },
   schd: { total: 10.07, div: 3.2, label: 'SCHD', color: '#1baf7a' },
 };
+const FUNDS = ['voo', 'qqq', 'schd'];
 const CASH_COLOR = '#c98500';
 const CONTRIB_COLOR = '#94a3b8';
 const MATCH_COLOR = '#1baf7a';
-const TOTAL_COLOR = '#334155';
-const TOTAL_FILL = 'rgba(51,65,85,0.12)';
 const IRS_401K_LIMIT_2026 = 24500;
+const LOW_DELTA = -3;   // low case: returns 3 points lower every year
+const HIGH_DELTA = 2;   // high case: returns 2 points higher every year
+const STORE_KEY = 'investcalc.v1';
+const MAX_YEARS = 80;
 
-function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
+FUNDS.forEach((f) => document.documentElement.style.setProperty('--c-' + f, RATES[f].color));
 
-function switchTab(tab) {
-  document.getElementById('panel-personal').classList.toggle('active', tab === 'personal');
-  document.getElementById('panel-401k').classList.toggle('active', tab === '401k');
-  document.getElementById('tab-personal-btn').classList.toggle('active', tab === 'personal');
-  document.getElementById('tab-401k-btn').classList.toggle('active', tab === '401k');
+const $ = (id) => document.getElementById(id);
+const num = (id) => Number($(id).value) || 0;
+function fmt(n) { return (n < 0 ? '-$' : '$') + Math.abs(Math.round(n)).toLocaleString(); }
+function short(v) {
+  const a = Math.abs(v);
+  if (a >= 1e6) return '$' + (v / 1e6).toFixed(a >= 1e7 ? 0 : 1).replace(/\.0$/, '') + 'M';
+  if (a >= 1e3) return '$' + Math.round(v / 1e3) + 'k';
+  return '$' + Math.round(v);
 }
 
-/* ---------------- Personal tab ---------------- */
+/* ---------------- shared state ---------------- */
+let currentTab = 'personal';
 let pAlloc = { voo: 50, qqq: 25, schd: 25 };
 let pMode = 'dollar';
 let pReinvest = true;
+let inflOn = false;
 
+function shared() {
+  const years = Math.min(MAX_YEARS, Math.max(1, Math.round(num('s-years')) || 1));
+  return {
+    years,
+    salary: num('s-salary'),
+    raise: num('s-raise'),
+    inflRate: inflOn ? num('s-infl-rate') : 0,
+  };
+}
+// Multiply a nominal amount at year y by this to express it in the chosen dollars.
+function deflator(inflRate, y) { return Math.pow(1 + inflRate / 100, -y); }
+
+/* ---------------- tabs ---------------- */
+function switchTab(tab) {
+  currentTab = tab;
+  $('panel-personal').classList.toggle('active', tab === 'personal');
+  $('panel-401k').classList.toggle('active', tab === '401k');
+  $('tab-personal-btn').setAttribute('aria-selected', String(tab === 'personal'));
+  $('tab-401k-btn').setAttribute('aria-selected', String(tab === '401k'));
+  saveState();
+  // Charts sized while hidden can be stale; nudge them once the panel is visible.
+  [pGrowthChart, pDivChart, kGrowthChart].forEach((c) => c && c.resize());
+}
+$('tab-personal-btn').addEventListener('click', () => switchTab('personal'));
+$('tab-401k-btn').addEventListener('click', () => switchTab('401k'));
+
+/* ---------------- allocation ---------------- */
 function normalizeAlloc(alloc, key, rawValue) {
-  const value = Math.max(0, Math.min(100, Number(rawValue)));
+  const value = Math.max(0, Math.min(100, Number(rawValue) || 0));
   const keys = Object.keys(alloc);
   const others = keys.filter((k) => k !== key);
   const remaining = 100 - value;
   const othersSum = others.reduce((s, k) => s + alloc[k], 0);
-  let next = { [key]: value };
+  const next = { [key]: value };
   if (othersSum <= 0) {
     others.forEach((k) => (next[k] = remaining / others.length));
   } else {
@@ -337,339 +507,443 @@ function normalizeAlloc(alloc, key, rawValue) {
 }
 
 function syncAllocInputs() {
-  ['voo', 'qqq', 'schd'].forEach((f) => {
-    document.getElementById('p-' + f + '-range').value = pAlloc[f];
-    document.getElementById('p-' + f + '-num').value = pAlloc[f];
+  FUNDS.forEach((f) => {
+    $('p-' + f + '-range').value = pAlloc[f];
+    $('p-' + f + '-num').value = pAlloc[f];
+  });
+  const bar = $('p-alloc-bar');
+  bar.innerHTML = '';
+  FUNDS.forEach((f) => {
+    const seg = document.createElement('span');
+    seg.style.width = pAlloc[f] + '%';
+    seg.style.background = RATES[f].color;
+    seg.textContent = pAlloc[f] >= 24 ? RATES[f].label + ' ' + pAlloc[f] + '%' : pAlloc[f] >= 8 ? pAlloc[f] + '%' : '';
+    seg.title = RATES[f].label + ' ' + pAlloc[f] + '%';
+    bar.appendChild(seg);
+  });
+  document.querySelectorAll('#p-strategies .strat-btn').forEach((b) => {
+    const match = FUNDS.every((f) => Number(b.dataset[f]) === pAlloc[f]);
+    b.classList.toggle('active', match);
   });
 }
 
-function clearStrategyActive() {
-  document.querySelectorAll('#p-strategies .strat-btn').forEach((b) => b.classList.remove('active'));
-}
-
-['voo', 'qqq', 'schd'].forEach((f) => {
+FUNDS.forEach((f) => {
   ['range', 'num'].forEach((kind) => {
-    document.getElementById('p-' + f + '-' + kind).addEventListener('input', (e) => {
+    $('p-' + f + '-' + kind).addEventListener('input', (e) => {
       pAlloc = normalizeAlloc(pAlloc, f, e.target.value);
-      clearStrategyActive();
       syncAllocInputs();
-      computePersonal();
+      recomputeAll();
     });
   });
+  document.querySelector('[data-yield="' + f + '"]').textContent = RATES[f].div + '% dividend';
 });
 
 document.querySelectorAll('#p-strategies .strat-btn').forEach((btn) => {
   btn.addEventListener('click', () => {
     pAlloc = { voo: Number(btn.dataset.voo), qqq: Number(btn.dataset.qqq), schd: Number(btn.dataset.schd) };
-    clearStrategyActive();
-    btn.classList.add('active');
     syncAllocInputs();
-    computePersonal();
+    recomputeAll();
   });
 });
 
-function setPersonalMode(mode) {
-  pMode = mode;
-  document.getElementById('p-mode-dollar').classList.toggle('active', mode === 'dollar');
-  document.getElementById('p-mode-percent').classList.toggle('active', mode === 'percent');
-  document.getElementById('p-monthly-row').style.display = mode === 'dollar' ? 'flex' : 'none';
-  document.getElementById('p-percent-fields').style.display = mode === 'percent' ? 'block' : 'none';
-  computePersonal();
+/* ---------------- toggles ---------------- */
+function renderToggles() {
+  $('p-mode-dollar').classList.toggle('active', pMode === 'dollar');
+  $('p-mode-percent').classList.toggle('active', pMode === 'percent');
+  $('p-monthly-row').style.display = pMode === 'dollar' ? 'flex' : 'none';
+  $('p-percent-fields').style.display = pMode === 'percent' ? 'block' : 'none';
+  $('p-reinvest-switch').setAttribute('aria-checked', String(pReinvest));
+  $('p-reinvest-label').textContent = pReinvest ? 'Reinvested (DRIP)' : 'Paid out as cash';
+  $('s-infl-switch').setAttribute('aria-checked', String(inflOn));
+  $('s-infl-rate').style.opacity = inflOn ? '1' : '0.5';
 }
+$('p-mode-dollar').addEventListener('click', () => { pMode = 'dollar'; renderToggles(); recomputeAll(); });
+$('p-mode-percent').addEventListener('click', () => { pMode = 'percent'; renderToggles(); recomputeAll(); });
+$('p-reinvest-switch').addEventListener('click', () => { pReinvest = !pReinvest; renderToggles(); recomputeAll(); });
+$('s-infl-switch').addEventListener('click', () => { inflOn = !inflOn; renderToggles(); recomputeAll(); });
 
-function togglePersonalReinvest() {
-  pReinvest = !pReinvest;
-  document.getElementById('p-reinvest-switch').classList.toggle('on', pReinvest);
-  document.getElementById('p-reinvest-label').textContent = pReinvest ? 'Reinvested (DRIP)' : 'Paid out as cash';
-  computePersonal();
-}
+[
+  's-years', 's-salary', 's-raise', 's-infl-rate',
+  'p-starting', 'p-monthly', 'p-salary-pct',
+  'k-return', 'k-starting', 'k-contrib-pct', 'k-match-rate', 'k-match-cap',
+].forEach((id) => $(id).addEventListener('input', recomputeAll));
 
-['p-starting', 'p-monthly', 'p-salary', 'p-salary-pct', 'p-salary-growth', 'p-years'].forEach((id) => {
-  document.getElementById(id).addEventListener('input', computePersonal);
-});
-
-let pGrowthChart, pDivChart;
-
-function initPersonalCharts() {
-  if (typeof Chart === 'undefined') {
-    showChartFallback('p-growth-chart');
-    showChartFallback('p-div-chart');
-    return;
-  }
+/* ---------------- persistence ---------------- */
+function saveState() {
   try {
-    const gctx = document.getElementById('p-growth-chart').getContext('2d');
-  pGrowthChart = new Chart(gctx, {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: [
-        { label: 'Invested value (total)', data: [], borderColor: TOTAL_COLOR, backgroundColor: TOTAL_FILL, borderWidth: 2, pointRadius: 0, fill: true, stack: 'g', tension: 0.15 },
-        { label: 'Cash from dividends', data: [], borderColor: TOTAL_COLOR, backgroundColor: 'rgba(201,133,0,0.18)', borderWidth: 2, pointRadius: 0, fill: '-1', stack: 'g', tension: 0.15 },
-        { label: 'Contributed', data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, stack: 'c', fill: false, tension: 0 },
-        { label: 'VOO', data: [], borderColor: RATES.voo.color, backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [2, 2], pointRadius: 0, stack: 'v', fill: false, tension: 0.15 },
-        { label: 'QQQM', data: [], borderColor: RATES.qqq.color, backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [2, 2], pointRadius: 0, stack: 'q', fill: false, tension: 0.15 },
-        { label: 'SCHD', data: [], borderColor: RATES.schd.color, backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [2, 2], pointRadius: 0, stack: 's', fill: false, tension: 0.15 },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { mode: 'index', callbacks: { label: (c) => c.dataset.label + ': ' + fmt(c.parsed.y) } } },
-      scales: {
-        x: { grid: { display: false }, ticks: { color: '#9ca3af', font: { size: 11 } } },
-        y: { stacked: true, grid: { color: '#eee' }, ticks: { color: '#9ca3af', font: { size: 11 }, callback: (v) => '$' + Math.round(v / 1000) + 'k' } },
-      },
-    },
-  });
+    const inputs = {};
+    document.querySelectorAll('input[type=number]').forEach((el) => { inputs[el.id] = el.value; });
+    localStorage.setItem(STORE_KEY, JSON.stringify({ inputs, pAlloc, pMode, pReinvest, inflOn, tab: currentTab }));
+  } catch (e) { /* storage unavailable: the calculator still works, it just won't remember */ }
+}
 
-  const dctx = document.getElementById('p-div-chart').getContext('2d');
-  pDivChart = new Chart(dctx, {
-    type: 'bar',
-    data: {
-      labels: [],
-      datasets: [
-        { label: 'VOO', data: [], backgroundColor: RATES.voo.color, stack: 'd' },
-        { label: 'QQQM', data: [], backgroundColor: RATES.qqq.color, stack: 'd' },
-        { label: 'SCHD', data: [], backgroundColor: RATES.schd.color, stack: 'd' },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { mode: 'index', callbacks: { label: (c) => c.dataset.label + ': ' + fmt(c.parsed.y) } } },
-      scales: {
-        x: { stacked: true, grid: { display: false }, ticks: { color: '#9ca3af', font: { size: 11 } } },
-        y: { stacked: true, grid: { color: '#eee' }, ticks: { color: '#9ca3af', font: { size: 11 }, callback: (v) => fmt(v) } },
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    Object.keys(d.inputs || {}).forEach((id) => {
+      const el = $(id);
+      if (el && el.type === 'number') el.value = d.inputs[id];
+    });
+    if (d.pAlloc && FUNDS.every((f) => typeof d.pAlloc[f] === 'number') &&
+        FUNDS.reduce((s, f) => s + d.pAlloc[f], 0) === 100) pAlloc = d.pAlloc;
+    if (d.pMode === 'dollar' || d.pMode === 'percent') pMode = d.pMode;
+    if (typeof d.pReinvest === 'boolean') pReinvest = d.pReinvest;
+    if (typeof d.inflOn === 'boolean') inflOn = d.inflOn;
+    if (d.tab === 'personal' || d.tab === '401k') currentTab = d.tab;
+  } catch (e) { /* ignore a corrupt or unavailable store */ }
+}
+
+$('reset-btn').addEventListener('click', () => {
+  try { localStorage.removeItem(STORE_KEY); } catch (e) { /* ignore */ }
+  location.reload();
+});
+
+/* ---------------- charts ---------------- */
+let pGrowthChart, pDivChart, kGrowthChart;
+
+function themeVals() {
+  const cs = getComputedStyle(document.documentElement);
+  const g = (n) => cs.getPropertyValue(n).trim();
+  return { text: g('--chart-text'), grid: g('--chart-grid'), total: g('--total'), totalFill: g('--total-fill'), muted: g('--text-3') };
+}
+
+function baseOptions(t, yStacked, xStacked) {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          title: (items) => (items[0].label === 'Yr 0' ? 'Start' : items[0].label),
+          label: (c) => ' ' + c.dataset.label + ': ' + fmt(c.raw),
+        },
       },
     },
-  });
-  } catch (e) {
-    console.error('Chart init failed', e);
-    showChartFallback('p-growth-chart');
-    showChartFallback('p-div-chart');
-  }
+    scales: {
+      x: { stacked: !!xStacked, grid: { display: false }, ticks: { color: t.text, font: { size: 11 }, maxTicksLimit: 8, autoSkip: true } },
+      y: { stacked: !!yStacked, grid: { color: t.grid }, ticks: { color: t.text, font: { size: 11 }, callback: (v) => short(v) } },
+    },
+  };
 }
 
 function showChartFallback(canvasId) {
-  const el = document.getElementById(canvasId);
+  const el = $(canvasId);
   if (!el || !el.parentNode) return;
   el.parentNode.innerHTML =
-    '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:12px;text-align:center;padding:0 16px;">' +
-    'Chart library couldn\'t load (needs an internet connection the first time). Numbers below still work.</div>';
+    '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:var(--text-3);font-size:13px;text-align:center;padding:0 16px;">' +
+    'The chart library couldn\'t load (it needs an internet connection the first time). The numbers still work.</div>';
 }
 
-function computePersonal() {
-  const startingBalance = Number(document.getElementById('p-starting').value) || 0;
-  const monthly = Number(document.getElementById('p-monthly').value) || 0;
-  const salary = Number(document.getElementById('p-salary').value) || 0;
-  const salaryPct = Number(document.getElementById('p-salary-pct').value) || 0;
-  const salaryGrowth = Number(document.getElementById('p-salary-growth').value) || 0;
-  const years = Math.max(1, Number(document.getElementById('p-years').value) || 1);
-
-  const effectiveMonthly = pMode === 'dollar' ? monthly : Math.round(((salary * salaryPct) / 100 / 12) * 100) / 100;
-  document.getElementById('p-effective-monthly').textContent = '= $' + effectiveMonthly.toLocaleString() + '/mo';
-
-  const fundKeys = Object.keys(RATES);
-  const annualGrowth = pMode === 'percent' ? salaryGrowth : 0;
-
-  const monthlyRates = {};
-  fundKeys.forEach((f) => {
-    const rate = pReinvest ? RATES[f].total : RATES[f].total - RATES[f].div;
-    monthlyRates[f] = Math.pow(1 + rate / 100, 1 / 12) - 1;
-  });
-
-  const balances = {};
-  fundKeys.forEach((f) => (balances[f] = (startingBalance * pAlloc[f]) / 100));
-  let cash = 0;
-  let totalContributed = 0;
-
-  const labels = ['Yr 0'];
-  const investedSeries = [Math.round(startingBalance)];
-  const cashSeries = [0];
-  const contributedSeries = [0];
-  const vooSeries = [Math.round(balances.voo)];
-  const qqqSeries = [Math.round(balances.qqq)];
-  const schdSeries = [Math.round(balances.schd)];
-
-  const divLabels = [];
-  const divVoo = [], divQqq = [], divSchd = [];
-
-  for (let y = 1; y <= years; y++) {
-    const yearMonthly = effectiveMonthly * Math.pow(1 + annualGrowth / 100, y - 1);
-    let yearCash = 0;
-    const yearDiv = {};
-
-    fundKeys.forEach((f) => {
-      const amt = (yearMonthly * pAlloc[f]) / 100;
-      const startBalance = balances[f];
-      for (let m = 0; m < 12; m++) {
-        balances[f] = balances[f] * (1 + monthlyRates[f]) + amt;
-      }
-      const payout = startBalance * (RATES[f].div / 100);
-      yearDiv[f] = Math.round(payout);
-      if (!pReinvest) yearCash += payout;
-      totalContributed += amt * 12;
+function buildLegend(containerId, chart, items) {
+  const el = $(containerId);
+  if (!el) return;
+  el.innerHTML = '';
+  if (!chart) { el.style.display = 'none'; return; }
+  items.forEach((it) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'lg';
+    b.setAttribute('aria-pressed', String(it.idx.every((i) => chart.isDatasetVisible(i))));
+    const sw = document.createElement('span');
+    sw.className = 'lg-sw' + (it.box ? ' box' : '');
+    if (it.box) sw.style.background = it.color;
+    else { sw.style.borderTopColor = it.color; sw.style.borderTopStyle = it.dash || 'solid'; }
+    b.appendChild(sw);
+    b.appendChild(document.createTextNode(it.label));
+    b.addEventListener('click', () => {
+      const show = b.getAttribute('aria-pressed') !== 'true';
+      it.idx.forEach((i) => chart.setDatasetVisibility(i, show));
+      b.setAttribute('aria-pressed', String(show));
+      chart.update();
     });
+    el.appendChild(b);
+  });
+}
 
-    cash += yearCash;
+function initCharts() {
+  if (typeof Chart === 'undefined') {
+    ['p-growth-chart', 'p-div-chart', 'k-growth-chart'].forEach(showChartFallback);
+    ['p-growth-legend', 'p-div-legend', 'k-growth-legend'].forEach((id) => buildLegend(id, null, []));
+    return;
+  }
+  const t = themeVals();
+  try {
+    pGrowthChart = new Chart($('p-growth-chart').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [
+          { label: 'Invested value (total)', data: [], borderColor: t.total, backgroundColor: t.totalFill, borderWidth: 2, pointRadius: 0, fill: true, stack: 'g', tension: 0.15 },
+          { label: 'Cash from dividends', data: [], borderColor: t.total, backgroundColor: 'rgba(201,133,0,0.22)', borderWidth: 2, pointRadius: 0, fill: '-1', stack: 'g', tension: 0.15 },
+          { label: 'Contributed', data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, stack: 'c', fill: false, tension: 0 },
+          { label: 'VOO', data: [], borderColor: RATES.voo.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 3], pointRadius: 0, stack: 'v', fill: false, tension: 0.15 },
+          { label: 'QQQM', data: [], borderColor: RATES.qqq.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [2, 2], pointRadius: 0, stack: 'q', fill: false, tension: 0.15 },
+          { label: 'SCHD', data: [], borderColor: RATES.schd.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 2, 2, 2], pointRadius: 0, stack: 's', fill: false, tension: 0.15 },
+          { label: 'Low case (total)', data: [], borderColor: t.muted, backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [1, 4], pointRadius: 0, stack: 'lo', fill: false, tension: 0.15 },
+          { label: 'High case (total)', data: [], borderColor: t.muted, backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [1, 4], pointRadius: 0, stack: 'hi', fill: false, tension: 0.15 },
+        ],
+      },
+      options: baseOptions(t, true, false),
+    });
+    buildLegend('p-growth-legend', pGrowthChart, [
+      { label: 'Contributed', color: CONTRIB_COLOR, idx: [2] },
+      { label: 'Invested value', color: t.total, idx: [0] },
+      { label: 'Dividend cash', color: CASH_COLOR, idx: [1] },
+      { label: 'VOO', color: RATES.voo.color, dash: 'dashed', idx: [3] },
+      { label: 'QQQM', color: RATES.qqq.color, dash: 'dotted', idx: [4] },
+      { label: 'SCHD', color: RATES.schd.color, dash: 'dashed', idx: [5] },
+      { label: 'Low / high case', color: t.muted, dash: 'dotted', idx: [6, 7] },
+    ]);
 
-    const invested = fundKeys.reduce((s, f) => s + balances[f], 0);
-    labels.push('Yr ' + y);
-    investedSeries.push(Math.round(invested));
-    cashSeries.push(Math.round(cash));
-    contributedSeries.push(Math.round(totalContributed));
-    vooSeries.push(Math.round(balances.voo));
-    qqqSeries.push(Math.round(balances.qqq));
-    schdSeries.push(Math.round(balances.schd));
-
-    divLabels.push('Yr ' + y);
-    divVoo.push(yearDiv.voo);
-    divQqq.push(yearDiv.qqq);
-    divSchd.push(yearDiv.schd);
+    pDivChart = new Chart($('p-div-chart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: [],
+        datasets: FUNDS.map((f) => ({ label: RATES[f].label, data: [], backgroundColor: RATES[f].color, stack: 'd' })),
+      },
+      options: baseOptions(t, true, true),
+    });
+    buildLegend('p-div-legend', pDivChart, FUNDS.map((f, i) => ({ label: RATES[f].label, color: RATES[f].color, box: true, idx: [i] })));
+  } catch (e) {
+    console.error('Personal chart init failed', e);
+    ['p-growth-chart', 'p-div-chart'].forEach(showChartFallback);
+    pGrowthChart = pDivChart = undefined;
+    buildLegend('p-growth-legend', null, []);
+    buildLegend('p-div-legend', null, []);
   }
 
-  const finalInvested = fundKeys.reduce((s, f) => s + balances[f], 0);
-  const finalCash = cash;
-  const finalTotal = finalInvested + finalCash;
+  try {
+    kGrowthChart = new Chart($('k-growth-chart').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [
+          { label: 'Portfolio value', data: [], borderColor: t.total, backgroundColor: t.totalFill, borderWidth: 2, pointRadius: 0, fill: true, tension: 0.15 },
+          { label: '+ Employer match', data: [], borderColor: MATCH_COLOR, backgroundColor: 'transparent', borderWidth: 2, borderDash: [4, 3], pointRadius: 0, fill: false, tension: 0 },
+          { label: 'Your contributions', data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, fill: false, tension: 0 },
+          { label: 'Low case', data: [], borderColor: t.muted, backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [1, 4], pointRadius: 0, fill: false, tension: 0.15 },
+          { label: 'High case', data: [], borderColor: t.muted, backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [1, 4], pointRadius: 0, fill: false, tension: 0.15 },
+        ],
+      },
+      options: baseOptions(t, false, false),
+    });
+    buildLegend('k-growth-legend', kGrowthChart, [
+      { label: 'Your contributions', color: CONTRIB_COLOR, idx: [2] },
+      { label: '+ Employer match', color: MATCH_COLOR, dash: 'dashed', idx: [1] },
+      { label: 'Portfolio value', color: t.total, idx: [0] },
+      { label: 'Low / high case', color: t.muted, dash: 'dotted', idx: [3, 4] },
+    ]);
+  } catch (e) {
+    console.error('401(k) chart init failed', e);
+    showChartFallback('k-growth-chart');
+    kGrowthChart = undefined;
+    buildLegend('k-growth-legend', null, []);
+  }
+}
 
-  document.getElementById('p-stat-starting').textContent = fmt(startingBalance);
-  document.getElementById('p-stat-contributed').textContent = fmt(totalContributed);
-  document.getElementById('p-stat-invested').textContent = fmt(finalInvested);
-  const cashStat = document.getElementById('p-stat-cash');
+function rebuildCharts() {
+  [pGrowthChart, pDivChart, kGrowthChart].forEach((c) => c && c.destroy());
+  pGrowthChart = pDivChart = kGrowthChart = undefined;
+  initCharts();
+  recomputeAll();
+}
+if (window.matchMedia) {
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  if (mq.addEventListener) mq.addEventListener('change', rebuildCharts);
+}
+
+/* ---------------- Personal simulation ---------------- */
+// All balances are nominal. Contributions are also tracked in today's dollars (realContrib),
+// discounting each year's contributions to the middle of that year.
+function simPersonal(p, delta) {
+  const mRate = {};
+  FUNDS.forEach((f) => {
+    const rate = (p.reinvest ? RATES[f].total : RATES[f].total - RATES[f].div) + delta;
+    mRate[f] = Math.pow(1 + rate / 100, 1 / 12) - 1;
+  });
+  const bal = {};
+  FUNDS.forEach((f) => (bal[f] = (p.start * p.alloc[f]) / 100));
+  let cash = 0, contrib = 0, realContrib = 0;
+  const out = { invested: [p.start], cash: [0], contrib: [0], realContrib: [0], fund: {}, div: {} };
+  FUNDS.forEach((f) => { out.fund[f] = [bal[f]]; out.div[f] = []; });
+
+  for (let y = 1; y <= p.years; y++) {
+    const yearMonthly = p.monthly * Math.pow(1 + p.growth / 100, y - 1);
+    let yearCash = 0;
+    FUNDS.forEach((f) => {
+      const amt = (yearMonthly * p.alloc[f]) / 100;
+      const startBal = bal[f];
+      for (let m = 0; m < 12; m++) bal[f] = bal[f] * (1 + mRate[f]) + amt;
+      const payout = startBal * (RATES[f].div / 100);
+      out.div[f].push(payout);
+      if (!p.reinvest) yearCash += payout;
+      contrib += amt * 12;
+    });
+    realContrib += (yearMonthly * 12) * Math.pow(1 + p.inflRate / 100, -(y - 0.5));
+    cash += yearCash;
+    out.invested.push(FUNDS.reduce((s, f) => s + bal[f], 0));
+    out.cash.push(cash);
+    out.contrib.push(contrib);
+    out.realContrib.push(realContrib);
+    FUNDS.forEach((f) => out.fund[f].push(bal[f]));
+  }
+  return out;
+}
+
+function computePersonal(s) {
+  const start = num('p-starting');
+  const pct = num('p-salary-pct');
+  const baseMonthly = pMode === 'dollar' ? num('p-monthly') : Math.round(((s.salary * pct) / 100 / 12) * 100) / 100;
+  const p = {
+    start, monthly: baseMonthly, growth: pMode === 'percent' ? s.raise : 0,
+    years: s.years, alloc: pAlloc, reinvest: pReinvest, inflRate: s.inflRate,
+  };
+
+  $('p-effective-monthly').textContent = pMode === 'dollar'
+    ? '= ' + fmt(baseMonthly) + ' / month (stays fixed each year)'
+    : '= ' + fmt(baseMonthly) + ' / month now, from a ' + fmt(s.salary) + ' salary growing ' + s.raise + '% a year';
+
+  const base = simPersonal(p, 0);
+  const low = simPersonal(p, LOW_DELTA);
+  const high = simPersonal(p, HIGH_DELTA);
+  const N = s.years;
+  const d = (y) => deflator(s.inflRate, y);
+
+  const finalInvested = base.invested[N] * d(N);
+  const finalCash = base.cash[N] * d(N);
+  const finalTotal = finalInvested + finalCash;
+  const contributed = base.realContrib[N];
+
+  $('p-stat-total').textContent = fmt(finalTotal);
+  $('p-stat-starting').textContent = fmt(start);
+  $('p-stat-contributed').textContent = fmt(contributed);
+  $('p-stat-gain').textContent = fmt(finalTotal - start - contributed);
+  $('p-stat-invested').textContent = fmt(finalInvested);
+  const cashStat = $('p-stat-cash');
   cashStat.textContent = fmt(finalCash);
   cashStat.style.color = pReinvest ? '' : CASH_COLOR;
-  document.getElementById('p-stat-total').textContent = fmt(finalTotal);
 
   if (pGrowthChart) {
-    pGrowthChart.data.labels = labels;
-    pGrowthChart.data.datasets[0].data = investedSeries;
-    pGrowthChart.data.datasets[1].data = cashSeries;
-    pGrowthChart.data.datasets[2].data = contributedSeries;
-    pGrowthChart.data.datasets[3].data = vooSeries;
-    pGrowthChart.data.datasets[4].data = qqqSeries;
-    pGrowthChart.data.datasets[5].data = schdSeries;
+    const idx = Array.from({ length: N + 1 }, (_, y) => y);
+    const series = (arr) => idx.map((y) => Math.round(arr[y] * d(y)));
+    pGrowthChart.data.labels = idx.map((y) => 'Yr ' + y);
+    pGrowthChart.data.datasets[0].data = series(base.invested);
+    pGrowthChart.data.datasets[1].data = series(base.cash);
+    pGrowthChart.data.datasets[2].data = idx.map((y) => Math.round(base.realContrib[y]));
+    pGrowthChart.data.datasets[3].data = series(base.fund.voo);
+    pGrowthChart.data.datasets[4].data = series(base.fund.qqq);
+    pGrowthChart.data.datasets[5].data = series(base.fund.schd);
+    pGrowthChart.data.datasets[6].data = idx.map((y) => Math.round((low.invested[y] + low.cash[y]) * d(y)));
+    pGrowthChart.data.datasets[7].data = idx.map((y) => Math.round((high.invested[y] + high.cash[y]) * d(y)));
     pGrowthChart.update();
   }
-
   if (pDivChart) {
-    pDivChart.data.labels = divLabels;
-    pDivChart.data.datasets[0].data = divVoo;
-    pDivChart.data.datasets[1].data = divQqq;
-    pDivChart.data.datasets[2].data = divSchd;
+    const yrs = Array.from({ length: N }, (_, i) => i + 1);
+    pDivChart.data.labels = yrs.map((y) => 'Yr ' + y);
+    FUNDS.forEach((f, i) => { pDivChart.data.datasets[i].data = yrs.map((y) => Math.round(base.div[f][y - 1] * d(y))); });
     pDivChart.update();
   }
 
-  document.getElementById('p-footnote').innerHTML =
-    "Rates are assumptions based on long-run history, not guarantees: VOO 10.5% (S&P 500, 1926-2026); QQQM 12%, a haircut to the Nasdaq-100's 14.25% since 1985, which includes the 1990s tech boom; SCHD ~10.07%. Dividend yields (1.1% / 0.4% / 3.2%) are applied at today's levels across the full period as a simplification." +
-    (pMode === 'percent' ? ' Monthly contributions grow each year with the assumed annual raise.' : '');
+  const rateText = 'VOO ' + RATES.voo.total + '% (S&P 500, 1926-2026); QQQM ' + RATES.qqq.total +
+    "%, a haircut to the Nasdaq-100's 14.25% since 1985, which includes the 1990s tech boom; SCHD ~" + RATES.schd.total + '%.';
+  $('p-footnote').innerHTML =
+    'Rates are assumptions based on long-run history, not guarantees: ' + rateText +
+    ' Dividend yields (' + FUNDS.map((f) => RATES[f].div + '%').join(' / ') + ") are held at today's levels for the whole period." +
+    ' The low and high cases shift every fund\'s return by ' + LOW_DELTA + ' and +' + HIGH_DELTA + ' points a year to show sensitivity; they are not a forecast range.' +
+    (pMode === 'percent' ? ' Monthly contributions grow each year with your annual raise.' : '') +
+    (inflOn ? ' Figures are in today\'s dollars at ' + num('s-infl-rate') + '% annual inflation.' : '');
+
+  return finalTotal;
 }
 
-/* ---------------- 401(k) tab ---------------- */
-let kGrowthChart;
-
-function initK401Chart() {
-  if (typeof Chart === 'undefined') {
-    showChartFallback('k-growth-chart');
-    return;
-  }
-  try {
-    const ctx = document.getElementById('k-growth-chart').getContext('2d');
-  kGrowthChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: [
-        { label: 'Portfolio value', data: [], borderColor: TOTAL_COLOR, backgroundColor: TOTAL_FILL, borderWidth: 2, pointRadius: 0, fill: true, tension: 0.15 },
-        { label: '+ Employer match', data: [], borderColor: MATCH_COLOR, backgroundColor: 'transparent', borderWidth: 2, borderDash: [4, 3], pointRadius: 0, fill: false, tension: 0 },
-        { label: 'Your contributions', data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, fill: false, tension: 0 },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { mode: 'index', callbacks: { label: (c) => c.dataset.label + ': ' + fmt(c.parsed.y) } } },
-      scales: {
-        x: { grid: { display: false }, ticks: { color: '#9ca3af', font: { size: 11 } } },
-        y: { grid: { color: '#eee' }, ticks: { color: '#9ca3af', font: { size: 11 }, callback: (v) => '$' + Math.round(v / 1000) + 'k' } },
-      },
-    },
-  });
-  } catch (e) {
-    console.error('Chart init failed', e);
-    showChartFallback('k-growth-chart');
-  }
-}
-
-['k-return', 'k-starting', 'k-salary', 'k-contrib-pct', 'k-match-rate', 'k-match-cap', 'k-growth', 'k-years'].forEach((id) => {
-  document.getElementById(id).addEventListener('input', computeK401);
-});
-
-function computeK401() {
-  const returnRate = Number(document.getElementById('k-return').value) || 0;
-  const startingBalance = Number(document.getElementById('k-starting').value) || 0;
-  const salary = Number(document.getElementById('k-salary').value) || 0;
-  const contribPct = Number(document.getElementById('k-contrib-pct').value) || 0;
-  const matchRate = Number(document.getElementById('k-match-rate').value) || 0;
-  const matchCap = Number(document.getElementById('k-match-cap').value) || 0;
-  const growth = Number(document.getElementById('k-growth').value) || 0;
-  const years = Math.max(1, Number(document.getElementById('k-years').value) || 1);
-
-  const mr = Math.pow(1 + returnRate / 100, 1 / 12) - 1;
-  let balance = startingBalance;
-  let totalEmployee = 0;
-  let totalEmployer = 0;
-  let capped = false;
-
-  const labels = ['Yr 0'];
-  const investedSeries = [Math.round(startingBalance)];
-  const employeeSeries = [0];
-  const combinedSeries = [0];
-
-  for (let y = 1; y <= years; y++) {
-    const yearSalary = salary * Math.pow(1 + growth / 100, y - 1);
-    let employeeAnnual = yearSalary * (contribPct / 100);
-    if (employeeAnnual > IRS_401K_LIMIT_2026) {
-      employeeAnnual = IRS_401K_LIMIT_2026;
-      capped = true;
-    }
-    const matchableAnnual = Math.min(yearSalary * (contribPct / 100), yearSalary * (matchCap / 100));
-    const employerAnnual = matchableAnnual * (matchRate / 100);
+/* ---------------- 401(k) simulation ---------------- */
+function simK401(p, delta) {
+  const mr = Math.pow(1 + (p.rate + delta) / 100, 1 / 12) - 1;
+  let bal = p.start, emp = 0, er = 0, rEmp = 0, rEr = 0, capped = false;
+  const out = { bal: [bal], emp: [0], comb: [0] };
+  for (let y = 1; y <= p.years; y++) {
+    const yearSalary = p.salary * Math.pow(1 + p.raise / 100, y - 1);
+    let employeeAnnual = yearSalary * (p.contribPct / 100);
+    if (employeeAnnual > IRS_401K_LIMIT_2026) { employeeAnnual = IRS_401K_LIMIT_2026; capped = true; }
+    const matchable = Math.min(yearSalary * (p.contribPct / 100), yearSalary * (p.matchCap / 100));
+    const employerAnnual = matchable * (p.matchRate / 100);
     const monthlyTotal = (employeeAnnual + employerAnnual) / 12;
-
-    for (let m = 0; m < 12; m++) {
-      balance = balance * (1 + mr) + monthlyTotal;
-    }
-
-    totalEmployee += employeeAnnual;
-    totalEmployer += employerAnnual;
-
-    labels.push('Yr ' + y);
-    investedSeries.push(Math.round(balance));
-    employeeSeries.push(Math.round(totalEmployee));
-    combinedSeries.push(Math.round(totalEmployee + totalEmployer));
+    for (let m = 0; m < 12; m++) bal = bal * (1 + mr) + monthlyTotal;
+    const disc = Math.pow(1 + p.inflRate / 100, -(y - 0.5));
+    emp += employeeAnnual; er += employerAnnual;
+    rEmp += employeeAnnual * disc; rEr += employerAnnual * disc;
+    out.bal.push(bal);
+    out.emp.push(rEmp);
+    out.comb.push(rEmp + rEr);
   }
+  out.totals = { emp, er, rEmp, rEr, capped };
+  return out;
+}
 
-  document.getElementById('k-warn').style.display = capped ? 'block' : 'none';
+function computeK401(s) {
+  const p = {
+    rate: num('k-return'), start: num('k-starting'), salary: s.salary, raise: s.raise,
+    contribPct: num('k-contrib-pct'), matchRate: num('k-match-rate'), matchCap: num('k-match-cap'),
+    years: s.years, inflRate: s.inflRate,
+  };
+  const base = simK401(p, 0);
+  const low = simK401(p, LOW_DELTA);
+  const high = simK401(p, HIGH_DELTA);
+  const N = s.years;
+  const d = (y) => deflator(s.inflRate, y);
 
-  document.getElementById('k-stat-starting').textContent = fmt(startingBalance);
-  document.getElementById('k-stat-employee').textContent = fmt(totalEmployee);
-  document.getElementById('k-stat-employer').textContent = fmt(totalEmployer);
-  document.getElementById('k-stat-combined').textContent = fmt(totalEmployee + totalEmployer);
-  document.getElementById('k-stat-final').textContent = fmt(balance);
+  const finalValue = base.bal[N] * d(N);
+  const t = base.totals;
+  $('k-warn').style.display = t.capped ? 'block' : 'none';
+  $('k-stat-final').textContent = fmt(finalValue);
+  $('k-stat-starting').textContent = fmt(p.start);
+  $('k-stat-employee').textContent = fmt(t.rEmp);
+  $('k-stat-employer').textContent = fmt(t.rEr);
+  $('k-stat-combined').textContent = fmt(t.rEmp + t.rEr);
+  $('k-stat-gain').textContent = fmt(finalValue - p.start - t.rEmp - t.rEr);
 
   if (kGrowthChart) {
-    kGrowthChart.data.labels = labels;
-    kGrowthChart.data.datasets[0].data = investedSeries;
-    kGrowthChart.data.datasets[1].data = combinedSeries;
-    kGrowthChart.data.datasets[2].data = employeeSeries;
+    const idx = Array.from({ length: N + 1 }, (_, y) => y);
+    kGrowthChart.data.labels = idx.map((y) => 'Yr ' + y);
+    kGrowthChart.data.datasets[0].data = idx.map((y) => Math.round(base.bal[y] * d(y)));
+    kGrowthChart.data.datasets[1].data = idx.map((y) => Math.round(base.comb[y]));
+    kGrowthChart.data.datasets[2].data = idx.map((y) => Math.round(base.emp[y]));
+    kGrowthChart.data.datasets[3].data = idx.map((y) => Math.round(low.bal[y] * d(y)));
+    kGrowthChart.data.datasets[4].data = idx.map((y) => Math.round(high.bal[y] * d(y)));
     kGrowthChart.update();
   }
+
+  $('k-footnote').textContent =
+    '2026 IRS employee deferral limit is $24,500 (before any age-50+ catch-up); it is held at that level for the whole projection. ' +
+    "Employer match assumes immediate full vesting and doesn't model plan-specific vesting schedules. " +
+    'The low and high cases shift the expected return by ' + LOW_DELTA + ' and +' + HIGH_DELTA + ' points a year to show sensitivity; they are not a forecast range.' +
+    (inflOn ? " Figures are in today's dollars at " + num('s-infl-rate') + '% annual inflation.' : '');
+
+  return finalValue;
 }
 
-initPersonalCharts();
-initK401Chart();
-computePersonal();
-computeK401();
+/* ---------------- everything ---------------- */
+function recomputeAll() {
+  const s = shared();
+  const personal = computePersonal(s);
+  const k401 = computeK401(s);
+  $('s-total').textContent = fmt(personal + k401);
+  $('s-personal').textContent = fmt(personal);
+  $('s-k401').textContent = fmt(k401);
+  $('s-label').textContent = 'Combined after ' + s.years + (s.years === 1 ? ' year' : ' years') + (inflOn ? " · today's dollars" : '');
+  saveState();
+}
+
+loadState();
+syncAllocInputs();
+renderToggles();
+switchTab(currentTab);
+initCharts();
+recomputeAll();
 </script>
 </body>
 </html>
