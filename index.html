@@ -293,8 +293,8 @@
 
 <script>
 const RATES = {
-  voo: { total: 10.59, div: 1.1, label: 'VOO', color: '#2a78d6' },
-  qqq: { total: 14.25, div: 0.4, label: 'QQQM', color: '#eb6834' },
+  voo: { total: 10.5, div: 1.1, label: 'VOO', color: '#2a78d6' },
+  qqq: { total: 12, div: 0.4, label: 'QQQM', color: '#eb6834' },
   schd: { total: 10.07, div: 3.2, label: 'SCHD', color: '#1baf7a' },
 };
 const CASH_COLOR = '#c98500';
@@ -560,7 +560,7 @@ function computePersonal() {
   }
 
   document.getElementById('p-footnote').innerHTML =
-    "Rates are long-run historical averages (VOO 10.59%, QQQM 14.25%, SCHD ~10.07%; QQQM uses the Nasdaq-100 history since 1985), not guarantees. Dividend yields (1.1% / 0.4% / 3.2%) are applied at today's levels across the full period as a simplification." +
+    "Rates are assumptions based on long-run history, not guarantees: VOO 10.5% (S&P 500, 1926-2026); QQQM 12%, a haircut to the Nasdaq-100's 14.25% since 1985, which includes the 1990s tech boom; SCHD ~10.07%. Dividend yields (1.1% / 0.4% / 3.2%) are applied at today's levels across the full period as a simplification." +
     (pMode === 'percent' ? ' Monthly contributions grow each year with the assumed annual raise.' : '');
 }
 
