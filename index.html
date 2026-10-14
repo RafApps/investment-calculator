@@ -98,7 +98,7 @@
         <button class="strat-btn" data-voo="60" data-qqq="25" data-schd="15">Growth-tilted</button>
         <button class="strat-btn active" data-voo="50" data-qqq="25" data-schd="25">Balanced</button>
         <button class="strat-btn" data-voo="50" data-qqq="15" data-schd="35">Income-leaning</button>
-        <button class="strat-btn" data-voo="70" data-qqq="0" data-schd="30">Simplified 2-fund</button>
+        <button class="strat-btn" data-voo="60" data-qqq="40" data-schd="0">Simplified 2-fund</button>
       </div>
 
       <div class="row">
@@ -108,7 +108,7 @@
         <span class="unit">%</span>
       </div>
       <div class="row">
-        <label><span class="dot" style="background:#eb6834"></span>QQQ · 0.4% div</label>
+        <label><span class="dot" style="background:#eb6834"></span>QQQM · 0.4% div</label>
         <input type="range" min="0" max="100" step="1" value="25" id="p-qqq-range">
         <input type="number" min="0" max="100" value="25" id="p-qqq-num" class="num-input">
         <span class="unit">%</span>
@@ -194,7 +194,7 @@
         <span><span class="dot" style="background:#334155"></span>Invested value (total)</span>
         <span><span class="dot" style="background:#c98500"></span>Cash from dividends</span>
         <span><span class="dot" style="background:#2a78d6"></span>VOO</span>
-        <span><span class="dot" style="background:#eb6834"></span>QQQ</span>
+        <span><span class="dot" style="background:#eb6834"></span>QQQM</span>
         <span><span class="dot" style="background:#1baf7a"></span>SCHD</span>
       </div>
       <div class="chart-wrap"><canvas id="p-growth-chart"></canvas></div>
@@ -202,7 +202,7 @@
       <p class="chart-title">Estimated annual dividend payout by fund</p>
       <div class="legend">
         <span><span class="dot" style="background:#2a78d6"></span>VOO</span>
-        <span><span class="dot" style="background:#eb6834"></span>QQQ</span>
+        <span><span class="dot" style="background:#eb6834"></span>QQQM</span>
         <span><span class="dot" style="background:#1baf7a"></span>SCHD</span>
       </div>
       <div class="chart-wrap"><canvas id="p-div-chart"></canvas></div>
@@ -294,7 +294,7 @@
 <script>
 const RATES = {
   voo: { total: 10.59, div: 1.1, label: 'VOO', color: '#2a78d6' },
-  qqq: { total: 14.25, div: 0.4, label: 'QQQ', color: '#eb6834' },
+  qqq: { total: 14.25, div: 0.4, label: 'QQQM', color: '#eb6834' },
   schd: { total: 10.07, div: 3.2, label: 'SCHD', color: '#1baf7a' },
 };
 const CASH_COLOR = '#c98500';
@@ -407,7 +407,7 @@ function initPersonalCharts() {
         { label: 'Cash from dividends', data: [], borderColor: TOTAL_COLOR, backgroundColor: 'rgba(201,133,0,0.18)', borderWidth: 2, pointRadius: 0, fill: '-1', stack: 'g', tension: 0.15 },
         { label: 'Contributed', data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, stack: 'c', fill: false, tension: 0 },
         { label: 'VOO', data: [], borderColor: RATES.voo.color, backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [2, 2], pointRadius: 0, stack: 'v', fill: false, tension: 0.15 },
-        { label: 'QQQ', data: [], borderColor: RATES.qqq.color, backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [2, 2], pointRadius: 0, stack: 'q', fill: false, tension: 0.15 },
+        { label: 'QQQM', data: [], borderColor: RATES.qqq.color, backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [2, 2], pointRadius: 0, stack: 'q', fill: false, tension: 0.15 },
         { label: 'SCHD', data: [], borderColor: RATES.schd.color, backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [2, 2], pointRadius: 0, stack: 's', fill: false, tension: 0.15 },
       ],
     },
@@ -429,7 +429,7 @@ function initPersonalCharts() {
       labels: [],
       datasets: [
         { label: 'VOO', data: [], backgroundColor: RATES.voo.color, stack: 'd' },
-        { label: 'QQQ', data: [], backgroundColor: RATES.qqq.color, stack: 'd' },
+        { label: 'QQQM', data: [], backgroundColor: RATES.qqq.color, stack: 'd' },
         { label: 'SCHD', data: [], backgroundColor: RATES.schd.color, stack: 'd' },
       ],
     },
@@ -560,7 +560,7 @@ function computePersonal() {
   }
 
   document.getElementById('p-footnote').innerHTML =
-    "Rates are long-run historical averages (VOO 10.59%, QQQ 14.25%, SCHD ~10.07%), not guarantees. Dividend yields (1.1% / 0.4% / 3.2%) are applied at today's levels across the full period as a simplification." +
+    "Rates are long-run historical averages (VOO 10.59%, QQQM 14.25%, SCHD ~10.07%; QQQM uses the Nasdaq-100 history since 1985), not guarantees. Dividend yields (1.1% / 0.4% / 3.2%) are applied at today's levels across the full period as a simplification." +
     (pMode === 'percent' ? ' Monthly contributions grow each year with the assumed annual raise.' : '');
 }
 
