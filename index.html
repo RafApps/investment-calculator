@@ -278,7 +278,7 @@
         </div>
       </div>
       <div class="field">
-        <label for="s-goal">Goal (optional)</label>
+        <label for="s-goal">Combined goal (optional)</label>
         <div class="ctl"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" step="1000" placeholder="1500000" id="s-goal" class="num wide"></div>
       </div>
       <p class="goal-result" id="s-goal-result" aria-live="polite"></p>
@@ -987,7 +987,7 @@ function updateGoal(s, P, K) {
     el.className = 'goal-result ok';
     el.textContent = hit === 0
       ? 'You already have ' + short(goal) + ' at the start.'
-      : 'You reach ' + short(goal) + ' in year ' + hit + ' (' + (new Date().getFullYear() + hit) + ').';
+      : 'Personal + 401(k) together reach ' + short(goal) + ' in year ' + hit + ' (' + (new Date().getFullYear() + hit) + ').';
     return;
   }
   const gap = goal - (P.final + K.final);
@@ -995,7 +995,7 @@ function updateGoal(s, P, K) {
   const perDollar = (unit.invested[N] + unit.cash[N]) * deflator(s.inflRate, N);
   const extra = perDollar > 0 ? Math.ceil(gap / perDollar / 5) * 5 : 0;
   el.className = 'goal-result';
-  el.textContent = 'About ' + fmt(gap) + ' short of ' + short(goal) + ' after ' + N + ' years.' +
+  el.textContent = 'Personal + 401(k) together land about ' + fmt(gap) + ' short of ' + short(goal) + ' after ' + N + ' years.' +
     (extra > 0 ? ' Adding about ' + fmt(extra) + ' a month to your personal account would close the gap.' : '');
 }
 
