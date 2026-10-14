@@ -220,6 +220,16 @@
   .lg-sw.box { height: 10px; width: 10px; border: none; border-radius: 3px; }
   .chart-wrap { position: relative; width: 100%; height: 280px; margin-bottom: 22px; }
   .footnote { font-size: 12px; color: var(--text-2); line-height: 1.5; margin: 0 0 8px; }
+  [hidden] { display: none !important; }
+  .num.sel { width: auto; max-width: 100%; text-align: left; padding: 0 8px; cursor: pointer; }
+  .cap { display: block; font-style: normal; font-size: 11px; color: var(--amber-ink); }
+  .goal-result { margin: 0 0 8px; align-self: center; font-size: 13px; line-height: 1.4; color: var(--text-2); }
+  .goal-result.ok { color: var(--green-ink); font-weight: 600; }
+  .alloc-toggle { display: block; margin: 0 0 6px; }
+  details.why { margin: 4px 0 4px; font-size: 13px; color: var(--text-2); }
+  details.why summary { cursor: pointer; min-height: 40px; display: flex; align-items: center; color: var(--accent-ink); }
+  details.why p { margin: 0 0 10px; line-height: 1.5; }
+  details.why a { color: var(--accent-ink); }
 </style>
 </head>
 <body>
@@ -232,7 +242,7 @@
     </div>
     <div class="sum-parts">
       <div class="sum-part"><span>Personal</span><b id="s-personal">$0</b></div>
-      <div class="sum-part"><span>401(k)</span><b id="s-k401">$0</b></div>
+      <div class="sum-part"><span>401(k)</span><b id="s-k401">$0</b><em class="cap" id="s-cap" hidden></em></div>
     </div>
   </div>
 </header>
@@ -267,6 +277,11 @@
           <button class="switch" id="s-infl-switch" type="button" role="switch" aria-checked="false" aria-labelledby="s-infl-lbl"></button>
         </div>
       </div>
+      <div class="field">
+        <label for="s-goal">Goal (optional)</label>
+        <div class="ctl"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" step="1000" placeholder="1500000" id="s-goal" class="num wide"></div>
+      </div>
+      <p class="goal-result" id="s-goal-result" aria-live="polite"></p>
     </div>
   </section>
 
@@ -297,6 +312,7 @@
         <div class="chart-wrap"><canvas id="p-div-chart" role="img" aria-label="Annual dividend payout by fund"></canvas></div>
 
         <p class="footnote" id="p-footnote"></p>
+        <details class="why"><summary>Where do these numbers come from?</summary><div id="p-why-body"></div></details>
       </section>
 
       <section class="card inputs-col" aria-label="Personal investing inputs">
@@ -336,6 +352,8 @@
             <button class="strat-btn" type="button" data-voo="60" data-qqq="40" data-schd="0">Simplified 2-fund</button>
           </div>
           <div class="alloc-bar" id="p-alloc-bar" aria-hidden="true"></div>
+          <button class="link-btn alloc-toggle" id="p-custom-btn" type="button" aria-expanded="false" aria-controls="p-alloc-sliders">Customize percentages</button>
+          <div id="p-alloc-sliders" hidden>
           <div class="alloc">
             <div class="alloc-head">
               <label for="p-voo-num"><span class="dot" style="background:var(--c-voo)"></span>VOO <span class="muted" data-yield="voo"></span></label>
@@ -358,6 +376,7 @@
             <input type="range" min="0" max="100" step="1" value="25" id="p-schd-range" aria-label="SCHD allocation">
           </div>
           <p class="hint">The three always add up to 100%. Changing one rebalances the others.</p>
+          </div>
         </div>
 
         <div class="section">
@@ -392,6 +411,7 @@
         <div class="chart-wrap"><canvas id="k-growth-chart" role="img" aria-label="401(k) growth over time"></canvas></div>
 
         <p class="footnote" id="k-footnote"></p>
+        <details class="why"><summary>Where do these numbers come from?</summary><div id="k-why-body"></div></details>
       </section>
 
       <section class="card inputs-col" aria-label="401(k) inputs">
@@ -416,9 +436,18 @@
               <input type="number" inputmode="numeric" min="0" max="100" step="1" value="6" id="k-match-cap" class="num" aria-label="Match cap, percent of salary"><span class="unit">% of salary</span>
             </div>
           </div>
-          <div class="warn" id="k-warn" style="display:none;">
-            Your contribution hits the 2026 IRS employee deferral limit of $24,500 a year in at least one year of this projection, so it's capped there from then on.
+          <div class="field">
+            <label for="k-limit">Annual limit</label>
+            <div class="ctl">
+              <select id="k-limit" class="num sel">
+                <option value="15000" selected>Puerto Rico plan · $15,000</option>
+                <option value="22500">PR dual-qualified · $22,500</option>
+                <option value="24500">U.S. plan · $24,500</option>
+              </select>
+            </div>
           </div>
+          <p class="hint">Most Puerto Rico plans are qualified only under the PR Code and cap your own contributions at $15,000 a year. Dual-qualified plans that adopted the higher limit allow $22,500. Ask HR which one yours is.</p>
+          <div class="warn" id="k-warn" style="display:none;"></div>
         </div>
 
         <div class="section">
@@ -444,7 +473,6 @@ const FUNDS = ['voo', 'qqq', 'schd'];
 const CASH_COLOR = '#c98500';
 const CONTRIB_COLOR = '#94a3b8';
 const MATCH_COLOR = '#1baf7a';
-const IRS_401K_LIMIT_2026 = 24500;
 const LOW_DELTA = -3;   // low case: returns 3 points lower every year
 const HIGH_DELTA = 2;   // high case: returns 2 points higher every year
 const STORE_KEY = 'investcalc.v1';
@@ -468,6 +496,13 @@ let pAlloc = { voo: 50, qqq: 25, schd: 25 };
 let pMode = 'dollar';
 let pReinvest = true;
 let inflOn = false;
+let pCustomOpen = false;
+
+function kLimit() { return Number($('k-limit').value) || 15000; }
+
+function matchesPreset() {
+  return Array.from(document.querySelectorAll('#p-strategies .strat-btn')).some((b) => FUNDS.every((f) => Number(b.dataset[f]) === pAlloc[f]));
+}
 
 function shared() {
   const years = Math.min(MAX_YEARS, Math.max(1, Math.round(num('s-years')) || 1));
@@ -525,7 +560,7 @@ function syncAllocInputs() {
     const seg = document.createElement('span');
     seg.style.width = pAlloc[f] + '%';
     seg.style.background = RATES[f].color;
-    seg.textContent = pAlloc[f] >= 24 ? RATES[f].label + ' ' + pAlloc[f] + '%' : pAlloc[f] >= 8 ? pAlloc[f] + '%' : '';
+    seg.textContent = pAlloc[f] >= 30 ? RATES[f].label + ' ' + pAlloc[f] + '%' : pAlloc[f] >= 8 ? pAlloc[f] + '%' : '';
     seg.title = RATES[f].label + ' ' + pAlloc[f] + '%';
     bar.appendChild(seg);
   });
@@ -564,24 +599,29 @@ function renderToggles() {
   $('p-reinvest-label').textContent = pReinvest ? 'Reinvested (DRIP)' : 'Paid out as cash';
   $('s-infl-switch').setAttribute('aria-checked', String(inflOn));
   $('s-infl-rate').style.opacity = inflOn ? '1' : '0.5';
+  $('p-alloc-sliders').hidden = !pCustomOpen;
+  $('p-custom-btn').setAttribute('aria-expanded', String(pCustomOpen));
+  $('p-custom-btn').textContent = pCustomOpen ? 'Hide custom percentages' : 'Customize percentages';
 }
 $('p-mode-dollar').addEventListener('click', () => { pMode = 'dollar'; renderToggles(); recomputeAll(); });
 $('p-mode-percent').addEventListener('click', () => { pMode = 'percent'; renderToggles(); recomputeAll(); });
 $('p-reinvest-switch').addEventListener('click', () => { pReinvest = !pReinvest; renderToggles(); recomputeAll(); });
+$('p-custom-btn').addEventListener('click', () => { pCustomOpen = !pCustomOpen; renderToggles(); saveState(); });
 $('s-infl-switch').addEventListener('click', () => { inflOn = !inflOn; renderToggles(); recomputeAll(); });
 
 [
-  's-years', 's-salary', 's-raise', 's-infl-rate',
+  's-years', 's-salary', 's-raise', 's-infl-rate', 's-goal',
   'p-starting', 'p-monthly', 'p-salary-pct',
   'k-return', 'k-starting', 'k-contrib-pct', 'k-match-rate', 'k-match-cap',
 ].forEach((id) => $(id).addEventListener('input', recomputeAll));
+$('k-limit').addEventListener('change', recomputeAll);
 
 /* ---------------- persistence ---------------- */
 function saveState() {
   try {
     const inputs = {};
-    document.querySelectorAll('input[type=number]').forEach((el) => { inputs[el.id] = el.value; });
-    localStorage.setItem(STORE_KEY, JSON.stringify({ inputs, pAlloc, pMode, pReinvest, inflOn, tab: currentTab }));
+    document.querySelectorAll('input[type=number], select').forEach((el) => { inputs[el.id] = el.value; });
+    localStorage.setItem(STORE_KEY, JSON.stringify({ inputs, pAlloc, pMode, pReinvest, inflOn, pCustomOpen, tab: currentTab }));
   } catch (e) { /* storage unavailable: the calculator still works, it just won't remember */ }
 }
 
@@ -592,13 +632,16 @@ function loadState() {
     const d = JSON.parse(raw);
     Object.keys(d.inputs || {}).forEach((id) => {
       const el = $(id);
-      if (el && el.type === 'number') el.value = d.inputs[id];
+      if (!el) return;
+      if (el.type === 'number') el.value = d.inputs[id];
+      else if (el.tagName === 'SELECT' && Array.from(el.options).some((o) => o.value === d.inputs[id])) el.value = d.inputs[id];
     });
     if (d.pAlloc && FUNDS.every((f) => typeof d.pAlloc[f] === 'number') &&
         FUNDS.reduce((s, f) => s + d.pAlloc[f], 0) === 100) pAlloc = d.pAlloc;
     if (d.pMode === 'dollar' || d.pMode === 'percent') pMode = d.pMode;
     if (typeof d.pReinvest === 'boolean') pReinvest = d.pReinvest;
     if (typeof d.inflOn === 'boolean') inflOn = d.inflOn;
+    if (typeof d.pCustomOpen === 'boolean') pCustomOpen = d.pCustomOpen;
     if (d.tab === 'personal' || d.tab === '401k') currentTab = d.tab;
   } catch (e) { /* ignore a corrupt or unavailable store */ }
 }
@@ -688,9 +731,9 @@ function initCharts() {
           { label: 'Invested value (total)', data: [], borderColor: t.total, backgroundColor: t.totalFill, borderWidth: 2, pointRadius: 0, fill: true, stack: 'g', tension: 0.15 },
           { label: 'Cash from dividends', data: [], borderColor: t.total, backgroundColor: 'rgba(201,133,0,0.22)', borderWidth: 2, pointRadius: 0, fill: '-1', stack: 'g', tension: 0.15 },
           { label: 'Contributed', data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, stack: 'c', fill: false, tension: 0 },
-          { label: 'VOO', data: [], borderColor: RATES.voo.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 3], pointRadius: 0, stack: 'v', fill: false, tension: 0.15 },
-          { label: 'QQQM', data: [], borderColor: RATES.qqq.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [2, 2], pointRadius: 0, stack: 'q', fill: false, tension: 0.15 },
-          { label: 'SCHD', data: [], borderColor: RATES.schd.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 2, 2, 2], pointRadius: 0, stack: 's', fill: false, tension: 0.15 },
+          { label: 'VOO', data: [], borderColor: RATES.voo.color, backgroundColor: 'transparent', borderWidth: 1.75, pointRadius: 0, stack: 'v', fill: false, tension: 0.15 },
+          { label: 'QQQM', data: [], borderColor: RATES.qqq.color, backgroundColor: 'transparent', borderWidth: 1.75, pointRadius: 0, stack: 'q', fill: false, tension: 0.15 },
+          { label: 'SCHD', data: [], borderColor: RATES.schd.color, backgroundColor: 'transparent', borderWidth: 1.75, pointRadius: 0, stack: 's', fill: false, tension: 0.15 },
           { label: 'Low case (total)', data: [], borderColor: t.muted, backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [1, 4], pointRadius: 0, stack: 'lo', fill: false, tension: 0.15 },
           { label: 'High case (total)', data: [], borderColor: t.muted, backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [1, 4], pointRadius: 0, stack: 'hi', fill: false, tension: 0.15 },
         ],
@@ -701,9 +744,9 @@ function initCharts() {
       { label: 'Contributed', color: CONTRIB_COLOR, idx: [2] },
       { label: 'Invested value', color: t.total, idx: [0] },
       { label: 'Dividend cash', color: CASH_COLOR, idx: [1] },
-      { label: 'VOO', color: RATES.voo.color, dash: 'dashed', idx: [3] },
-      { label: 'QQQM', color: RATES.qqq.color, dash: 'dotted', idx: [4] },
-      { label: 'SCHD', color: RATES.schd.color, dash: 'dashed', idx: [5] },
+      { label: 'VOO', color: RATES.voo.color, idx: [3] },
+      { label: 'QQQM', color: RATES.qqq.color, idx: [4] },
+      { label: 'SCHD', color: RATES.schd.color, idx: [5] },
       { label: 'Low / high case', color: t.muted, dash: 'dotted', idx: [6, 7] },
     ]);
 
@@ -856,16 +899,14 @@ function computePersonal(s) {
     pDivChart.update();
   }
 
-  const rateText = 'VOO ' + RATES.voo.total + '% (S&P 500, 1926-2026); QQQM ' + RATES.qqq.total +
-    "%, a haircut to the Nasdaq-100's 14.25% since 1985, which includes the 1990s tech boom; SCHD ~" + RATES.schd.total + '%.';
   $('p-footnote').innerHTML =
-    'Rates are assumptions based on long-run history, not guarantees: ' + rateText +
-    ' Dividend yields (' + FUNDS.map((f) => RATES[f].div + '%').join(' / ') + ") are held at today's levels for the whole period." +
-    ' The low and high cases shift every fund\'s return by ' + LOW_DELTA + ' and +' + HIGH_DELTA + ' points a year to show sensitivity; they are not a forecast range.' +
+    'Rates are assumptions based on long-run history, not guarantees. Dividend yields (' + FUNDS.map((f) => RATES[f].div + '%').join(' / ') +
+    ") are held at today's levels for the whole period. The low and high cases shift every fund's return by " + LOW_DELTA + ' and +' + HIGH_DELTA +
+    ' points a year to show sensitivity; they are not a forecast range.' +
     (pMode === 'percent' ? ' Monthly contributions grow each year with your annual raise.' : '') +
-    (inflOn ? ' Figures are in today\'s dollars at ' + num('s-infl-rate') + '% annual inflation.' : '');
+    (inflOn ? " Figures are in today's dollars at " + num('s-infl-rate') + '% annual inflation.' : '');
 
-  return finalTotal;
+  return { final: finalTotal, p, series: Array.from({ length: N + 1 }, (_, y) => (base.invested[y] + base.cash[y]) * d(y)) };
 }
 
 /* ---------------- 401(k) simulation ---------------- */
@@ -876,7 +917,7 @@ function simK401(p, delta) {
   for (let y = 1; y <= p.years; y++) {
     const yearSalary = p.salary * Math.pow(1 + p.raise / 100, y - 1);
     let employeeAnnual = yearSalary * (p.contribPct / 100);
-    if (employeeAnnual > IRS_401K_LIMIT_2026) { employeeAnnual = IRS_401K_LIMIT_2026; capped = true; }
+    if (employeeAnnual > p.limit) { employeeAnnual = p.limit; capped = true; }
     const matchable = Math.min(yearSalary * (p.contribPct / 100), yearSalary * (p.matchCap / 100));
     const employerAnnual = matchable * (p.matchRate / 100);
     const monthlyTotal = (employeeAnnual + employerAnnual) / 12;
@@ -896,7 +937,7 @@ function computeK401(s) {
   const p = {
     rate: num('k-return'), start: num('k-starting'), salary: s.salary, raise: s.raise,
     contribPct: num('k-contrib-pct'), matchRate: num('k-match-rate'), matchCap: num('k-match-cap'),
-    years: s.years, inflRate: s.inflRate,
+    years: s.years, inflRate: s.inflRate, limit: kLimit(),
   };
   const base = simK401(p, 0);
   const low = simK401(p, LOW_DELTA);
@@ -907,6 +948,7 @@ function computeK401(s) {
   const finalValue = base.bal[N] * d(N);
   const t = base.totals;
   $('k-warn').style.display = t.capped ? 'block' : 'none';
+  $('k-warn').textContent = 'Your contribution reaches your plan\'s ' + fmt(p.limit) + ' annual limit in at least one year of this projection, so it\'s capped there from then on.';
   $('k-stat-final').textContent = fmt(finalValue);
   $('k-stat-starting').textContent = fmt(p.start);
   $('k-stat-employee').textContent = fmt(t.rEmp);
@@ -926,27 +968,81 @@ function computeK401(s) {
   }
 
   $('k-footnote').textContent =
-    '2026 IRS employee deferral limit is $24,500 (before any age-50+ catch-up); it is held at that level for the whole projection. ' +
-    "Employer match assumes immediate full vesting and doesn't model plan-specific vesting schedules. " +
+    'The limit is held at its 2026 level for the whole projection and age-50+ catch-up contributions are not modeled. ' +
     'The low and high cases shift the expected return by ' + LOW_DELTA + ' and +' + HIGH_DELTA + ' points a year to show sensitivity; they are not a forecast range.' +
     (inflOn ? " Figures are in today's dollars at " + num('s-infl-rate') + '% annual inflation.' : '');
 
-  return finalValue;
+  return { final: finalValue, series: Array.from({ length: N + 1 }, (_, y) => base.bal[y] * d(y)), capped: t.capped, limit: p.limit };
+}
+
+/* ---------------- goal ---------------- */
+function updateGoal(s, P, K) {
+  const goal = num('s-goal');
+  const el = $('s-goal-result');
+  if (goal <= 0) { el.className = 'goal-result'; el.textContent = "Add a goal to see the year you'd reach it."; return; }
+  const N = s.years;
+  let hit = -1;
+  for (let y = 0; y <= N; y++) { if (P.series[y] + K.series[y] >= goal) { hit = y; break; } }
+  if (hit >= 0) {
+    el.className = 'goal-result ok';
+    el.textContent = hit === 0
+      ? 'You already have ' + short(goal) + ' at the start.'
+      : 'You reach ' + short(goal) + ' in year ' + hit + ' (' + (new Date().getFullYear() + hit) + ').';
+    return;
+  }
+  const gap = goal - (P.final + K.final);
+  const unit = simPersonal(Object.assign({}, P.p, { start: 0, monthly: 1, growth: 0 }), 0);
+  const perDollar = (unit.invested[N] + unit.cash[N]) * deflator(s.inflRate, N);
+  const extra = perDollar > 0 ? Math.ceil(gap / perDollar / 5) * 5 : 0;
+  el.className = 'goal-result';
+  el.textContent = 'About ' + fmt(gap) + ' short of ' + short(goal) + ' after ' + N + ' years.' +
+    (extra > 0 ? ' Adding about ' + fmt(extra) + ' a month to your personal account would close the gap.' : '');
+}
+
+/* ---------------- sources ---------------- */
+function link(url, text) { return '<a href="' + url + '" target="_blank" rel="noopener">' + text + '</a>'; }
+function renderWhy() {
+  $('p-why-body').innerHTML =
+    '<p><b>VOO, ' + RATES.voo.total + '% a year.</b> The S&amp;P 500 returned about 10.5% a year with dividends reinvested from 1926 to 2026 (' +
+      link('https://www.officialdata.org/us/stocks/s-p-500/1926', 'Official Data') + '). Dividend yield ' + RATES.voo.div + '% (' +
+      link('https://www.wisesheets.io/etf/VOO/dividends', 'trailing, Wisesheets') + ').</p>' +
+    '<p><b>QQQM, ' + RATES.qqq.total + '% a year.</b> QQQM tracks the Nasdaq-100, which Nasdaq says returned 14.25% a year since 1985 (' +
+      link('https://www.nasdaq.com/press-release/celebrating-40-years-nasdaq-100-indexr-ndxr-2025-01-31', 'Nasdaq') +
+      '). That span includes the 1990s tech boom, and the index fell about 82% from 2000 to 2002 (' +
+      link('https://www.cmegroup.com/insights/economic-research/2024/nasdaqs-stellar-returns-potential-risks-ahead.html', 'CME Group') +
+      '), so the calculator trims it to ' + RATES.qqq.total + '%. The fund launched in 2020, with a 0.15% expense ratio and a ' + RATES.qqq.div + '% yield (' +
+      link('https://chartrow.com/compare/qqq-vs-qqqm', 'Chartrow') + ').</p>' +
+    '<p><b>SCHD, ' + RATES.schd.total + '% a year.</b> This comes from a long-run study of dividend-growing stocks, not the fund\'s short history. SCHD itself returned about 13.4% a year since 2011, a strong stretch for stocks, and yields about 3.1% to 3.2% (' +
+      link('https://www.fool.com/investing/2026/08/23/where-will-schd-be-in-2035/', 'Motley Fool') + ').</p>' +
+    '<p>Checked October 2026. Yields and returns change over time.</p>';
+  $('k-why-body').innerHTML =
+    '<p><b>7% a year.</b> Diversified 401(k) plans have historically returned around 5% to 8%. This is a rule of thumb, not tied to the funds in your plan.</p>' +
+    '<p><b>Contribution limits.</b> For 2026 the Puerto Rico Treasury allows $15,000 in employee deferrals for plans qualified only under Section 1081.01(a) of the PR Code, and $22,500 for dual-qualified plans that adopted the higher limit. The U.S. limit is $24,500 (' +
+      link('https://www.littler.com/news-analysis/asap/puerto-rico-department-treasury-announces-2026-limits-qualified-retirement-plans', 'Littler') + ', ' +
+      link('https://www.mcvpr.com/newsroom/publications/2026_Annual_Limits_Qualified_Retirement_Plans', 'McConnell Valdés') + ').</p>' +
+    '<p><b>Employer match.</b> Assumes the full match is yours immediately. Your plan may have a vesting schedule.</p>';
 }
 
 /* ---------------- everything ---------------- */
 function recomputeAll() {
   const s = shared();
-  const personal = computePersonal(s);
-  const k401 = computeK401(s);
+  const P = computePersonal(s);
+  const K = computeK401(s);
+  const personal = P.final;
+  const k401 = K.final;
   $('s-total').textContent = fmt(personal + k401);
   $('s-personal').textContent = fmt(personal);
   $('s-k401').textContent = fmt(k401);
+  $('s-cap').hidden = !K.capped;
+  $('s-cap').textContent = 'at ' + fmt(K.limit) + ' limit';
+  updateGoal(s, P, K);
   $('s-label').textContent = 'Combined after ' + s.years + (s.years === 1 ? ' year' : ' years') + (inflOn ? " · today's dollars" : '');
   saveState();
 }
 
+renderWhy();
 loadState();
+if (!matchesPreset()) pCustomOpen = true;
 syncAllocInputs();
 renderToggles();
 switchTab(currentTab);
