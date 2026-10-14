@@ -124,7 +124,7 @@
   .ctl > .unit:last-child { min-width: 38px; }
   .ctl.nowrap { flex-wrap: nowrap; }
   @media (max-width: 380px) { .field { flex-wrap: wrap; } .ctl.nowrap { flex-wrap: wrap; } }
-  .field > .lbl { flex-shrink: 0; }
+  .field > .lbl, .field > label { flex-shrink: 0; }
   .num {
     width: 72px; height: 40px; padding: 0 8px; text-align: right;
     font-size: 16px; /* 16px stops iOS from zooming on focus */
@@ -352,7 +352,7 @@
             </div>
             <div class="field">
               <label for="p-monthly" id="p-amount-lbl">Per paycheck</label>
-              <div class="ctl"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="50000" value="250" step="50" id="p-monthly" class="num wide"></div>
+              <div class="ctl"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="50000" value="250" step="100" id="p-monthly" class="num wide"></div>
             </div>
           </div>
           <div id="p-percent-fields" style="display:none;">
@@ -452,22 +452,24 @@
           </div>
           <div class="field">
             <label for="k-match-rate">Employer match</label>
-            <div class="ctl">
-              <input type="number" inputmode="numeric" min="0" max="200" step="1" value="50" id="k-match-rate" class="num"><span class="unit">% up to</span>
-              <input type="number" inputmode="numeric" min="0" max="100" step="1" value="6" id="k-match-cap" class="num" aria-label="Match cap, percent of salary"><span class="unit">% of salary</span>
-            </div>
+            <div class="ctl"><input type="number" inputmode="numeric" min="0" max="200" step="1" value="50" id="k-match-rate" class="num"><span class="unit">%</span></div>
           </div>
+          <div class="field">
+            <label for="k-match-cap">Match limit</label>
+            <div class="ctl"><input type="number" inputmode="numeric" min="0" max="100" step="1" value="6" id="k-match-cap" class="num"><span class="unit">% of salary</span></div>
+          </div>
+          <p class="hint" id="k-match-hint"></p>
           <div class="field">
             <label for="k-limit">Annual limit</label>
             <div class="ctl">
               <select id="k-limit" class="num sel">
-                <option value="15000" selected>Puerto Rico plan · $15,000</option>
-                <option value="22500">PR dual-qualified · $22,500</option>
-                <option value="24500">U.S. plan · $24,500</option>
+                <option value="15000" selected>PR · $15,000</option>
+                <option value="22500">PR dual · $22,500</option>
+                <option value="24500">U.S. · $24,500</option>
               </select>
             </div>
           </div>
-          <p class="hint">Most Puerto Rico plans are qualified only under the PR Code and cap your own contributions at $15,000 a year. Dual-qualified plans that adopted the higher limit allow $22,500. Ask HR which one yours is.</p>
+          <p class="hint">Most Puerto Rico plans cap your contributions at $15,000 a year. "PR dual" means a dual-qualified plan with the higher $22,500 limit. Ask HR which one yours is.</p>
           <div class="warn" id="k-warn" style="display:none;"></div>
         </div>
 
@@ -985,6 +987,9 @@ function computeK401(s) {
 
   const finalValue = base.bal[N] * d(N);
   const t = base.totals;
+  $('k-match-hint').textContent = p.matchRate > 0 && p.matchCap > 0
+    ? 'Your employer adds ' + p.matchRate + ' cents for every $1 you contribute, up to ' + p.matchCap + '% of your salary.'
+    : 'No employer match.';
   $('k-warn').style.display = t.capped ? 'block' : 'none';
   $('k-warn').textContent = 'Your contribution reaches your plan\'s ' + fmt(p.limit) + ' annual limit in at least one year of this projection, so it\'s capped there from then on.';
   $('k-stat-final').textContent = fmt(finalValue);
