@@ -132,13 +132,15 @@
   }
   .num.wide { width: 112px; }
   .num:focus { outline: 2px solid var(--accent); outline-offset: 0; background: var(--surface); }
+  .ctl > .unit:last-child { min-width: var(--uw, 44px); }
+  #panel-401k .inputs-col { --uw: 80px; }
   .box {
     display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 10px;
     border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2);
   }
   .box:focus-within { outline: 2px solid var(--accent); background: var(--surface); }
   .box .num { width: 56px; height: 38px; padding: 0; border: none; border-radius: 0; background: transparent; }
-  .box .num.wide { width: 92px; }
+  .box .num.wide { width: 84px; }
   .box .num:focus { outline: none; background: transparent; }
   .hint { font-size: 12px; color: var(--text-2); margin: 0 0 10px; }
   .section { padding-top: 16px; margin-top: 16px; border-top: 1px solid var(--border); }
@@ -265,26 +267,26 @@
     <div class="shared-grid">
       <div class="field">
         <label for="s-years">Years to invest</label>
-        <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="1" max="80" value="25" id="s-years" class="num"><span class="unit">yrs</span></span></div>
+        <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="1" max="80" value="25" id="s-years" class="num"></span><span class="unit">yrs</span></div>
       </div>
       <div class="field">
         <label for="s-salary">Annual salary</label>
-        <div class="ctl"><span class="box"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="2000000" value="70000" step="100" id="s-salary" class="num wide"><span class="unit">/ yr</span></span></div>
+        <div class="ctl"><span class="box"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="2000000" value="70000" step="100" id="s-salary" class="num wide"></span><span class="unit">/ yr</span></div>
       </div>
       <div class="field">
         <label for="s-raise">Annual raise</label>
-        <div class="ctl"><span class="box"><input type="number" inputmode="decimal" min="0" max="50" step="0.5" value="3" id="s-raise" class="num"><span class="unit">%</span></span></div>
+        <div class="ctl"><span class="box"><input type="number" inputmode="decimal" min="0" max="50" step="0.5" value="3" id="s-raise" class="num"></span><span class="unit">%</span></div>
       </div>
       <div class="field">
         <span class="lbl" id="s-infl-lbl">Today's dollars</span>
         <div class="ctl nowrap">
-          <span class="box"><input type="number" inputmode="decimal" min="0" max="20" step="0.5" value="2.5" id="s-infl-rate" class="num" aria-label="Inflation rate per year"><span class="unit">% / yr</span></span>
+          <span class="box"><input type="number" inputmode="decimal" min="0" max="20" step="0.5" value="2.5" id="s-infl-rate" class="num" aria-label="Inflation rate per year"></span><span class="unit">% / yr</span>
           <button class="switch" id="s-infl-switch" type="button" role="switch" aria-checked="false" aria-labelledby="s-infl-lbl"></button>
         </div>
       </div>
       <div class="field">
-        <label for="s-goal">Combined goal (optional)</label>
-        <div class="ctl"><span class="box"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" step="1000" placeholder="1500000" id="s-goal" class="num wide"></span></div>
+        <label for="s-goal">Combined goal</label>
+        <div class="ctl"><span class="box"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" step="1000" placeholder="optional" id="s-goal" class="num wide"></span></div>
       </div>
       <p class="goal-result" id="s-goal-result" aria-live="polite"></p>
     </div>
@@ -364,7 +366,7 @@
           <div id="p-percent-fields" style="display:none;">
             <div class="field">
               <label for="p-salary-pct">Share of salary</label>
-              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" step="1" value="10" id="p-salary-pct" class="num"><span class="unit">%</span></span></div>
+              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" step="1" value="10" id="p-salary-pct" class="num"></span><span class="unit">%</span></div>
             </div>
           </div>
           <p class="hint" id="p-effective-monthly"></p>
@@ -384,21 +386,21 @@
           <div class="alloc">
             <div class="alloc-head">
               <label for="p-voo-num"><span class="dot" style="background:var(--c-voo)"></span>VOO <span class="muted" data-yield="voo"></span></label>
-              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="50" id="p-voo-num" class="num"><span class="unit">%</span></span></div>
+              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="50" id="p-voo-num" class="num"></span><span class="unit">%</span></div>
             </div>
             <input type="range" min="0" max="100" step="1" value="50" id="p-voo-range" aria-label="VOO allocation">
           </div>
           <div class="alloc">
             <div class="alloc-head">
               <label for="p-qqq-num"><span class="dot" style="background:var(--c-qqq)"></span>QQQM <span class="muted" data-yield="qqq"></span></label>
-              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="25" id="p-qqq-num" class="num"><span class="unit">%</span></span></div>
+              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="25" id="p-qqq-num" class="num"></span><span class="unit">%</span></div>
             </div>
             <input type="range" min="0" max="100" step="1" value="25" id="p-qqq-range" aria-label="QQQM allocation">
           </div>
           <div class="alloc">
             <div class="alloc-head">
               <label for="p-schd-num"><span class="dot" style="background:var(--c-schd)"></span>SCHD <span class="muted" data-yield="schd"></span></label>
-              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="25" id="p-schd-num" class="num"><span class="unit">%</span></span></div>
+              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="25" id="p-schd-num" class="num"></span><span class="unit">%</span></div>
             </div>
             <input type="range" min="0" max="100" step="1" value="25" id="p-schd-range" aria-label="SCHD allocation">
           </div>
@@ -454,15 +456,15 @@
           <h3>Contributions</h3>
           <div class="field">
             <label for="k-contrib-pct">Your contribution</label>
-            <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" step="1" value="10" id="k-contrib-pct" class="num"><span class="unit">% of salary</span></span></div>
+            <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" step="1" value="10" id="k-contrib-pct" class="num"></span><span class="unit">% of salary</span></div>
           </div>
           <div class="field">
-            <label for="k-match-rate">Match</label>
-            <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="200" step="1" value="50" id="k-match-rate" class="num" style="width:40px"><span class="unit">% of your contribution</span></span></div>
+            <label for="k-match-rate">Employer match</label>
+            <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="200" step="1" value="50" id="k-match-rate" class="num"></span><span class="unit">% of yours</span></div>
           </div>
           <div class="field">
             <label for="k-match-cap">Match limit</label>
-            <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" step="1" value="6" id="k-match-cap" class="num"><span class="unit">% of salary</span></span></div>
+            <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" step="1" value="6" id="k-match-cap" class="num"></span><span class="unit">% of salary</span></div>
           </div>
           <p class="hint" id="k-match-hint"></p>
           <div class="field">
@@ -483,7 +485,7 @@
           <h3>Growth assumptions</h3>
           <div class="field">
             <label for="k-return">Expected return</label>
-            <div class="ctl"><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.5" value="7" id="k-return" class="num"><span class="unit">% / yr</span></span></div>
+            <div class="ctl"><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.5" value="7" id="k-return" class="num"></span><span class="unit">% / yr</span></div>
           </div>
           <p class="hint">Diversified 401(k) plans have historically returned around 5-8% a year; 7% is a commonly cited long-run average.</p>
         </div>
