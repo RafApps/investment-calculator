@@ -565,7 +565,14 @@ const SHOW_INFLATION_UI = false; // flip to true to bring back the today's-dolla
 FUNDS.forEach((f) => document.documentElement.style.setProperty('--c-' + f, RATES[f].color));
 
 const $ = (id) => document.getElementById(id);
-const num = (id) => Number($(id).value) || 0;
+// Reads a number input, kept inside the input's own min/max so a stray negative or huge value can't skew results.
+const num = (id) => {
+  const el = $(id);
+  let v = Number(el.value) || 0;
+  if (el.min !== '' && el.min != null && v < Number(el.min)) v = Number(el.min);
+  if (el.max !== '' && el.max != null && v > Number(el.max)) v = Number(el.max);
+  return v;
+};
 function fmt(n) { return (n < 0 ? '-$' : '$') + Math.abs(Math.round(n)).toLocaleString(); }
 function short(v) {
   const a = Math.abs(v);
@@ -1030,9 +1037,12 @@ function simPersonal(p, delta) {
     let yearCash = 0;
     FUNDS.forEach((f) => {
       const amt = (yearMonthly * p.alloc[f]) / 100;
-      const startBal = bal[f];
-      for (let m = 0; m < 12; m++) bal[f] = bal[f] * (1 + mRate[f]) + amt;
-      const payout = startBal * (RATES[f].div / 100);
+      // dividends accrue monthly on the balance held that month, so the first year isn't zero
+      let payout = 0;
+      for (let m = 0; m < 12; m++) {
+        payout += (bal[f] * RATES[f].div) / 1200;
+        bal[f] = bal[f] * (1 + mRate[f]) + amt;
+      }
       out.div[f].push(payout);
       if (!p.reinvest) yearCash += payout;
       contrib += amt * 12;
@@ -1091,7 +1101,7 @@ function computePersonal(s) {
     pGrowthChart.data.labels = idx.map((y) => 'Yr ' + y);
     pGrowthChart.data.datasets[0].data = series(base.invested);
     pGrowthChart.data.datasets[1].data = series(base.cash);
-    pGrowthChart.data.datasets[2].data = idx.map((y) => Math.round(base.realContrib[y]));
+    pGrowthChart.data.datasets[2].data = idx.map((y) => Math.round(start + base.realContrib[y]));
     pGrowthChart.data.datasets[3].data = series(base.fund.voo);
     pGrowthChart.data.datasets[4].data = series(base.fund.qqq);
     pGrowthChart.data.datasets[5].data = series(base.fund.schd);
@@ -1113,6 +1123,7 @@ function computePersonal(s) {
     'Rates are assumptions based on long-run history, not guarantees. Dividend yields (' + FUNDS.map((f) => RATES[f].div + '%').join(' / ') +
     ") are held at today's levels for the whole period. The low and high cases shift every fund's return by " + LOW_DELTA + ' and +' + HIGH_DELTA +
     ' points a year to show sensitivity; they are not a forecast range.' +
+    (start > 0 ? ' The Contributed line includes your starting balance.' : '') +
     (pMode === 'percent' ? ' Monthly contributions grow each year with your annual raise.' : '') +
     (pMode === 'dollar' && payPerYear() === 26 ? ' Bi-weekly contributions are modeled as 26 paychecks a year, spread evenly across the months.' : '') +
     (inflOn ? " Figures are in today's dollars at " + num('s-infl-rate') + '% annual inflation.' : '');
@@ -1129,7 +1140,8 @@ function simK401(p, delta) {
     const yearSalary = p.salary * Math.pow(1 + p.raise / 100, y - 1);
     let employeeAnnual = yearSalary * (p.contribPct / 100);
     if (employeeAnnual > p.limit) { employeeAnnual = p.limit; capped = true; }
-    const matchable = Math.min(yearSalary * (p.contribPct / 100), yearSalary * (p.matchCap / 100));
+    // the match is based on what you actually contribute, after the plan limit
+    const matchable = Math.min(employeeAnnual, yearSalary * (p.matchCap / 100));
     const employerAnnual = matchable * (p.matchRate / 100);
     const monthlyTotal = (employeeAnnual + employerAnnual) / 12;
     for (let m = 0; m < 12; m++) bal = bal * (1 + mr) + monthlyTotal;
@@ -1176,7 +1188,7 @@ function computeK401(s) {
     kGrowthChart.data.labels = idx.map((y) => 'Yr ' + y);
     kGrowthChart.data.datasets[0].data = idx.map((y) => Math.round(base.bal[y] * d(y)));
     kGrowthChart.data.datasets[1].data = idx.map((y) => Math.round(base.er[y]));
-    kGrowthChart.data.datasets[2].data = idx.map((y) => Math.round(base.emp[y]));
+    kGrowthChart.data.datasets[2].data = idx.map((y) => Math.round(p.start + base.emp[y]));
     kGrowthChart.data.datasets[3].data = idx.map((y) => Math.round(low.bal[y] * d(y)));
     kGrowthChart.data.datasets[4].data = idx.map((y) => Math.round(high.bal[y] * d(y)));
     kGrowthChart.update();
@@ -1184,6 +1196,7 @@ function computeK401(s) {
 
   $('k-footnote').textContent =
     'The limit is held at its 2026 level for the whole projection and age-50+ catch-up contributions are not modeled. ' +
+    (p.start > 0 ? 'The contribution line includes your starting balance. ' : '') +
     'The low and high cases shift the expected return by ' + LOW_DELTA + ' and +' + HIGH_DELTA + ' points a year to show sensitivity; they are not a forecast range.' +
     (inflOn ? " Figures are in today's dollars at " + num('s-infl-rate') + '% annual inflation.' : '');
 
