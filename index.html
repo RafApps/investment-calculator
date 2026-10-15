@@ -231,6 +231,7 @@
   [hidden] { display: none !important; }
   .num.sel { width: auto; max-width: 100%; text-align: left; padding: 0 8px; cursor: pointer; }
   .cap { display: block; font-style: normal; font-size: 11px; color: var(--amber-ink); }
+  @media (min-width: 700px) { .goal-result { grid-column: 1 / -1; } }
   .goal-result { margin: 0 0 8px; align-self: center; font-size: 13px; line-height: 1.4; color: var(--text-2); }
   .goal-result.ok { color: var(--green-ink); font-weight: 600; }
   .alloc-toggle { display: block; margin: 0 0 6px; }
@@ -277,7 +278,7 @@
         <label for="s-raise">Annual raise</label>
         <div class="ctl"><span class="box"><input type="number" inputmode="decimal" min="0" max="50" step="0.5" value="3" id="s-raise" class="num"></span><span class="unit">%</span></div>
       </div>
-      <div class="field">
+      <div class="field" id="s-infl-field" hidden>
         <span class="lbl" id="s-infl-lbl">Today's dollars</span>
         <div class="ctl nowrap">
           <span class="box"><input type="number" inputmode="decimal" min="0" max="20" step="0.5" value="2.5" id="s-infl-rate" class="num" aria-label="Inflation rate per year"></span><span class="unit">% / yr</span>
@@ -286,7 +287,7 @@
       </div>
       <div class="field">
         <label for="s-goal">Combined goal</label>
-        <div class="ctl"><span class="box"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" step="1000" placeholder="optional" id="s-goal" class="num wide"></span></div>
+        <div class="ctl"><span class="box"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" step="10000" placeholder="optional" id="s-goal" class="num wide"></span></div>
       </div>
       <p class="goal-result" id="s-goal-result" aria-live="polite"></p>
     </div>
@@ -508,6 +509,7 @@ const LOW_DELTA = -3;   // low case: returns 3 points lower every year
 const HIGH_DELTA = 2;   // high case: returns 2 points higher every year
 const STORE_KEY = 'investcalc.v1';
 const MAX_YEARS = 80;
+const SHOW_INFLATION_UI = false; // flip to true to bring back the today's-dollars switch
 
 FUNDS.forEach((f) => document.documentElement.style.setProperty('--c-' + f, RATES[f].color));
 
@@ -681,7 +683,7 @@ function loadState() {
         FUNDS.reduce((s, f) => s + d.pAlloc[f], 0) === 100) pAlloc = d.pAlloc;
     if (d.pMode === 'dollar' || d.pMode === 'percent') pMode = d.pMode;
     if (typeof d.pReinvest === 'boolean') pReinvest = d.pReinvest;
-    if (typeof d.inflOn === 'boolean') inflOn = d.inflOn;
+    if (SHOW_INFLATION_UI && typeof d.inflOn === 'boolean') inflOn = d.inflOn;
     if (typeof d.pCustomOpen === 'boolean') pCustomOpen = d.pCustomOpen;
     if (d.pView === 'growth' || d.pView === 'div') pView = d.pView;
     if (d.tab === 'personal' || d.tab === '401k') currentTab = d.tab;
@@ -1093,6 +1095,7 @@ function recomputeAll() {
 }
 
 renderWhy();
+$('s-infl-field').hidden = !SHOW_INFLATION_UI;
 loadState();
 if (!matchesPreset()) pCustomOpen = true;
 syncAllocInputs();
