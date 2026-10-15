@@ -115,8 +115,29 @@
   }
 
   /* ---------- fields ---------- */
-  .shared-grid { display: grid; grid-template-columns: 1fr; column-gap: 32px; }
-  @media (min-width: 700px) { .shared-grid { grid-template-columns: 1fr 1fr; } .field.wide { grid-column: 1 / -1; } }
+  .shared-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px 32px; }
+  @media (min-width: 700px) { .shared-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: stretch; } }
+  .shared-inputs { min-width: 0; }
+  .shared-summary {
+    min-width: 0; display: flex; flex-direction: column; gap: 12px; padding: 14px 16px;
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px;
+  }
+  .ss-label { display: block; font-size: 12px; color: var(--text-2); }
+  .ss-total { display: block; font-size: 28px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.15; font-variant-numeric: tabular-nums; }
+  .ss-bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--border); margin-top: 10px; }
+  .ss-bar > i { display: block; height: 100%; }
+  .ss-bar .b-p { background: var(--accent); }
+  .ss-bar .b-k { background: var(--green-ink); }
+  .ss-parts { display: flex; gap: 4px 18px; margin-top: 8px; flex-wrap: wrap; }
+  .ss-part { font-size: 13px; color: var(--text-2); display: flex; align-items: center; gap: 6px; }
+  .ss-part b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .ss-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .ss-goal { border-top: 1px solid var(--border); padding-top: 12px; margin-top: auto; }
+  .ss-goal-head { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--text-2); margin-bottom: 6px; }
+  .ss-goal-head b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .ss-prog { height: 8px; border-radius: 4px; background: var(--border); overflow: hidden; margin-bottom: 8px; }
+  .ss-prog > i { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 4px; transition: width .25s; }
+  .ss-prog.done > i { background: var(--green-ink); }
   .field { display: flex; align-items: center; justify-content: space-between; gap: 4px 12px; min-height: 48px; flex-wrap: wrap; }
   .field > label, .field > .lbl { font-size: 14px; color: var(--text); }
   .ctl { display: flex; align-items: center; justify-content: flex-end; gap: 6px; flex-wrap: wrap; margin-left: auto; }
@@ -231,8 +252,7 @@
   [hidden] { display: none !important; }
   .num.sel { width: auto; max-width: 100%; text-align: left; padding: 0 8px; cursor: pointer; }
   .cap { display: block; font-style: normal; font-size: 11px; color: var(--amber-ink); }
-  @media (min-width: 700px) { .goal-result { grid-column: 1 / -1; } }
-  .goal-result { margin: 0 0 8px; align-self: center; font-size: 13px; line-height: 1.4; color: var(--text-2); }
+  .goal-result { margin: 0; font-size: 13px; line-height: 1.45; color: var(--text-2); }
   .goal-result.ok { color: var(--green-ink); font-weight: 600; }
   .alloc-toggle { display: block; margin: 0 0 6px; }
   details.why { margin: 4px 0 4px; font-size: 13px; color: var(--text-2); }
@@ -266,6 +286,7 @@
       <button class="link-btn" id="reset-btn" type="button">Reset to defaults</button>
     </div>
     <div class="shared-grid">
+     <div class="shared-inputs">
       <div class="field">
         <label for="s-years">Years to invest</label>
         <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="1" max="80" value="25" id="s-years" class="num"></span><span class="unit">yrs</span></div>
@@ -289,7 +310,23 @@
         <label for="s-goal">Combined goal</label>
         <div class="ctl"><span class="box"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" step="10000" placeholder="optional" id="s-goal" class="num wide"></span></div>
       </div>
-      <p class="goal-result" id="s-goal-result" aria-live="polite"></p>
+     </div>
+     <aside class="shared-summary" aria-label="Summary" aria-live="polite">
+      <div>
+        <span class="ss-label" id="ss-label">After 25 years</span>
+        <span class="ss-total" id="ss-total">$0</span>
+        <div class="ss-bar" aria-hidden="true"><i class="b-p" id="ss-bp"></i><i class="b-k" id="ss-bk"></i></div>
+        <div class="ss-parts">
+          <span class="ss-part"><span class="ss-dot" style="background:var(--accent)"></span>Personal <b id="ss-personal">$0</b></span>
+          <span class="ss-part"><span class="ss-dot" style="background:var(--green-ink)"></span>401(k) <b id="ss-k401">$0</b></span>
+        </div>
+      </div>
+      <div class="ss-goal">
+        <div class="ss-goal-head" id="ss-goal-head" hidden><span>Goal progress</span><b id="ss-goal-pct">0%</b></div>
+        <div class="ss-prog" id="ss-prog" hidden><i id="ss-prog-bar"></i></div>
+        <p class="goal-result" id="s-goal-result"></p>
+      </div>
+     </aside>
     </div>
   </section>
 
@@ -1032,6 +1069,13 @@ function computeK401(s) {
 function updateGoal(s, P, K) {
   const goal = num('s-goal');
   const el = $('s-goal-result');
+  const total = P.final + K.final;
+  const pct = goal > 0 ? total / goal * 100 : 0;
+  $('ss-goal-head').hidden = goal <= 0;
+  $('ss-prog').hidden = goal <= 0;
+  $('ss-prog').classList.toggle('done', pct >= 100);
+  $('ss-prog-bar').style.width = Math.min(100, pct) + '%';
+  $('ss-goal-pct').textContent = Math.floor(pct) + '%' + ' of ' + short(goal);
   if (goal <= 0) { el.className = 'goal-result'; el.textContent = "Add a goal to see the year you'd reach it."; return; }
   const N = s.years;
   let hit = -1;
@@ -1089,6 +1133,13 @@ function recomputeAll() {
   $('s-k401').textContent = fmt(k401);
   $('s-cap').hidden = !K.capped;
   $('s-cap').textContent = 'at ' + fmt(K.limit) + ' limit';
+  const tot = personal + k401;
+  $('ss-total').textContent = fmt(tot);
+  $('ss-personal').textContent = fmt(personal);
+  $('ss-k401').textContent = fmt(k401);
+  $('ss-bp').style.width = (tot > 0 ? personal / tot * 100 : 50) + '%';
+  $('ss-bk').style.width = (tot > 0 ? k401 / tot * 100 : 50) + '%';
+  $('ss-label').textContent = 'After ' + s.years + (s.years === 1 ? ' year' : ' years') + (inflOn ? " · today's dollars" : '');
   updateGoal(s, P, K);
   $('s-label').textContent = 'Combined after ' + s.years + (s.years === 1 ? ' year' : ' years') + (inflOn ? " · today's dollars" : '');
   saveState();
