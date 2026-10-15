@@ -235,13 +235,22 @@
   .stat.green .stat-value { color: var(--green-ink); }
   .warn { background: var(--amber-bg); border: 1px solid var(--amber-border); color: var(--amber-ink); border-radius: 8px; padding: 10px 12px; font-size: 13px; margin-top: 12px; }
 
-  .legend { display: flex; flex-wrap: wrap; gap: 4px 6px; margin-bottom: 6px; }
+  .legend { display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px; }
+  .lg-hint { margin: 0; font-size: 12px; color: var(--text-3); }
+  .lg-group { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+  .lg-gl { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--text-3); }
+  .lg-row { display: flex; flex-wrap: wrap; gap: 4px 6px; }
+  @media (min-width: 640px) {
+    .lg-group { flex-direction: row; align-items: center; gap: 10px; }
+    .lg-gl { width: 66px; flex-shrink: 0; }
+  }
   .lg {
     display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 10px;
     font-size: 12px; border: 1px solid var(--border); border-radius: 16px;
     background: var(--surface); color: var(--text-2); cursor: pointer;
   }
-  .lg[aria-pressed=false] { opacity: .45; text-decoration: line-through; }
+  .lg[aria-pressed=false] { opacity: .5; text-decoration: line-through; background: transparent; border-style: dashed; }
+  .lg[aria-pressed=false] .lg-sw { filter: grayscale(1); }
   .lg-sw { width: 16px; height: 0; border-top: 3px solid; flex-shrink: 0; }
   .lg-sw.box { height: 10px; width: 10px; border: none; border-radius: 3px; }
   .chart-wrap { position: relative; width: 100%; height: 280px; margin-bottom: 22px; }
@@ -747,17 +756,77 @@ function themeVals() {
   return { text: g('--chart-text'), grid: g('--chart-grid'), total: g('--total'), totalFill: g('--total-fill'), muted: g('--text-3') };
 }
 
-function baseOptions(t, yStacked, xStacked) {
+function withAlpha(hex, a) {
+  const h = hex.replace('#', '');
+  if (h.length !== 6) return hex;
+  return 'rgba(' + parseInt(h.slice(0, 2), 16) + ',' + parseInt(h.slice(2, 4), 16) + ',' + parseInt(h.slice(4, 6), 16) + ',' + a + ')';
+}
+
+// Small line swatches (solid / dashed / dotted) for the tooltip, drawn as SVG images so they stay crisp.
+const swatchCache = {};
+function swatchImg(color, dash) {
+  const key = color + '|' + dash;
+  if (swatchCache[key]) return swatchCache[key];
+  const da = dash === 'dashed' ? ' stroke-dasharray="5 3"' : dash === 'dotted' ? ' stroke-dasharray="1.5 3" stroke-linecap="round"' : '';
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="10"><line x1="1" y1="5" x2="19" y2="5" stroke="' + color +
+    '" stroke-width="2.5"' + da + '/></svg>';
+  const img = new Image(20, 10);
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  swatchCache[key] = img;
+  return img;
+}
+
+// Draws "Name $value" just past the right end of each visible line (wide screens only).
+const endLabels = {
+  id: 'endLabels',
+  afterDatasetsDraw(chart) {
+    if (chart.width < 560) return;
+    const items = [];
+    chart.data.datasets.forEach((ds, i) => {
+      if (!ds.endLabel || !chart.isDatasetVisible(i) || !ds.data.length) return;
+      const v = ds.data[ds.data.length - 1];
+      const pt = chart.getDatasetMeta(i).data[ds.data.length - 1];
+      if (!pt || !(v > 0)) return;
+      items.push({ y: pt.y, text: ds.endLabel + ' ' + short(v), color: ds.endColor || ds.borderColor });
+    });
+    items.sort((a, b) => a.y - b.y);
+    const gap = 13, top = chart.chartArea.top + 6, bottom = chart.chartArea.bottom - 2;
+    items.forEach((it, i) => { it.y = Math.max(it.y, top); if (i && it.y - items[i - 1].y < gap) it.y = items[i - 1].y + gap; });
+    for (let i = items.length - 1; i >= 0; i--) { if (items[i].y > bottom) items[i].y = bottom; if (i < items.length - 1 && items[i + 1].y - items[i].y < gap) items[i].y = items[i + 1].y - gap; }
+    const ctx = chart.ctx;
+    ctx.save();
+    ctx.font = '600 11px ' + Chart.defaults.font.family;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    items.forEach((it) => { ctx.fillStyle = it.color; ctx.fillText(it.text, chart.chartArea.right + 8, it.y); });
+    ctx.restore();
+  },
+};
+
+function baseOptions(t, yStacked, xStacked, lines) {
   return {
     responsive: true,
     maintainAspectRatio: false,
+    // room for the end-of-line value labels, on wide screens only
+    layout: { padding: { right: (c) => (lines && c.chart.width >= 560 ? 112 : 0) } },
     interaction: { mode: 'index', intersect: false },
     plugins: {
       legend: { display: false },
       tooltip: {
+        usePointStyle: !!lines,
+        boxWidth: 20,
+        boxHeight: 10,
+        // drop $0 rows (an unused fund, no dividend cash yet) but keep the first row
+        filter: (it) => it.raw !== 0 || it.datasetIndex === 0,
         callbacks: {
           title: (items) => (items[0].label === 'Yr 0' ? 'Start' : items[0].label),
           label: (c) => ' ' + c.dataset.label + ': ' + fmt(c.raw),
+          labelPointStyle: (c) => ({ pointStyle: swatchImg(c.dataset.swColor || c.dataset.borderColor, c.dataset.swDash || 'solid'), rotation: 0 }),
+          footer: (items) => {
+            // when dividends aren't reinvested, the first two rows stack into the portfolio total
+            const stacked = items.filter((i) => i.dataset.stackTotal);
+            return stacked.length > 1 ? 'Total: ' + fmt(stacked.reduce((a, i) => a + i.raw, 0)) : '';
+          },
         },
       },
     },
@@ -776,30 +845,62 @@ function showChartFallback(canvasId) {
     'The chart library couldn\'t load (it needs an internet connection the first time). The numbers still work.</div>';
 }
 
-function buildLegend(containerId, chart, items) {
+const LEGENDS = {};
+function refreshLegend(id) { if (LEGENDS[id]) LEGENDS[id](); }
+
+// items: { label, color, dash, box, idx: [dataset indexes], group, avail: () => bool }
+function buildLegend(containerId, chart, items, hint) {
   const el = $(containerId);
   if (!el) return;
   el.innerHTML = '';
+  delete LEGENDS[containerId];
   if (!chart) { el.style.display = 'none'; return; }
+  if (hint) {
+    const h = document.createElement('p');
+    h.className = 'lg-hint';
+    h.textContent = hint;
+    el.appendChild(h);
+  }
+  const groups = new Map();
+  const state = [];
   items.forEach((it) => {
+    const g = it.group || '';
+    if (!groups.has(g)) {
+      const row = document.createElement('div');
+      row.className = 'lg-group';
+      if (g) { const gl = document.createElement('span'); gl.className = 'lg-gl'; gl.textContent = g; row.appendChild(gl); }
+      const pills = document.createElement('div');
+      pills.className = 'lg-row';
+      row.appendChild(pills);
+      el.appendChild(row);
+      groups.set(g, { row, pills });
+    }
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'lg';
-    b.setAttribute('aria-pressed', String(it.idx.every((i) => chart.isDatasetVisible(i))));
     const sw = document.createElement('span');
     sw.className = 'lg-sw' + (it.box ? ' box' : '');
     if (it.box) sw.style.background = it.color;
     else { sw.style.borderTopColor = it.color; sw.style.borderTopStyle = it.dash || 'solid'; }
     b.appendChild(sw);
     b.appendChild(document.createTextNode(it.label));
-    b.addEventListener('click', () => {
-      const show = b.getAttribute('aria-pressed') !== 'true';
-      it.idx.forEach((i) => chart.setDatasetVisibility(i, show));
-      b.setAttribute('aria-pressed', String(show));
-      chart.update();
-    });
-    el.appendChild(b);
+    const st = { it, btn: b, on: true };
+    b.addEventListener('click', () => { st.on = !st.on; refresh(); chart.update(); });
+    groups.get(g).pills.appendChild(b);
+    state.push(st);
   });
+  // A pill's pressed state is the user's choice; availability (e.g. a fund at 0%) hides the pill and its lines.
+  function refresh() {
+    state.forEach((st) => {
+      const avail = st.it.avail ? st.it.avail() : true;
+      st.btn.hidden = !avail;
+      st.btn.setAttribute('aria-pressed', String(st.on));
+      st.it.idx.forEach((i) => chart.setDatasetVisibility(i, avail && st.on));
+    });
+    groups.forEach((g) => { g.row.hidden = Array.from(g.pills.children).every((x) => x.hidden); });
+  }
+  LEGENDS[containerId] = refresh;
+  refresh();
 }
 
 function initCharts() {
@@ -812,30 +913,33 @@ function initCharts() {
   try {
     pGrowthChart = new Chart($('p-growth-chart').getContext('2d'), {
       type: 'line',
+      plugins: [endLabels],
       data: {
         labels: [],
         datasets: [
-          { label: 'Invested value (total)', data: [], borderColor: t.total, backgroundColor: t.totalFill, borderWidth: 2, pointRadius: 0, fill: true, stack: 'g', tension: 0.15 },
-          { label: 'Cash from dividends', data: [], borderColor: t.total, backgroundColor: 'rgba(201,133,0,0.22)', borderWidth: 2, pointRadius: 0, fill: '-1', stack: 'g', tension: 0.15 },
-          { label: 'Contributed', data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, stack: 'c', fill: false, tension: 0 },
-          { label: 'VOO', data: [], borderColor: RATES.voo.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 3], pointRadius: 0, stack: 'v', fill: false, tension: 0.15 },
-          { label: 'QQQM', data: [], borderColor: RATES.qqq.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 3], pointRadius: 0, stack: 'q', fill: false, tension: 0.15 },
-          { label: 'SCHD', data: [], borderColor: RATES.schd.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 3], pointRadius: 0, stack: 's', fill: false, tension: 0.15 },
-          { label: 'Low case (total)', data: [], borderColor: t.muted, backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [1, 4], pointRadius: 0, stack: 'lo', fill: false, tension: 0.15 },
-          { label: 'High case (total)', data: [], borderColor: t.muted, backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [1, 4], pointRadius: 0, stack: 'hi', fill: false, tension: 0.15 },
+          { label: 'Invested value', endLabel: 'Invested', swColor: '#f1f5f9', stackTotal: true, data: [], borderColor: t.total, backgroundColor: t.totalFill, borderWidth: 2, pointRadius: 0, fill: true, stack: 'g', tension: 0.15 },
+          { label: 'Dividend cash', endLabel: 'Cash', endColor: CASH_COLOR, swColor: CASH_COLOR, stackTotal: true, data: [], borderColor: t.total, backgroundColor: 'rgba(201,133,0,0.22)', borderWidth: 2, pointRadius: 0, fill: '-1', stack: 'g', tension: 0.15 },
+          { label: 'Contributed', endLabel: 'Contributed', data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, stack: 'c', fill: false, tension: 0 },
+          { label: 'VOO', endLabel: 'VOO', swDash: 'dashed', data: [], borderColor: RATES.voo.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 3], pointRadius: 0, stack: 'v', fill: false, tension: 0.15 },
+          { label: 'QQQM', endLabel: 'QQQM', swDash: 'dashed', data: [], borderColor: RATES.qqq.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 3], pointRadius: 0, stack: 'q', fill: false, tension: 0.15 },
+          { label: 'SCHD', endLabel: 'SCHD', swDash: 'dashed', data: [], borderColor: RATES.schd.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 3], pointRadius: 0, stack: 's', fill: false, tension: 0.15 },
+          // the low and high cases are drawn as one shaded band (low fills up to high)
+          { label: 'Low case', endLabel: 'Low', swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.55), backgroundColor: withAlpha(t.muted, 0.16), borderWidth: 1, pointRadius: 0, stack: 'lo', fill: 7, tension: 0.15 },
+          { label: 'High case', endLabel: 'High', swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.55), backgroundColor: 'transparent', borderWidth: 1, pointRadius: 0, stack: 'hi', fill: false, tension: 0.15 },
         ],
       },
-      options: baseOptions(t, true, false),
+      options: baseOptions(t, true, false, true),
     });
+    const fundOn = (f) => () => pAlloc[f] > 0;
     buildLegend('p-growth-legend', pGrowthChart, [
-      { label: 'Contributed', color: CONTRIB_COLOR, idx: [2] },
-      { label: 'Invested value', color: t.total, idx: [0] },
-      { label: 'Dividend cash', color: CASH_COLOR, idx: [1] },
-      { label: 'VOO', color: RATES.voo.color, dash: 'dashed', idx: [3] },
-      { label: 'QQQM', color: RATES.qqq.color, dash: 'dashed', idx: [4] },
-      { label: 'SCHD', color: RATES.schd.color, dash: 'dashed', idx: [5] },
-      { label: 'Low / high case', color: t.muted, dash: 'dotted', idx: [6, 7] },
-    ]);
+      { group: 'Portfolio', label: 'Contributed', color: CONTRIB_COLOR, idx: [2] },
+      { group: 'Portfolio', label: 'Invested value', color: t.total, idx: [0] },
+      { group: 'Portfolio', label: 'Dividend cash', color: CASH_COLOR, idx: [1], avail: () => !pReinvest },
+      { group: 'Portfolio', label: 'Low / high range', color: t.muted, dash: 'dotted', idx: [6, 7] },
+      { group: 'By fund', label: 'VOO', color: RATES.voo.color, dash: 'dashed', idx: [3], avail: fundOn('voo') },
+      { group: 'By fund', label: 'QQQM', color: RATES.qqq.color, dash: 'dashed', idx: [4], avail: fundOn('qqq') },
+      { group: 'By fund', label: 'SCHD', color: RATES.schd.color, dash: 'dashed', idx: [5], avail: fundOn('schd') },
+    ], 'Tap a label to show or hide it.');
 
     pDivChart = new Chart($('p-div-chart').getContext('2d'), {
       type: 'bar',
@@ -845,7 +949,7 @@ function initCharts() {
       },
       options: baseOptions(t, true, true),
     });
-    buildLegend('p-div-legend', pDivChart, FUNDS.map((f, i) => ({ label: RATES[f].label, color: RATES[f].color, box: true, idx: [i] })));
+    buildLegend('p-div-legend', pDivChart, FUNDS.map((f, i) => ({ label: RATES[f].label, color: RATES[f].color, box: true, idx: [i], avail: () => pAlloc[f] > 0 })), 'Tap a label to show or hide it.');
   } catch (e) {
     console.error('Personal chart init failed', e);
     ['p-growth-chart', 'p-div-chart'].forEach(showChartFallback);
@@ -857,24 +961,25 @@ function initCharts() {
   try {
     kGrowthChart = new Chart($('k-growth-chart').getContext('2d'), {
       type: 'line',
+      plugins: [endLabels],
       data: {
         labels: [],
         datasets: [
-          { label: 'Portfolio value', data: [], borderColor: t.total, backgroundColor: t.totalFill, borderWidth: 2, pointRadius: 0, fill: true, tension: 0.15 },
-          { label: '+ Employer match', data: [], borderColor: MATCH_COLOR, backgroundColor: 'transparent', borderWidth: 2, borderDash: [4, 3], pointRadius: 0, fill: false, tension: 0 },
-          { label: 'Your contributions', data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, fill: false, tension: 0 },
-          { label: 'Low case', data: [], borderColor: t.muted, backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [1, 4], pointRadius: 0, fill: false, tension: 0.15 },
-          { label: 'High case', data: [], borderColor: t.muted, backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [1, 4], pointRadius: 0, fill: false, tension: 0.15 },
+          { label: 'Portfolio value', endLabel: 'Portfolio', swColor: '#f1f5f9', data: [], borderColor: t.total, backgroundColor: t.totalFill, borderWidth: 2, pointRadius: 0, fill: true, tension: 0.15 },
+          { label: '+ Employer match', endLabel: '+ Match', swDash: 'dashed', data: [], borderColor: MATCH_COLOR, backgroundColor: 'transparent', borderWidth: 2, borderDash: [4, 3], pointRadius: 0, fill: false, tension: 0 },
+          { label: 'Your contributions', endLabel: 'Yours', data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, fill: false, tension: 0 },
+          { label: 'Low case', endLabel: 'Low', swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.55), backgroundColor: withAlpha(t.muted, 0.16), borderWidth: 1, pointRadius: 0, fill: 4, tension: 0.15 },
+          { label: 'High case', endLabel: 'High', swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.55), backgroundColor: 'transparent', borderWidth: 1, pointRadius: 0, fill: false, tension: 0.15 },
         ],
       },
-      options: baseOptions(t, false, false),
+      options: baseOptions(t, false, false, true),
     });
     buildLegend('k-growth-legend', kGrowthChart, [
       { label: 'Your contributions', color: CONTRIB_COLOR, idx: [2] },
       { label: '+ Employer match', color: MATCH_COLOR, dash: 'dashed', idx: [1] },
       { label: 'Portfolio value', color: t.total, idx: [0] },
-      { label: 'Low / high case', color: t.muted, dash: 'dotted', idx: [3, 4] },
-    ]);
+      { label: 'Low / high range', color: t.muted, dash: 'dotted', idx: [3, 4] },
+    ], 'Tap a label to show or hide it.');
   } catch (e) {
     console.error('401(k) chart init failed', e);
     showChartFallback('k-growth-chart');
@@ -981,12 +1086,14 @@ function computePersonal(s) {
     pGrowthChart.data.datasets[5].data = series(base.fund.schd);
     pGrowthChart.data.datasets[6].data = idx.map((y) => Math.round((low.invested[y] + low.cash[y]) * d(y)));
     pGrowthChart.data.datasets[7].data = idx.map((y) => Math.round((high.invested[y] + high.cash[y]) * d(y)));
+    refreshLegend('p-growth-legend');
     pGrowthChart.update();
   }
   if (pDivChart) {
     const yrs = Array.from({ length: N }, (_, i) => i + 1);
     pDivChart.data.labels = yrs.map((y) => 'Yr ' + y);
     FUNDS.forEach((f, i) => { pDivChart.data.datasets[i].data = yrs.map((y) => Math.round(base.div[f][y - 1] * d(y))); });
+    refreshLegend('p-div-legend');
     pDivChart.update();
   }
 
