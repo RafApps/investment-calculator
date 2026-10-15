@@ -118,6 +118,9 @@
   .shared-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px 32px; }
   @media (min-width: 700px) { .shared-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: stretch; } }
   .shared-inputs { min-width: 0; }
+  .shared-inputs .box { width: 132px; }
+  .shared-inputs .box .num, .shared-inputs .box .num.wide { flex: 1; width: auto; min-width: 0; }
+  .page-foot { margin-top: 24px; text-align: center; }
   .shared-summary {
     min-width: 0; display: flex; flex-direction: column; gap: 12px; padding: 14px 16px;
     background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px;
@@ -283,7 +286,6 @@
   <section class="card" aria-labelledby="shared-h">
     <div class="card-head">
       <h2 id="shared-h">Applies to both accounts</h2>
-      <button class="link-btn" id="reset-btn" type="button">Reset to defaults</button>
     </div>
     <div class="shared-grid">
      <div class="shared-inputs">
@@ -308,7 +310,7 @@
       </div>
       <div class="field">
         <label for="s-goal">Combined goal</label>
-        <div class="ctl"><span class="box"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" step="10000" placeholder="optional" id="s-goal" class="num wide"></span></div>
+        <div class="ctl"><span class="box"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" step="10000" placeholder="optional" id="s-goal" class="num wide"></span><span class="unit"></span></div>
       </div>
      </div>
      <aside class="shared-summary" aria-label="Summary" aria-live="polite">
@@ -530,6 +532,9 @@
       </section>
     </div>
   </div>
+  <footer class="page-foot">
+    <button class="link-btn" id="reset-btn" type="button">Reset all inputs to defaults</button>
+  </footer>
 </main>
 
 <script>
