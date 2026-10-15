@@ -117,11 +117,10 @@
   /* ---------- fields ---------- */
   .shared-grid { display: grid; grid-template-columns: 1fr; column-gap: 32px; }
   @media (min-width: 700px) { .shared-grid { grid-template-columns: 1fr 1fr; } .field.wide { grid-column: 1 / -1; } }
-  .field { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; }
+  .field { display: flex; align-items: center; justify-content: space-between; gap: 4px 12px; min-height: 48px; flex-wrap: wrap; }
   .field > label, .field > .lbl { font-size: 14px; color: var(--text); }
-  .ctl { display: flex; align-items: center; justify-content: flex-end; gap: 6px; flex-wrap: wrap; }
+  .ctl { display: flex; align-items: center; justify-content: flex-end; gap: 6px; flex-wrap: wrap; margin-left: auto; }
   .unit { font-size: 14px; color: var(--text-2); white-space: nowrap; }
-  .ctl > .unit:last-child { min-width: 38px; }
   .ctl.nowrap { flex-wrap: nowrap; }
   @media (max-width: 380px) { .field { flex-wrap: wrap; } .ctl.nowrap { flex-wrap: wrap; } }
   .field > .lbl, .field > label { flex-shrink: 0; }
@@ -133,6 +132,14 @@
   }
   .num.wide { width: 112px; }
   .num:focus { outline: 2px solid var(--accent); outline-offset: 0; background: var(--surface); }
+  .box {
+    display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 10px;
+    border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2);
+  }
+  .box:focus-within { outline: 2px solid var(--accent); background: var(--surface); }
+  .box .num { width: 56px; height: 38px; padding: 0; border: none; border-radius: 0; background: transparent; }
+  .box .num.wide { width: 92px; }
+  .box .num:focus { outline: none; background: transparent; }
   .hint { font-size: 12px; color: var(--text-2); margin: 0 0 10px; }
   .section { padding-top: 16px; margin-top: 16px; border-top: 1px solid var(--border); }
   .section:first-child { padding-top: 0; margin-top: 0; border-top: none; }
@@ -258,27 +265,26 @@
     <div class="shared-grid">
       <div class="field">
         <label for="s-years">Years to invest</label>
-        <div class="ctl"><input type="number" inputmode="numeric" min="1" max="80" value="25" id="s-years" class="num"><span class="unit">yrs</span></div>
+        <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="1" max="80" value="25" id="s-years" class="num"><span class="unit">yrs</span></span></div>
       </div>
       <div class="field">
         <label for="s-salary">Annual salary</label>
-        <div class="ctl"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="2000000" value="70000" step="100" id="s-salary" class="num wide"><span class="unit">/ yr</span></div>
+        <div class="ctl"><span class="box"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="2000000" value="70000" step="100" id="s-salary" class="num wide"><span class="unit">/ yr</span></span></div>
       </div>
       <div class="field">
         <label for="s-raise">Annual raise</label>
-        <div class="ctl"><input type="number" inputmode="decimal" min="0" max="50" step="0.5" value="3" id="s-raise" class="num"><span class="unit">%</span></div>
+        <div class="ctl"><span class="box"><input type="number" inputmode="decimal" min="0" max="50" step="0.5" value="3" id="s-raise" class="num"><span class="unit">%</span></span></div>
       </div>
       <div class="field">
         <span class="lbl" id="s-infl-lbl">Today's dollars</span>
         <div class="ctl nowrap">
-          <input type="number" inputmode="decimal" min="0" max="20" step="0.5" value="2.5" id="s-infl-rate" class="num" aria-label="Inflation rate per year">
-          <span class="unit">% / yr</span>
+          <span class="box"><input type="number" inputmode="decimal" min="0" max="20" step="0.5" value="2.5" id="s-infl-rate" class="num" aria-label="Inflation rate per year"><span class="unit">% / yr</span></span>
           <button class="switch" id="s-infl-switch" type="button" role="switch" aria-checked="false" aria-labelledby="s-infl-lbl"></button>
         </div>
       </div>
       <div class="field">
         <label for="s-goal">Combined goal (optional)</label>
-        <div class="ctl"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" step="1000" placeholder="1500000" id="s-goal" class="num wide"></div>
+        <div class="ctl"><span class="box"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" step="1000" placeholder="1500000" id="s-goal" class="num wide"></span></div>
       </div>
       <p class="goal-result" id="s-goal-result" aria-live="polite"></p>
     </div>
@@ -325,7 +331,7 @@
           <h3>Starting point</h3>
           <div class="field">
             <label for="p-starting">Starting balance</label>
-            <div class="ctl"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="5000000" value="0" step="100" id="p-starting" class="num wide"></div>
+            <div class="ctl"><span class="box"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="5000000" value="0" step="100" id="p-starting" class="num wide"></span></div>
           </div>
         </div>
 
@@ -345,20 +351,20 @@
               <label for="p-freq">How often</label>
               <div class="ctl">
                 <select id="p-freq" class="num sel">
-                  <option value="biweekly" selected>Every two weeks</option>
+                  <option value="biweekly" selected>Bi-weekly</option>
                   <option value="monthly">Monthly</option>
                 </select>
               </div>
             </div>
             <div class="field">
               <label for="p-monthly" id="p-amount-lbl">Per paycheck</label>
-              <div class="ctl"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="50000" value="250" step="100" id="p-monthly" class="num wide"></div>
+              <div class="ctl"><span class="box"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="50000" value="250" step="100" id="p-monthly" class="num wide"></span></div>
             </div>
           </div>
           <div id="p-percent-fields" style="display:none;">
             <div class="field">
               <label for="p-salary-pct">Share of salary</label>
-              <div class="ctl"><input type="number" inputmode="numeric" min="0" max="100" step="1" value="10" id="p-salary-pct" class="num"><span class="unit">%</span></div>
+              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" step="1" value="10" id="p-salary-pct" class="num"><span class="unit">%</span></span></div>
             </div>
           </div>
           <p class="hint" id="p-effective-monthly"></p>
@@ -378,21 +384,21 @@
           <div class="alloc">
             <div class="alloc-head">
               <label for="p-voo-num"><span class="dot" style="background:var(--c-voo)"></span>VOO <span class="muted" data-yield="voo"></span></label>
-              <div class="ctl"><input type="number" inputmode="numeric" min="0" max="100" value="50" id="p-voo-num" class="num"><span class="unit">%</span></div>
+              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="50" id="p-voo-num" class="num"><span class="unit">%</span></span></div>
             </div>
             <input type="range" min="0" max="100" step="1" value="50" id="p-voo-range" aria-label="VOO allocation">
           </div>
           <div class="alloc">
             <div class="alloc-head">
               <label for="p-qqq-num"><span class="dot" style="background:var(--c-qqq)"></span>QQQM <span class="muted" data-yield="qqq"></span></label>
-              <div class="ctl"><input type="number" inputmode="numeric" min="0" max="100" value="25" id="p-qqq-num" class="num"><span class="unit">%</span></div>
+              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="25" id="p-qqq-num" class="num"><span class="unit">%</span></span></div>
             </div>
             <input type="range" min="0" max="100" step="1" value="25" id="p-qqq-range" aria-label="QQQM allocation">
           </div>
           <div class="alloc">
             <div class="alloc-head">
               <label for="p-schd-num"><span class="dot" style="background:var(--c-schd)"></span>SCHD <span class="muted" data-yield="schd"></span></label>
-              <div class="ctl"><input type="number" inputmode="numeric" min="0" max="100" value="25" id="p-schd-num" class="num"><span class="unit">%</span></div>
+              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="25" id="p-schd-num" class="num"><span class="unit">%</span></span></div>
             </div>
             <input type="range" min="0" max="100" step="1" value="25" id="p-schd-range" aria-label="SCHD allocation">
           </div>
@@ -404,11 +410,11 @@
           <h3>Dividends</h3>
           <div class="field">
             <span class="lbl" id="p-reinvest-lbl">Reinvest dividends</span>
-            <div class="ctl nowrap">
-              <span class="unit" id="p-reinvest-label">Reinvested (DRIP)</span>
+            <div class="ctl">
               <button class="switch" id="p-reinvest-switch" type="button" role="switch" aria-checked="true" aria-labelledby="p-reinvest-lbl"></button>
             </div>
           </div>
+          <p class="hint" id="p-reinvest-label"></p>
         </div>
       </section>
     </div>
@@ -440,7 +446,7 @@
           <h3>Starting point</h3>
           <div class="field">
             <label for="k-starting">Starting balance</label>
-            <div class="ctl"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="5000000" value="0" step="100" id="k-starting" class="num wide"></div>
+            <div class="ctl"><span class="box"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="5000000" value="0" step="100" id="k-starting" class="num wide"></span></div>
           </div>
         </div>
 
@@ -448,15 +454,15 @@
           <h3>Contributions</h3>
           <div class="field">
             <label for="k-contrib-pct">Your contribution</label>
-            <div class="ctl"><input type="number" inputmode="numeric" min="0" max="100" step="1" value="10" id="k-contrib-pct" class="num"><span class="unit">% of salary</span></div>
+            <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" step="1" value="10" id="k-contrib-pct" class="num"><span class="unit">% of salary</span></span></div>
           </div>
           <div class="field">
-            <label for="k-match-rate">Employer match</label>
-            <div class="ctl"><input type="number" inputmode="numeric" min="0" max="200" step="1" value="50" id="k-match-rate" class="num"><span class="unit">%</span></div>
+            <label for="k-match-rate">Match</label>
+            <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="200" step="1" value="50" id="k-match-rate" class="num" style="width:40px"><span class="unit">% of your contribution</span></span></div>
           </div>
           <div class="field">
             <label for="k-match-cap">Match limit</label>
-            <div class="ctl"><input type="number" inputmode="numeric" min="0" max="100" step="1" value="6" id="k-match-cap" class="num"><span class="unit">% of salary</span></div>
+            <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" step="1" value="6" id="k-match-cap" class="num"><span class="unit">% of salary</span></span></div>
           </div>
           <p class="hint" id="k-match-hint"></p>
           <div class="field">
@@ -477,7 +483,7 @@
           <h3>Growth assumptions</h3>
           <div class="field">
             <label for="k-return">Expected return</label>
-            <div class="ctl"><input type="number" inputmode="decimal" min="0" max="30" step="0.5" value="7" id="k-return" class="num"><span class="unit">% / yr</span></div>
+            <div class="ctl"><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.5" value="7" id="k-return" class="num"><span class="unit">% / yr</span></span></div>
           </div>
           <p class="hint">Diversified 401(k) plans have historically returned around 5-8% a year; 7% is a commonly cited long-run average.</p>
         </div>
@@ -627,7 +633,7 @@ function renderToggles() {
   $('p-amount-lbl').textContent = payPerYear() === 26 ? 'Per paycheck' : 'Per month';
   $('p-percent-fields').style.display = pMode === 'percent' ? 'block' : 'none';
   $('p-reinvest-switch').setAttribute('aria-checked', String(pReinvest));
-  $('p-reinvest-label').textContent = pReinvest ? 'Reinvested (DRIP)' : 'Paid out as cash';
+  $('p-reinvest-label').textContent = pReinvest ? 'Dividends are reinvested to buy more shares (DRIP).' : 'Dividends are paid out as cash and not reinvested.';
   $('s-infl-switch').setAttribute('aria-checked', String(inflOn));
   $('s-infl-rate').style.opacity = inflOn ? '1' : '0.5';
   $('p-alloc-sliders').hidden = !pCustomOpen;
