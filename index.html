@@ -977,7 +977,7 @@ function initCharts() {
         labels: [],
         datasets: [
           { label: 'Portfolio value', endLabel: 'Portfolio', swColor: '#f1f5f9', data: [], borderColor: t.total, backgroundColor: t.totalFill, borderWidth: 2, pointRadius: 0, fill: true, tension: 0.15 },
-          { label: '+ Employer match', endLabel: '+ Match', swDash: 'dashed', data: [], borderColor: MATCH_COLOR, backgroundColor: 'transparent', borderWidth: 2, borderDash: [4, 3], pointRadius: 0, fill: false, tension: 0 },
+          { label: 'Employer match', endLabel: 'Match', swDash: 'dashed', data: [], borderColor: MATCH_COLOR, backgroundColor: 'transparent', borderWidth: 2, borderDash: [4, 3], pointRadius: 0, fill: false, tension: 0 },
           { label: 'Your contributions', endLabel: 'Yours', data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, fill: false, tension: 0 },
           { label: 'Low case', endLabel: 'Low', swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: withAlpha(t.muted, 0.16), borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, fill: 4, tension: 0.15 },
           { label: 'High case', endLabel: 'High', swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, fill: false, tension: 0.15 },
@@ -987,7 +987,7 @@ function initCharts() {
     });
     buildLegend('k-growth-legend', kGrowthChart, [
       { label: 'Your contributions', color: CONTRIB_COLOR, idx: [2] },
-      { label: '+ Employer match', color: MATCH_COLOR, dash: 'dashed', idx: [1] },
+      { label: 'Employer match', color: MATCH_COLOR, dash: 'dashed', idx: [1] },
       { label: 'Portfolio value', color: t.total, idx: [0] },
       { label: 'Low / high range', color: t.muted, dash: 'dotted', idx: [3, 4] },
     ], 'Tap a label to show or hide it.');
@@ -1124,7 +1124,7 @@ function computePersonal(s) {
 function simK401(p, delta) {
   const mr = Math.pow(1 + (p.rate + delta) / 100, 1 / 12) - 1;
   let bal = p.start, emp = 0, er = 0, rEmp = 0, rEr = 0, capped = false;
-  const out = { bal: [bal], emp: [0], comb: [0] };
+  const out = { bal: [bal], emp: [0], er: [0], comb: [0] };
   for (let y = 1; y <= p.years; y++) {
     const yearSalary = p.salary * Math.pow(1 + p.raise / 100, y - 1);
     let employeeAnnual = yearSalary * (p.contribPct / 100);
@@ -1138,6 +1138,7 @@ function simK401(p, delta) {
     rEmp += employeeAnnual * disc; rEr += employerAnnual * disc;
     out.bal.push(bal);
     out.emp.push(rEmp);
+    out.er.push(rEr);
     out.comb.push(rEmp + rEr);
   }
   out.totals = { emp, er, rEmp, rEr, capped };
@@ -1174,7 +1175,7 @@ function computeK401(s) {
     const idx = Array.from({ length: N + 1 }, (_, y) => y);
     kGrowthChart.data.labels = idx.map((y) => 'Yr ' + y);
     kGrowthChart.data.datasets[0].data = idx.map((y) => Math.round(base.bal[y] * d(y)));
-    kGrowthChart.data.datasets[1].data = idx.map((y) => Math.round(base.comb[y]));
+    kGrowthChart.data.datasets[1].data = idx.map((y) => Math.round(base.er[y]));
     kGrowthChart.data.datasets[2].data = idx.map((y) => Math.round(base.emp[y]));
     kGrowthChart.data.datasets[3].data = idx.map((y) => Math.round(low.bal[y] * d(y)));
     kGrowthChart.data.datasets[4].data = idx.map((y) => Math.round(high.bal[y] * d(y)));
