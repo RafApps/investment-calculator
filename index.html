@@ -349,34 +349,6 @@
   <!-- PERSONAL TAB -->
   <div class="panel active" id="panel-personal" role="tabpanel" aria-labelledby="tab-personal-btn">
     <div class="layout">
-      <section class="card results-col" aria-label="Personal investing results">
-        <div class="stats">
-          <div class="stat hero"><p class="stat-label">Total portfolio value</p><p class="stat-value" id="p-stat-total">$0</p></div>
-          <div class="stat"><p class="stat-label">Starting balance</p><p class="stat-value" id="p-stat-starting">$0</p></div>
-          <div class="stat"><p class="stat-label">You contributed</p><p class="stat-value" id="p-stat-contributed">$0</p></div>
-          <div class="stat green"><p class="stat-label">Investment growth</p><p class="stat-value" id="p-stat-gain">$0</p></div>
-          <div class="stat"><p class="stat-label">Invested value</p><p class="stat-value" id="p-stat-invested">$0</p></div>
-          <div class="stat"><p class="stat-label">Cash (not reinvested)</p><p class="stat-value" id="p-stat-cash">$0</p></div>
-        </div>
-
-        <div class="subtabs" role="tablist" aria-label="Chart">
-          <button class="subtab" id="p-view-growth-btn" role="tab" aria-selected="true" aria-controls="p-view-growth" type="button">Portfolio growth</button>
-          <button class="subtab" id="p-view-div-btn" role="tab" aria-selected="false" aria-controls="p-view-div" type="button">Dividend payout</button>
-        </div>
-        <div id="p-view-growth" role="tabpanel">
-          <div class="legend" id="p-growth-legend"></div>
-          <div class="chart-wrap"><canvas id="p-growth-chart" role="img" aria-label="Portfolio growth over time"></canvas></div>
-        </div>
-        <div id="p-view-div" role="tabpanel" hidden>
-          <p class="hint">Estimated annual dividend payout by fund</p>
-          <div class="legend" id="p-div-legend"></div>
-          <div class="chart-wrap"><canvas id="p-div-chart" role="img" aria-label="Annual dividend payout by fund"></canvas></div>
-        </div>
-
-        <p class="footnote" id="p-footnote"></p>
-        <details class="why"><summary>Where do these numbers come from?</summary><div id="p-why-body"></div></details>
-      </section>
-
       <section class="card inputs-col" aria-label="Personal investing inputs">
         <div class="section">
           <h3>Starting point</h3>
@@ -468,30 +440,40 @@
           <p class="hint" id="p-reinvest-label"></p>
         </div>
       </section>
+
+      <section class="card results-col" aria-label="Personal investing results">
+        <div class="stats">
+          <div class="stat hero"><p class="stat-label">Total portfolio value</p><p class="stat-value" id="p-stat-total">$0</p></div>
+          <div class="stat"><p class="stat-label">Starting balance</p><p class="stat-value" id="p-stat-starting">$0</p></div>
+          <div class="stat"><p class="stat-label">You contributed</p><p class="stat-value" id="p-stat-contributed">$0</p></div>
+          <div class="stat green"><p class="stat-label">Investment growth</p><p class="stat-value" id="p-stat-gain">$0</p></div>
+          <div class="stat"><p class="stat-label">Invested value</p><p class="stat-value" id="p-stat-invested">$0</p></div>
+          <div class="stat"><p class="stat-label">Cash (not reinvested)</p><p class="stat-value" id="p-stat-cash">$0</p></div>
+        </div>
+
+        <div class="subtabs" role="tablist" aria-label="Chart">
+          <button class="subtab" id="p-view-growth-btn" role="tab" aria-selected="true" aria-controls="p-view-growth" type="button">Portfolio growth</button>
+          <button class="subtab" id="p-view-div-btn" role="tab" aria-selected="false" aria-controls="p-view-div" type="button">Dividend payout</button>
+        </div>
+        <div id="p-view-growth" role="tabpanel">
+          <div class="legend" id="p-growth-legend"></div>
+          <div class="chart-wrap"><canvas id="p-growth-chart" role="img" aria-label="Portfolio growth over time"></canvas></div>
+        </div>
+        <div id="p-view-div" role="tabpanel" hidden>
+          <p class="hint">Estimated annual dividend payout by fund</p>
+          <div class="legend" id="p-div-legend"></div>
+          <div class="chart-wrap"><canvas id="p-div-chart" role="img" aria-label="Annual dividend payout by fund"></canvas></div>
+        </div>
+
+        <p class="footnote" id="p-footnote"></p>
+        <details class="why"><summary>Where do these numbers come from?</summary><div id="p-why-body"></div></details>
+      </section>
     </div>
   </div>
 
   <!-- 401(K) TAB -->
   <div class="panel" id="panel-401k" role="tabpanel" aria-labelledby="tab-401k-btn">
     <div class="layout">
-      <section class="card results-col" aria-label="401(k) results">
-        <div class="stats">
-          <div class="stat hero"><p class="stat-label">Total 401(k) value</p><p class="stat-value" id="k-stat-final">$0</p></div>
-          <div class="stat"><p class="stat-label">Starting balance</p><p class="stat-value" id="k-stat-starting">$0</p></div>
-          <div class="stat"><p class="stat-label">Your contributions</p><p class="stat-value" id="k-stat-employee">$0</p></div>
-          <div class="stat green"><p class="stat-label">Employer match</p><p class="stat-value" id="k-stat-employer">$0</p></div>
-          <div class="stat"><p class="stat-label">Combined contributed</p><p class="stat-value" id="k-stat-combined">$0</p></div>
-          <div class="stat green"><p class="stat-label">Investment growth</p><p class="stat-value" id="k-stat-gain">$0</p></div>
-        </div>
-
-        <h3>401(k) growth</h3>
-        <div class="legend" id="k-growth-legend"></div>
-        <div class="chart-wrap"><canvas id="k-growth-chart" role="img" aria-label="401(k) growth over time"></canvas></div>
-
-        <p class="footnote" id="k-footnote"></p>
-        <details class="why"><summary>Where do these numbers come from?</summary><div id="k-why-body"></div></details>
-      </section>
-
       <section class="card inputs-col" aria-label="401(k) inputs">
         <div class="section">
           <h3>Starting point</h3>
@@ -538,6 +520,24 @@
           </div>
           <p class="hint">Diversified 401(k) plans have historically returned around 5-8% a year; 7% is a commonly cited long-run average.</p>
         </div>
+      </section>
+
+      <section class="card results-col" aria-label="401(k) results">
+        <div class="stats">
+          <div class="stat hero"><p class="stat-label">Total 401(k) value</p><p class="stat-value" id="k-stat-final">$0</p></div>
+          <div class="stat"><p class="stat-label">Starting balance</p><p class="stat-value" id="k-stat-starting">$0</p></div>
+          <div class="stat"><p class="stat-label">Your contributions</p><p class="stat-value" id="k-stat-employee">$0</p></div>
+          <div class="stat green"><p class="stat-label">Employer match</p><p class="stat-value" id="k-stat-employer">$0</p></div>
+          <div class="stat"><p class="stat-label">Combined contributed</p><p class="stat-value" id="k-stat-combined">$0</p></div>
+          <div class="stat green"><p class="stat-label">Investment growth</p><p class="stat-value" id="k-stat-gain">$0</p></div>
+        </div>
+
+        <h3>401(k) growth</h3>
+        <div class="legend" id="k-growth-legend"></div>
+        <div class="chart-wrap"><canvas id="k-growth-chart" role="img" aria-label="401(k) growth over time"></canvas></div>
+
+        <p class="footnote" id="k-footnote"></p>
+        <details class="why"><summary>Where do these numbers come from?</summary><div id="k-why-body"></div></details>
       </section>
     </div>
   </div>
