@@ -787,7 +787,7 @@ const endLabels = {
       const v = ds.data[ds.data.length - 1];
       const pt = chart.getDatasetMeta(i).data[ds.data.length - 1];
       if (!pt || !(v > 0)) return;
-      items.push({ y: pt.y, text: ds.endLabel + ' ' + short(v), color: ds.endColor || ds.borderColor });
+      items.push({ y: typeof pt.base === 'number' ? (pt.y + pt.base) / 2 : pt.y, text: ds.endLabel + ' ' + short(v), color: ds.endColor || ds.borderColor });
     });
     items.sort((a, b) => a.y - b.y);
     const gap = 13, top = chart.chartArea.top + 6, bottom = chart.chartArea.bottom - 2;
@@ -803,12 +803,22 @@ const endLabels = {
   },
 };
 
-function baseOptions(t, yStacked, xStacked, lines) {
+// Same year labels on every chart: a fixed step based on the horizon, never an auto-skipped subset.
+function yearStep(n) { return n <= 6 ? 1 : n <= 12 ? 2 : n <= 30 ? 5 : n <= 60 ? 10 : 20; }
+function yearTick(value) {
+  const labels = this.chart.data.labels;
+  if (!labels.length) return '';
+  const last = Number(String(labels[labels.length - 1]).replace('Yr ', ''));
+  const y = Number(String(this.getLabelForValue(value)).replace('Yr ', ''));
+  return y % yearStep(last) === 0 ? 'Yr ' + y : '';
+}
+
+function baseOptions(t, yStacked, xStacked, lines, labels) {
   return {
     responsive: true,
     maintainAspectRatio: false,
     // room for the end-of-line value labels, on wide screens only
-    layout: { padding: { right: (c) => (lines && c.chart.width >= 560 ? 112 : 0) } },
+    layout: { padding: { right: (c) => (labels && c.chart.width >= 560 ? 112 : 0) } },
     interaction: { mode: 'index', intersect: false },
     plugins: {
       legend: { display: false },
@@ -831,7 +841,7 @@ function baseOptions(t, yStacked, xStacked, lines) {
       },
     },
     scales: {
-      x: { stacked: !!xStacked, grid: { display: false }, ticks: { color: t.text, font: { size: 11 }, maxTicksLimit: 8, autoSkip: true } },
+      x: { stacked: !!xStacked, grid: { display: false }, ticks: { color: t.text, font: { size: 11 }, autoSkip: false, maxRotation: 0, callback: yearTick } },
       y: { stacked: !!yStacked, grid: { color: t.grid }, ticks: { color: t.text, font: { size: 11 }, callback: (v) => short(v) } },
     },
   };
@@ -924,11 +934,11 @@ function initCharts() {
           { label: 'QQQM', endLabel: 'QQQM', swDash: 'dashed', data: [], borderColor: RATES.qqq.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 3], pointRadius: 0, stack: 'q', fill: false, tension: 0.15 },
           { label: 'SCHD', endLabel: 'SCHD', swDash: 'dashed', data: [], borderColor: RATES.schd.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 3], pointRadius: 0, stack: 's', fill: false, tension: 0.15 },
           // the low and high cases are drawn as one shaded band (low fills up to high)
-          { label: 'Low case', endLabel: 'Low', swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.55), backgroundColor: withAlpha(t.muted, 0.16), borderWidth: 1, pointRadius: 0, stack: 'lo', fill: 7, tension: 0.15 },
-          { label: 'High case', endLabel: 'High', swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.55), backgroundColor: 'transparent', borderWidth: 1, pointRadius: 0, stack: 'hi', fill: false, tension: 0.15 },
+          { label: 'Low case', endLabel: 'Low', swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: withAlpha(t.muted, 0.16), borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, stack: 'lo', fill: 7, tension: 0.15 },
+          { label: 'High case', endLabel: 'High', swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, stack: 'hi', fill: false, tension: 0.15 },
         ],
       },
-      options: baseOptions(t, true, false, true),
+      options: baseOptions(t, true, false, true, true),
     });
     const fundOn = (f) => () => pAlloc[f] > 0;
     buildLegend('p-growth-legend', pGrowthChart, [
@@ -943,11 +953,12 @@ function initCharts() {
 
     pDivChart = new Chart($('p-div-chart').getContext('2d'), {
       type: 'bar',
+      plugins: [endLabels],
       data: {
         labels: [],
-        datasets: FUNDS.map((f) => ({ label: RATES[f].label, data: [], backgroundColor: RATES[f].color, stack: 'd' })),
+        datasets: FUNDS.map((f) => ({ label: RATES[f].label, endLabel: RATES[f].label, data: [], backgroundColor: RATES[f].color, borderColor: RATES[f].color, stack: 'd' })),
       },
-      options: baseOptions(t, true, true),
+      options: baseOptions(t, true, true, false, true),
     });
     buildLegend('p-div-legend', pDivChart, FUNDS.map((f, i) => ({ label: RATES[f].label, color: RATES[f].color, box: true, idx: [i], avail: () => pAlloc[f] > 0 })), 'Tap a label to show or hide it.');
   } catch (e) {
@@ -968,11 +979,11 @@ function initCharts() {
           { label: 'Portfolio value', endLabel: 'Portfolio', swColor: '#f1f5f9', data: [], borderColor: t.total, backgroundColor: t.totalFill, borderWidth: 2, pointRadius: 0, fill: true, tension: 0.15 },
           { label: '+ Employer match', endLabel: '+ Match', swDash: 'dashed', data: [], borderColor: MATCH_COLOR, backgroundColor: 'transparent', borderWidth: 2, borderDash: [4, 3], pointRadius: 0, fill: false, tension: 0 },
           { label: 'Your contributions', endLabel: 'Yours', data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, fill: false, tension: 0 },
-          { label: 'Low case', endLabel: 'Low', swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.55), backgroundColor: withAlpha(t.muted, 0.16), borderWidth: 1, pointRadius: 0, fill: 4, tension: 0.15 },
-          { label: 'High case', endLabel: 'High', swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.55), backgroundColor: 'transparent', borderWidth: 1, pointRadius: 0, fill: false, tension: 0.15 },
+          { label: 'Low case', endLabel: 'Low', swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: withAlpha(t.muted, 0.16), borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, fill: 4, tension: 0.15 },
+          { label: 'High case', endLabel: 'High', swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, fill: false, tension: 0.15 },
         ],
       },
-      options: baseOptions(t, false, false, true),
+      options: baseOptions(t, false, false, true, true),
     });
     buildLegend('k-growth-legend', kGrowthChart, [
       { label: 'Your contributions', color: CONTRIB_COLOR, idx: [2] },
@@ -1090,9 +1101,10 @@ function computePersonal(s) {
     pGrowthChart.update();
   }
   if (pDivChart) {
-    const yrs = Array.from({ length: N }, (_, i) => i + 1);
+    // starts at Yr 0 (no payout yet) so the year axis matches the growth chart
+    const yrs = Array.from({ length: N + 1 }, (_, i) => i);
     pDivChart.data.labels = yrs.map((y) => 'Yr ' + y);
-    FUNDS.forEach((f, i) => { pDivChart.data.datasets[i].data = yrs.map((y) => Math.round(base.div[f][y - 1] * d(y))); });
+    FUNDS.forEach((f, i) => { pDivChart.data.datasets[i].data = yrs.map((y) => (y === 0 ? null : Math.round(base.div[f][y - 1] * d(y)))); });
     refreshLegend('p-div-legend');
     pDivChart.update();
   }
