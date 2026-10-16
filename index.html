@@ -2248,7 +2248,13 @@ function renderWhy(edited) {
 let lastFundKey = null;
 function recomputeAll() {
   const edited = syncRates();
-  if (lastFundKey !== null && fundKey() !== lastFundKey) { lastFundKey = fundKey(); rebuildCharts(); return; }
+  if (lastFundKey !== null && fundKey() !== lastFundKey) {
+    lastFundKey = fundKey();
+    // fund names appear in the allocation bars and hints too, so redraw those along with the charts
+    syncAllocInputs(); syncIraAlloc(); renderIraToggles();
+    rebuildCharts();
+    return;
+  }
   lastFundKey = fundKey();
   renderWhy(edited);
   const s = shared();
@@ -2287,11 +2293,11 @@ loadState();
 $('share-note').hidden = !sharedLoaded;
 if (!matchesPreset()) pCustomOpen = true;
 if (!matchesIraPreset() && iAllocEdited) iCustomOpen = true;
+syncRates();
 syncAllocInputs();
 syncIraAlloc();
 renderToggles();
 switchTab(currentTab);
-syncRates();
 initCharts();
 recomputeAll();
 applyI18n();
