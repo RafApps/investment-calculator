@@ -158,7 +158,7 @@
   .ss-part { font-size: 13px; color: var(--text-2); display: flex; align-items: center; gap: 6px; }
   .ss-part b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
   .ss-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-  .ss-goal { border-top: 1px solid var(--border); padding-top: 12px; margin-top: auto; }
+  .ss-goal { border-top: 1px solid var(--border); padding-top: 12px; }
   .ss-goal-head { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--text-2); margin-bottom: 6px; }
   .ss-goal-head b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
   .ss-prog { height: 8px; border-radius: 4px; background: var(--border); overflow: hidden; margin-bottom: 8px; }
@@ -315,7 +315,7 @@
     display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 14px; padding: 4px 8px 4px 12px;
     background: var(--accent-bg); border: 1px solid var(--accent-border); color: var(--accent-ink); border-radius: 10px; font-size: 13px;
   }
-  .ss-income { border-top: 1px solid var(--border); padding-top: 12px; }
+  .ss-income { border-top: 1px solid var(--border); padding-top: 12px; margin-top: auto; }
   .ss-inc-val { display: block; font-size: 20px; font-weight: 700; line-height: 1.2; font-variant-numeric: tabular-nums; }
   .ss-inc-val small { font-size: 13px; font-weight: 500; color: var(--text-2); }
   .ss-income .goal-result { margin-top: 4px; }
@@ -410,16 +410,16 @@
           <span class="ss-part" id="ss-ira-part" hidden><span class="ss-dot" style="background:var(--ira)"></span>IRA <b id="ss-ira">$0</b></span>
         </div>
       </div>
+      <div class="ss-goal">
+        <div class="ss-goal-head" id="ss-goal-head" hidden><span>Goal progress</span><b id="ss-goal-pct">0%</b></div>
+        <div class="ss-prog" id="ss-prog" hidden><i id="ss-prog-bar"></i></div>
+        <p class="goal-result" id="s-goal-result"></p>
+      </div>
       <div class="ss-income">
         <span class="lbl-wrap"><span class="ss-label" id="ss-inc-label">Possible income in retirement</span><button type="button" class="info-btn" data-info="ss-inc-note" aria-label="More info" aria-expanded="false">i</button></span>
         <span class="ss-inc-val"><b id="ss-inc-month">$0</b> <small>/ month</small></span>
         <p class="goal-result" id="ss-inc-detail"></p>
         <p class="hint" id="ss-inc-note" hidden>A rule of thumb for roughly 30 years of withdrawals. Taxes, Social Security and other income aren't included.</p>
-      </div>
-      <div class="ss-goal">
-        <div class="ss-goal-head" id="ss-goal-head" hidden><span>Goal progress</span><b id="ss-goal-pct">0%</b></div>
-        <div class="ss-prog" id="ss-prog" hidden><i id="ss-prog-bar"></i></div>
-        <p class="goal-result" id="s-goal-result"></p>
       </div>
      </aside>
     </div>
