@@ -128,6 +128,7 @@
     border-radius: 12px; padding: 18px; box-shadow: var(--shadow);
   }
   .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+  @media (max-width: 480px) { .card-head { flex-wrap: wrap; } .card-head .card-actions { justify-content: flex-start; gap: 4px 16px; } }
   h2 { font-size: 16px; font-weight: 600; margin: 0; }
   h3 { font-size: 14px; font-weight: 600; margin: 0 0 10px; color: var(--text); }
   .link-btn {
@@ -310,6 +311,7 @@
   .lang-btn + .lang-btn { border-left: 1px solid var(--border); }
   .lang-btn[aria-pressed=true] { background: var(--accent-bg); color: var(--accent-ink); }
   .share-status { font-size: 12px; color: var(--green-ink); min-width: 0; }
+  .share-status:empty { display: none; }
   .card-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
   .note {
     display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 14px; padding: 4px 8px 4px 12px;
@@ -334,6 +336,46 @@
   .a-val { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-2); }
   .a-val .box .num { width: 52px; }
   .a-desc { margin: 6px 0 0; font-size: 12px; color: var(--text-3); }
+  /* ---------- printable summary (shown only when printing or saving as PDF) ---------- */
+  #print-report { display: none; }
+  @media print {
+    @page { margin: 0.5in; }
+    html, body { background: #fff !important; color: #14181f !important; }
+    body > *:not(#print-report) { display: none !important; }
+    #print-report { display: block; font: 11.5px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #14181f; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    #print-report * { box-sizing: border-box; }
+    .r-head { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #14181f; padding-bottom: 6px; margin-bottom: 10px; }
+    .r-head h1 { font-size: 20px; margin: 0; letter-spacing: -0.01em; }
+    .r-head span { font-size: 11px; color: #5b6472; }
+    .r-hero { background: #eef4fc; border: 1px solid #cfe0f7; border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; break-inside: avoid; }
+    .r-kicker { font-size: 12px; color: #3d4756; }
+    .r-big { font-size: 34px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; margin: 2px 0 4px; font-variant-numeric: tabular-nums; }
+    .r-sub { font-size: 12px; color: #2b3340; }
+    .r-range { font-size: 11px; color: #5b6472; margin-top: 4px; }
+    .r-h { font-size: 12.5px; font-weight: 700; margin: 11px 0 5px; text-transform: uppercase; letter-spacing: .04em; color: #3d4756; }
+    .r-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; break-inside: avoid; }
+    .r-table th { text-align: right; font-size: 10.5px; font-weight: 600; color: #5b6472; padding: 4px 8px; border-bottom: 1px solid #c9cfd8; }
+    .r-table th:first-child, .r-table td:first-child { text-align: left; padding-left: 0; }
+    .r-table td { text-align: right; padding: 6px 8px; border-bottom: 1px solid #e3e6ea; }
+    .r-table td small { display: block; font-size: 10px; color: #5b6472; }
+    .r-table tr.tot td { font-weight: 700; border-top: 2px solid #14181f; border-bottom: none; }
+    .r-dot { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 6px; vertical-align: -0.5px; }
+    .r-chart { break-inside: avoid; }
+    .r-chart svg { width: 100%; height: auto; display: block; }
+    .r-legend { font-size: 10.5px; color: #3d4756; margin-bottom: 2px; }
+    .r-legend span { margin-right: 14px; }
+    .r-box { border: 1px solid #d5dae1; border-radius: 8px; padding: 10px 12px; break-inside: avoid; }
+    .r-cols { display: flex; gap: 12px; align-items: stretch; }
+    .r-cols > .r-box { flex: 1; }
+    .r-box .r-h { margin-top: 0; }
+    .r-val { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .r-val small { font-size: 11px; font-weight: 500; color: #5b6472; }
+    .r-muted { color: #5b6472; font-size: 10.5px; }
+    .r-dl { margin: 0; display: grid; grid-template-columns: 82px 1fr; gap: 3px 10px; font-size: 11px; }
+    .r-dl dt { font-weight: 600; color: #3d4756; }
+    .r-dl dd { margin: 0; }
+    .r-foot { margin-top: 10px; padding-top: 8px; border-top: 1px solid #c9cfd8; font-size: 9.5px; color: #5b6472; }
+  }
   .badge { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; background: var(--amber-bg); color: var(--amber-ink); border: 1px solid var(--amber-border); }
 </style>
 </head>
@@ -369,7 +411,7 @@
   <section class="card" aria-labelledby="shared-h">
     <div class="card-head">
       <h2 id="shared-h">Applies to all accounts</h2>
-      <div class="card-actions"><span class="share-status" id="share-status" role="status"></span><button class="link-btn" id="share-btn" type="button">Copy share link</button></div>
+      <div class="card-actions"><span class="share-status" id="share-status" role="status"></span><button class="link-btn" id="pdf-btn" type="button">Save summary as PDF</button><button class="link-btn" id="share-btn" type="button">Copy share link</button></div>
     </div>
     <div class="shared-grid">
      <div class="shared-inputs">
@@ -789,6 +831,8 @@
   </footer>
 </main>
 
+<section id="print-report" aria-hidden="true"></section>
+
 <script>
 // Three fund slots. The slot keys (voo, qqq, schd) stay fixed because colors, allocations and presets hang on them;
 // the fund shown in each slot is chosen from CATALOG, or set to CUSTOM with the person's own numbers.
@@ -831,6 +875,42 @@ FUNDS.forEach((f) => document.documentElement.style.setProperty('--c-' + f, RATE
 let LANG = /^es\b/i.test(navigator.language || '') ? 'es' : 'en';
 // Spanish table, keyed by the English text.
 const ES = {
+  "Save summary as PDF": "Guardar resumen en PDF",
+  "Investment growth summary": "Resumen de crecimiento de inversiones",
+  "Prepared {0}": "Preparado el {0}",
+  "After {0} (at age {1}), your accounts could be worth": "Después de {0} (a los {1} años), tus cuentas podrían valer",
+  "You put in {0}. Investment growth adds {1}.": "Tú aportas {0}. El crecimiento de la inversión suma {1}.",
+  "Sensitivity: about {0} if returns run {1} points a year lower, or about {2} if {3} points higher.": "Sensibilidad: unos {0} si los rendimientos son {1} puntos al año menores, o unos {2} si son {3} puntos mayores.",
+  "Account": "Cuenta",
+  "You put in": "Aportas",
+  "Worth": "Valor",
+  "includes {0} from your employer": "incluye {0} de tu empleador",
+  "Total": "Total",
+  "How it grows": "Cómo crece",
+  "Age {0}": "{0} años",
+  "Value of your accounts over time": "Valor de tus cuentas a lo largo del tiempo",
+  "Your goal": "Tu meta",
+  "No goal set.": "No hay una meta definida.",
+  "About {0} a year, before taxes.": "Unos {0} al año, antes de impuestos.",
+  "Withdrawing {0}% of the balance a year. 4% is a common rule of thumb for money that lasts about 30 years. Social Security is not included.": "Retirando el {0}% del balance al año. El 4% es una regla práctica común para que el dinero dure unos 30 años. No incluye el Seguro Social.",
+  "dividends reinvested": "dividendos reinvertidos",
+  "dividends paid out as cash": "dividendos pagados en efectivo",
+  "per paycheck (bi-weekly)": "por cheque (quincenal)",
+  "You": "Tú",
+  "Age {0}. Salary {1} growing {2}% a year. Projection runs {3}.": "{0} años. Salario de {1} que crece {2}% al año. La proyección abarca {3}.",
+  "{0}% of salary": "{0}% del salario",
+  "starting with {0}": "empezando con {0}",
+  "employer adds {0} cents per $1 up to {1}% of salary": "el empleador aporta {0} centavos por cada $1 hasta {1}% del salario",
+  "{0}% expected return": "{0}% de rendimiento esperado",
+  "capped at the {0} annual limit": "limitado al máximo anual de {0}",
+  "{0} a year": "{0} al año",
+  "capped at the annual limit": "limitado al máximo anual",
+  "Fund returns": "Rendimiento de los fondos",
+  "total": "total",
+  "dividend": "dividendo",
+  "What this assumes": "Qué supone este resumen",
+  "Made with the Investment Growth Calculator: rafapps.github.io/investment-calculator": "Hecho con la Calculadora de crecimiento de inversiones: rafapps.github.io/investment-calculator",
+  "Investment summary": "Resumen de inversiones",
   "Funds and returns": "Fondos y rendimientos",
   "Pick up to three funds for the Personal and IRA tabs, or choose Custom to enter your own numbers. Total return includes dividends. The numbers are long-run historical averages, so changing them shows a what-if, not a forecast. The 401(k) tab has its own expected return.": "Elige hasta tres fondos para las pestañas Personal e IRA, o elige Personalizado para escribir tus propias cifras. El rendimiento total incluye los dividendos. Las cifras son promedios históricos a largo plazo, así que cambiarlas muestra un \"qué pasaría si\", no un pronóstico. La pestaña 401(k) tiene su propio rendimiento esperado.",
   "Restore default funds and rates": "Restaurar fondos y tasas por defecto",
@@ -1484,6 +1564,121 @@ document.querySelectorAll('.info-btn').forEach((btn) => {
   });
 });
 
+/* ---------------- printable summary / PDF ---------------- */
+const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const REPORT_COLORS = { p: '#2a78d6', k: '#0b7a55', i: '#7c4dd6' };
+
+// Stacked columns of each account's value at evenly spaced years, drawn as plain SVG so it prints sharply.
+function reportChart(L) {
+  const N = L.s.years;
+  const step = N <= 10 ? 1 : N <= 20 ? 2 : 5;
+  const ys = [];
+  for (let y = step; y <= N; y += step) ys.push(y);
+  if (ys[ys.length - 1] !== N) ys.push(N);
+  const rows = ys.map((y) => ({ y, p: L.P.series[y], k: L.K.series[y], i: L.I.active ? L.I.series[y] : 0 }));
+  const max = Math.max(1, ...rows.map((r) => r.p + r.k + r.i));
+  const mag = Math.pow(10, Math.floor(Math.log10(max)));
+  const niceStep = [1, 2, 2.5, 5, 10].map((m) => m * mag / 2).find((st) => max / st <= 5) || mag;
+  const top = Math.ceil(max / niceStep) * niceStep;
+  const W = 680, H = 190, L0 = 52, R0 = 8, T0 = 20, B0 = 30;
+  const iw = W - L0 - R0, ih = H - T0 - B0;
+  const yOf = (v) => T0 + ih - (v / top) * ih;
+  const slot = iw / rows.length, bw = Math.min(46, slot * 0.62);
+  let g = '';
+  for (let v = 0; v <= top + 1e-6; v += niceStep) {
+    g += '<line x1="' + L0 + '" x2="' + (W - R0) + '" y1="' + yOf(v) + '" y2="' + yOf(v) + '" stroke="#e3e6ea"/>' +
+         '<text x="' + (L0 - 6) + '" y="' + (yOf(v) + 3.5) + '" text-anchor="end" font-size="10" fill="#5b6472">' + short(v) + '</text>';
+  }
+  rows.forEach((r, n) => {
+    const x = L0 + slot * n + (slot - bw) / 2;
+    let acc = 0;
+    [['p', r.p], ['k', r.k], ['i', r.i]].forEach(([key, v]) => {
+      if (v <= 0) return;
+      g += '<rect x="' + x.toFixed(1) + '" y="' + yOf(acc + v).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + Math.max(0, yOf(acc) - yOf(acc + v)).toFixed(1) + '" fill="' + REPORT_COLORS[key] + '"/>';
+      acc += v;
+    });
+    g += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (yOf(acc) - 5).toFixed(1) + '" text-anchor="middle" font-size="10" font-weight="600" fill="#14181f">' + short(acc) + '</text>' +
+         '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (H - 10) + '" text-anchor="middle" font-size="10" fill="#5b6472">' + esc(tr('Age {0}', L.s.age + r.y)) + '</text>';
+  });
+  return '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(tr('Value of your accounts over time')) + '">' + g + '</svg>';
+}
+
+function fundLine(alloc) {
+  return FUNDS.filter((f) => alloc[f] > 0).map((f) => esc(RATES[f].label) + ' ' + alloc[f] + '%').join(' · ');
+}
+
+function buildReport() {
+  if (!LAST) return;
+  const { s, P, K, I } = LAST;
+  const N = s.years;
+  const total = P.final + K.final + I.final;
+  const put = P.put + K.put + (I.active ? I.put : 0);
+  const low = P.low + K.low + (I.active ? I.low : 0);
+  const high = P.high + K.high + (I.active ? I.high : 0);
+  const date = new Date().toLocaleDateString(LANG === 'es' ? 'es-PR' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const dot = (c) => '<span class="r-dot" style="background:' + c + '"></span>';
+  const row = (name, color, acct, note) =>
+    '<tr><td>' + dot(color) + esc(name) + (note ? '<small>' + esc(note) + '</small>' : '') + '</td><td>' + fmt(acct.put) + '</td><td>' + fmt(acct.final) + '</td><td>' + fmt(acct.final - acct.put) + '</td></tr>';
+
+  let h = '<div class="r-head"><h1>' + esc(tr('Investment growth summary')) + '</h1><span>' + esc(tr('Prepared {0}', date)) + '</span></div>';
+  h += '<div class="r-hero"><div class="r-kicker">' + esc(tr('After {0} (at age {1}), your accounts could be worth', yearsText(N), s.age + N)) + '</div>' +
+       '<div class="r-big">' + fmt(total) + '</div>' +
+       '<div class="r-sub">' + esc(tr('You put in {0}. Investment growth adds {1}.', fmt(put), fmt(total - put))) + '</div>' +
+       '<div class="r-range">' + esc(tr('Sensitivity: about {0} if returns run {1} points a year lower, or about {2} if {3} points higher.', fmt(low), -LOW_DELTA, fmt(high), HIGH_DELTA)) + '</div></div>';
+
+  h += '<table class="r-table"><thead><tr><th>' + esc(tr('Account')) + '</th><th>' + esc(tr('You put in')) + '</th><th>' + esc(tr('Worth')) + '</th><th>' + esc(tr('Growth')) + '</th></tr></thead><tbody>' +
+       row(tr('Personal'), REPORT_COLORS.p, P) +
+       row(tr('401(k)'), REPORT_COLORS.k, K, K.er > 0 ? tr('includes {0} from your employer', fmt(K.er)) : '') +
+       (I.active ? row(tr('IRA'), REPORT_COLORS.i, I) : '') +
+       '<tr class="tot"><td>' + esc(tr('Total')) + '</td><td>' + fmt(put) + '</td><td>' + fmt(total) + '</td><td>' + fmt(total - put) + '</td></tr></tbody></table>';
+
+  h += '<div class="r-h">' + esc(tr('How it grows')) + '</div><div class="r-chart"><div class="r-legend">' +
+       '<span>' + dot(REPORT_COLORS.p) + esc(tr('Personal')) + '</span><span>' + dot(REPORT_COLORS.k) + esc(tr('401(k)')) + '</span>' + (I.active ? '<span>' + dot(REPORT_COLORS.i) + esc(tr('IRA')) + '</span>' : '') +
+       '</div>' + reportChart(LAST) + '</div>';
+
+  const goal = num('s-goal');
+  const rate = s.wd / 100;
+  h += '<div class="r-cols" style="margin-top:10px">';
+  h += '<div class="r-box"><div class="r-h">' + esc(tr('Your goal')) + '</div>' +
+       (goal > 0
+         ? '<div class="r-val">' + esc($('ss-goal-pct').textContent) + '</div><div>' + esc($('s-goal-result').textContent) + '</div>'
+         : '<div class="r-muted">' + esc(tr('No goal set.')) + '</div>') + '</div>';
+  h += '<div class="r-box"><div class="r-h">' + esc(tr('Possible income at age {0}', s.age + N)) + '</div>' +
+       '<div class="r-val">' + fmt((total * rate) / 12) + ' <small>' + esc(tr('/ month')) + '</small></div>' +
+       '<div>' + esc(tr('About {0} a year, before taxes.', fmt(total * rate))) + '</div>' +
+       '<div class="r-muted">' + esc(tr('Withdrawing {0}% of the balance a year. 4% is a common rule of thumb for money that lasts about 30 years. Social Security is not included.', s.wd)) + '</div></div>';
+  h += '</div>';
+
+  const reinvest = pReinvest ? tr('dividends reinvested') : tr('dividends paid out as cash');
+  const pAmt = pMode === 'dollar'
+    ? fmt(num('p-monthly')) + ' ' + (payPerYear() === 26 ? tr('per paycheck (bi-weekly)') : tr('per month'))
+    : tr('{0}% of salary', num('p-salary-pct'));
+  const dl = [];
+  dl.push([tr('You'), tr('Age {0}. Salary {1} growing {2}% a year. Projection runs {3}.', s.age, fmt(s.salary), s.raise, yearsText(N)) +
+    (inflOn ? ' ' + tr("Figures are in today's dollars at {0}% annual inflation.", num('s-infl-rate')) : '')]);
+  dl.push([tr('Personal'), esc(pAmt) + (num('p-starting') > 0 ? ', ' + esc(tr('starting with {0}', fmt(num('p-starting')))) : '') + ', ' + esc(reinvest) + '. ' + fundLine(pAlloc)]);
+  const kp = K.p;
+  dl.push([tr('401(k)'), esc(tr('{0}% of salary', kp.contribPct)) + (kp.matchRate > 0 && kp.matchCap > 0 ? ', ' + esc(tr('employer adds {0} cents per $1 up to {1}% of salary', kp.matchRate, kp.matchCap)) : '') +
+    ', ' + esc(tr('{0}% expected return', kp.rate)) + (K.capped ? ', ' + esc(tr('capped at the {0} annual limit', fmt(K.limit))) : '')]);
+  if (I.active) dl.push([tr('IRA'), esc($('i-type').selectedOptions[0].textContent) + ', ' + esc(tr('{0} a year', fmt(I.annual))) + (I.capped ? ' (' + esc(tr('capped at the annual limit')) + ')' : '') + ', ' + fundLine(iraAlloc())]);
+  const used = FUNDS.filter((f) => pAlloc[f] > 0 || (I.active && iraAlloc()[f] > 0));
+  dl.push([tr('Fund returns'), used.map((f) => esc(RATES[f].label) + ' ' + RATES[f].total + '% ' + esc(tr('total')) + ' / ' + RATES[f].div + '% ' + esc(tr('dividend'))).join(' · ')]);
+  h += '<div class="r-h">' + esc(tr('What this assumes')) + '</div><dl class="r-dl">' +
+       dl.map(([k, v]) => '<dt>' + esc(k) + '</dt><dd>' + (/<|&/.test(v) ? v : esc(v)) + '</dd>').join('') + '</dl>';
+
+  h += '<div class="r-foot">' + esc(document.querySelector('.disclaimer').textContent) + ' ' + esc(tr('Made with the Investment Growth Calculator: rafapps.github.io/investment-calculator')) + '</div>';
+  $('print-report').innerHTML = h;
+}
+
+let savedTitle = null;
+window.addEventListener('beforeprint', () => {
+  buildReport();
+  savedTitle = document.title;
+  document.title = tr('Investment summary') + ' ' + new Date().toISOString().slice(0, 10);
+});
+window.addEventListener('afterprint', () => { if (savedTitle !== null) { document.title = savedTitle; savedTitle = null; } });
+$('pdf-btn').addEventListener('click', () => { buildReport(); window.print(); });
+
 /* ---------------- persistence + share link ---------------- */
 function collectState() {
   const inputs = {};
@@ -2019,7 +2214,10 @@ function computePersonal(s) {
     (pMode === 'dollar' && payPerYear() === 26 ? ' ' + tr('Bi-weekly contributions are modeled as 26 paychecks a year, spread evenly across the months.') : '') +
     (inflOn ? ' ' + tr("Figures are in today's dollars at {0}% annual inflation.", num('s-infl-rate')) : '');
 
-  return { final: finalTotal, p, series: Array.from({ length: N + 1 }, (_, y) => (base.invested[y] + base.cash[y]) * d(y)) };
+  return {
+    final: finalTotal, p, series: Array.from({ length: N + 1 }, (_, y) => (base.invested[y] + base.cash[y]) * d(y)),
+    put: start + contributed, low: (low.invested[N] + low.cash[N]) * d(N), high: (high.invested[N] + high.cash[N]) * d(N),
+  };
 }
 
 /* ---------------- 401(k) simulation ---------------- */
@@ -2097,7 +2295,10 @@ function computeK401(s) {
     tr('The low and high cases shift the expected return by {0} and +{1} points a year to show sensitivity; they are not a forecast range.', LOW_DELTA, HIGH_DELTA) +
     (inflOn ? ' ' + tr("Figures are in today's dollars at {0}% annual inflation.", num('s-infl-rate')) : '');
 
-  return { final: finalValue, series: Array.from({ length: N + 1 }, (_, y) => base.bal[y] * d(y)), capped: t.capped, limit: p.limit };
+  return {
+    final: finalValue, series: Array.from({ length: N + 1 }, (_, y) => base.bal[y] * d(y)), capped: t.capped, limit: p.limit,
+    put: p.start + t.rEmp + t.rEr, er: t.rEr, low: low.bal[N] * d(N), high: high.bal[N] * d(N), p,
+  };
 }
 
 /* ---------------- IRA ---------------- */
@@ -2152,7 +2353,10 @@ function computeIRA(s) {
     tr("The low and high cases shift every fund's return by {0} and +{1} points a year to show sensitivity; they are not a forecast range.", LOW_DELTA, HIGH_DELTA) +
     (inflOn ? ' ' + tr("Figures are in today's dollars at {0}% annual inflation.", num('s-infl-rate')) : '');
 
-  return { final: finalValue, series: Array.from({ length: N + 1 }, (_, y) => base.invested[y] * d(y)), capped, limit: IRA_LIMIT, active: start > 0 || wanted > 0 };
+  return {
+    final: finalValue, series: Array.from({ length: N + 1 }, (_, y) => base.invested[y] * d(y)), capped, limit: IRA_LIMIT, active: start > 0 || wanted > 0,
+    put: start + contributed, low: low.invested[N] * d(N), high: high.invested[N] * d(N), annual, perYear,
+  };
 }
 
 /* ---------------- goal ---------------- */
@@ -2270,6 +2474,7 @@ function renderWhy(edited) {
 
 /* ---------------- everything ---------------- */
 let lastFundKey = null;
+let LAST = null;
 function recomputeAll() {
   const edited = syncRates();
   if (lastFundKey !== null && fundKey() !== lastFundKey) {
@@ -2285,6 +2490,7 @@ function recomputeAll() {
   const P = computePersonal(s);
   const K = computeK401(s);
   const I = computeIRA(s);
+  LAST = { s, P, K, I };
   const personal = P.final;
   const k401 = K.final;
   const ira = I.final;
