@@ -295,6 +295,27 @@
   details.why summary { cursor: pointer; min-height: 40px; display: flex; align-items: center; color: var(--accent-ink); }
   details.why p { margin: 0 0 10px; line-height: 1.5; }
   details.why a { color: var(--accent-ink); }
+  .head-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .share-status { font-size: 12px; color: var(--green-ink); min-width: 0; }
+  .card-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+  .note {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 14px; padding: 4px 8px 4px 12px;
+    background: var(--accent-bg); border: 1px solid var(--accent-border); color: var(--accent-ink); border-radius: 10px; font-size: 13px;
+  }
+  .ss-income { border-top: 1px solid var(--border); padding-top: 12px; }
+  .ss-inc-val { display: block; font-size: 20px; font-weight: 700; line-height: 1.2; font-variant-numeric: tabular-nums; }
+  .ss-inc-val small { font-size: 13px; font-weight: 500; color: var(--text-2); }
+  .ss-income .goal-result { margin-top: 4px; }
+  .ss-income .hint { margin: 6px 0 0; color: var(--text-3); }
+  details.assump { margin-top: 16px; padding: 0 18px; }
+  details.assump summary { cursor: pointer; min-height: 48px; display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; }
+  .assump-body { padding: 0 0 12px; }
+  .a-grid { display: grid; grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr); gap: 8px 10px; align-items: center; margin-bottom: 4px; max-width: 460px; }
+  .a-head { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--text-3); text-align: right; }
+  .a-fund { font-size: 14px; display: flex; align-items: center; gap: 8px; }
+  .a-grid .box { width: auto; }
+  .a-grid .box .num { flex: 1; width: auto; min-width: 0; }
+  .badge { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; background: var(--amber-bg); color: var(--amber-ink); border: 1px solid var(--amber-border); }
 </style>
 </head>
 <body>
@@ -316,13 +337,19 @@
 <main class="page">
   <h1>Investment growth calculator</h1>
   <p class="subtitle">Model your personal brokerage account, your workplace 401(k) and an IRA side by side.</p>
+  <div class="note" id="share-note" hidden role="status"><span>Showing a shared scenario. Change any input to make it your own.</span><button class="link-btn" id="share-dismiss" type="button">Dismiss</button></div>
 
   <section class="card" aria-labelledby="shared-h">
     <div class="card-head">
       <h2 id="shared-h">Applies to all accounts</h2>
+      <div class="card-actions"><span class="share-status" id="share-status" role="status"></span><button class="link-btn" id="share-btn" type="button">Copy share link</button></div>
     </div>
     <div class="shared-grid">
      <div class="shared-inputs">
+      <div class="field">
+        <label for="s-age">Your age</label>
+        <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="16" max="90" value="30" id="s-age" class="num"></span><span class="unit">yrs</span></div>
+      </div>
       <div class="field">
         <label for="s-years">Years to invest</label>
         <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="1" max="80" value="25" id="s-years" class="num"></span><span class="unit">yrs</span></div>
@@ -346,6 +373,10 @@
         <label for="s-goal">Combined goal</label>
         <div class="ctl"><span class="box"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" step="10000" placeholder="optional" id="s-goal" class="num wide"></span><span class="unit"></span></div>
       </div>
+      <div class="field">
+        <label for="s-wd">Withdrawal rate</label>
+        <div class="ctl"><span class="box"><input type="number" inputmode="decimal" min="1" max="10" step="0.5" value="4" id="s-wd" class="num"></span><span class="unit">% / yr</span></div>
+      </div>
      </div>
      <aside class="shared-summary" aria-label="Summary" aria-live="polite">
       <div>
@@ -358,6 +389,12 @@
           <span class="ss-part" id="ss-ira-part" hidden><span class="ss-dot" style="background:var(--ira)"></span>IRA <b id="ss-ira">$0</b></span>
         </div>
       </div>
+      <div class="ss-income">
+        <span class="ss-label" id="ss-inc-label">Possible income in retirement</span>
+        <span class="ss-inc-val"><b id="ss-inc-month">$0</b> <small>/ month</small></span>
+        <p class="goal-result" id="ss-inc-detail"></p>
+        <p class="hint">A rule of thumb for roughly 30 years of withdrawals. Taxes, Social Security and other income aren't included.</p>
+      </div>
       <div class="ss-goal">
         <div class="ss-goal-head" id="ss-goal-head" hidden><span>Goal progress</span><b id="ss-goal-pct">0%</b></div>
         <div class="ss-prog" id="ss-prog" hidden><i id="ss-prog-bar"></i></div>
@@ -366,6 +403,26 @@
      </aside>
     </div>
   </section>
+
+  <details class="card assump" id="assump">
+    <summary>Fund return assumptions <span class="badge" id="assump-badge" hidden>Customized</span></summary>
+    <div class="assump-body">
+      <p class="hint">Used by the Personal and IRA tabs. Total return includes dividends. The defaults are long-run historical figures, so changing them shows a what-if, not a forecast. The 401(k) tab has its own expected return.</p>
+      <div class="a-grid">
+        <span></span><span class="a-head">Total return</span><span class="a-head">Dividend</span>
+        <span class="a-fund"><span class="dot" style="background:var(--c-voo)"></span>VOO</span>
+        <span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.1" value="10.5" id="a-voo-total" class="num" aria-label="VOO total return"><span class="unit">%</span></span>
+        <span class="box"><input type="number" inputmode="decimal" min="0" max="15" step="0.1" value="1.1" id="a-voo-div" class="num" aria-label="VOO dividend yield"><span class="unit">%</span></span>
+        <span class="a-fund"><span class="dot" style="background:var(--c-qqq)"></span>QQQM</span>
+        <span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.1" value="12" id="a-qqq-total" class="num" aria-label="QQQM total return"><span class="unit">%</span></span>
+        <span class="box"><input type="number" inputmode="decimal" min="0" max="15" step="0.1" value="0.4" id="a-qqq-div" class="num" aria-label="QQQM dividend yield"><span class="unit">%</span></span>
+        <span class="a-fund"><span class="dot" style="background:var(--c-schd)"></span>SCHD</span>
+        <span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.1" value="10.07" id="a-schd-total" class="num" aria-label="SCHD total return"><span class="unit">%</span></span>
+        <span class="box"><input type="number" inputmode="decimal" min="0" max="15" step="0.1" value="3.2" id="a-schd-div" class="num" aria-label="SCHD dividend yield"><span class="unit">%</span></span>
+      </div>
+      <button class="link-btn" id="rates-reset" type="button">Restore default rates</button>
+    </div>
+  </details>
 
   <div class="tabs" role="tablist">
     <button class="tab-btn" id="tab-personal-btn" role="tab" aria-selected="true" aria-controls="panel-personal" type="button">Personal investing</button>
@@ -535,7 +592,7 @@
               </select>
             </div>
           </div>
-          <p class="hint">Most Puerto Rico plans cap your contributions at $15,000 a year. "PR dual" means a dual-qualified plan with a higher limit, which drops to $22,500 if you also contribute to an IRA. Ask HR which one yours is.</p>
+          <p class="hint">Most Puerto Rico plans cap your contributions at $15,000 a year. "PR dual" means a dual-qualified plan with a higher limit, which drops to $22,500 if you also contribute to an IRA. Ask HR which one yours is. From age 50 a catch-up is added on top.</p>
           <div class="warn" id="k-warn" style="display:none;"></div>
         </div>
 
@@ -607,15 +664,7 @@
             <div class="ctl"><span class="box"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="50000" value="0" step="100" id="i-amount" class="num wide"></span></div>
           </div>
           <p class="hint" id="i-effective"></p>
-          <div class="field">
-            <label for="i-limit">Annual limit</label>
-            <div class="ctl">
-              <select id="i-limit" class="num sel">
-                <option value="7500" selected>Under 50 · $7,500</option>
-                <option value="8600">50 or older · $8,600</option>
-              </select>
-            </div>
-          </div>
+          <p class="hint" id="i-limit-hint"></p>
           <div class="warn" id="i-warn" style="display:none;"></div>
         </div>
 
@@ -697,6 +746,8 @@ const RATES = {
   schd: { total: 10.07, div: 3.2, label: 'SCHD', color: '#1baf7a' },
 };
 const FUNDS = ['voo', 'qqq', 'schd'];
+const DEFAULT_RATES = {};
+FUNDS.forEach((f) => { DEFAULT_RATES[f] = { total: RATES[f].total, div: RATES[f].div }; });
 const CASH_COLOR = '#c98500';
 const CONTRIB_COLOR = '#94a3b8';
 const MATCH_COLOR = '#1baf7a';
@@ -708,7 +759,23 @@ const SHOW_INFLATION_UI = false; // flip to true to bring back the today's-dolla
 
 FUNDS.forEach((f) => document.documentElement.style.setProperty('--c-' + f, RATES[f].color));
 
+/* ---------------- language ---------------- */
+let LANG = 'en';
+const ES = {};
+const MISSING = new Set();
+window.__i18nMissing = MISSING;
+// tr('text {0}', value): looks the English text up in the Spanish table when Spanish is on, then fills {0}, {1}...
+function tr(s) {
+  let o = s;
+  if (LANG === 'es') { if (ES[s] != null) o = ES[s]; else MISSING.add(s); }
+  for (let i = 1; i < arguments.length; i++) o = o.split('{' + (i - 1) + '}').join(arguments[i]);
+  return o;
+}
+
 const $ = (id) => document.getElementById(id);
+// the page's starting values, used to keep share links short and to restore defaults
+const DEFAULT_INPUTS = {};
+document.querySelectorAll('input[type=number], select').forEach((el) => { DEFAULT_INPUTS[el.id] = el.value; });
 // Reads a number input, kept inside the input's own min/max so a stray negative or huge value can't skew results.
 const num = (id) => {
   const el = $(id);
@@ -717,7 +784,7 @@ const num = (id) => {
   if (el.max !== '' && el.max != null && v > Number(el.max)) v = Number(el.max);
   return v;
 };
-function fmt(n) { return (n < 0 ? '-$' : '$') + Math.abs(Math.round(n)).toLocaleString(); }
+function fmt(n) { return (n < 0 ? '-$' : '$') + Math.abs(Math.round(n)).toLocaleString('en-US'); }
 function short(v) {
   const a = Math.abs(v);
   if (a >= 1e6) return '$' + (v / 1e6).toFixed(a >= 1e7 ? 0 : 1).replace(/\.0$/, '') + 'M';
@@ -746,10 +813,40 @@ function shared() {
   const years = Math.min(MAX_YEARS, Math.max(1, Math.round(num('s-years')) || 1));
   return {
     years,
+    age: Math.round(num('s-age')),
     salary: num('s-salary'),
     raise: num('s-raise'),
+    wd: num('s-wd'),
     inflRate: inflOn ? num('s-infl-rate') : 0,
   };
+}
+
+/* ---------------- contribution limits (2026) ---------------- */
+// Catch-up amounts by 401(k) limit option. Puerto Rico plans (not federal-government plans) get $1,500;
+// the U.S. limit gets $8,000, or $11,250 at ages 60 to 63. Limits are held flat for the whole projection.
+const K_CATCHUP = { 15000: { amt: 1500 }, 22500: { amt: 1500 }, 24500: { amt: 8000, sup: 11250 } };
+function kCatchUp(limit, age) {
+  const c = K_CATCHUP[limit] || { amt: 1500 };
+  if (age < 50) return 0;
+  return c.sup && age >= 60 && age <= 63 ? c.sup : c.amt;
+}
+const IRA_LIMIT = 7500;
+const IRA_CATCHUP = 1100;
+function iraLimitAt(age) { return IRA_LIMIT + (age >= 50 ? IRA_CATCHUP : 0); }
+
+/* ---------------- fund rate assumptions ---------------- */
+function syncRates() {
+  let custom = false;
+  FUNDS.forEach((f) => {
+    const total = num('a-' + f + '-total');
+    const div = Math.min(num('a-' + f + '-div'), total);
+    RATES[f].total = total;
+    RATES[f].div = div;
+    if (total !== DEFAULT_RATES[f].total || div !== DEFAULT_RATES[f].div) custom = true;
+    document.querySelectorAll('[data-yield="' + f + '"]').forEach((el) => { el.textContent = tr('{0}% dividend', div); });
+  });
+  $('assump-badge').hidden = !custom;
+  return custom;
 }
 // Multiply a nominal amount at year y by this to express it in the chosen dollars.
 function deflator(inflRate, y) { return Math.pow(1 + inflRate / 100, -y); }
@@ -816,7 +913,6 @@ FUNDS.forEach((f) => {
       recomputeAll();
     });
   });
-  document.querySelectorAll('[data-yield="' + f + '"]').forEach((el) => { el.textContent = RATES[f].div + '% dividend'; });
 });
 
 document.querySelectorAll('#p-strategies .strat-btn').forEach((btn) => {
@@ -856,7 +952,8 @@ $('p-custom-btn').addEventListener('click', () => { pCustomOpen = !pCustomOpen; 
 $('s-infl-switch').addEventListener('click', () => { inflOn = !inflOn; renderToggles(); recomputeAll(); });
 
 [
-  's-years', 's-salary', 's-raise', 's-infl-rate', 's-goal',
+  's-age', 's-years', 's-salary', 's-raise', 's-infl-rate', 's-goal', 's-wd',
+  'a-voo-total', 'a-voo-div', 'a-qqq-total', 'a-qqq-div', 'a-schd-total', 'a-schd-div',
   'p-starting', 'p-monthly', 'p-salary-pct',
   'k-return', 'k-starting', 'k-contrib-pct', 'k-match-rate', 'k-match-cap',
 ].forEach((id) => $(id).addEventListener('input', recomputeAll));
@@ -933,44 +1030,118 @@ $('i-alloc-mode').addEventListener('change', () => {
 $('i-custom-btn').addEventListener('click', () => { iCustomOpen = !iCustomOpen; renderIraToggles(); saveState(); });
 $('i-freq').addEventListener('change', () => { renderIraToggles(); recomputeAll(); });
 $('i-type').addEventListener('change', () => { renderIraToggles(); recomputeAll(); });
-$('i-limit').addEventListener('change', recomputeAll);
+$('rates-reset').addEventListener('click', () => {
+  FUNDS.forEach((f) => { $('a-' + f + '-total').value = DEFAULT_RATES[f].total; $('a-' + f + '-div').value = DEFAULT_RATES[f].div; });
+  recomputeAll();
+});
 ['i-starting', 'i-amount'].forEach((id) => $(id).addEventListener('input', recomputeAll));
 
-/* ---------------- persistence ---------------- */
-function saveState() {
-  try {
-    const inputs = {};
-    document.querySelectorAll('input[type=number], select').forEach((el) => { inputs[el.id] = el.value; });
-    localStorage.setItem(STORE_KEY, JSON.stringify({ inputs, pAlloc, iAlloc, iAllocEdited, iCustomOpen, pMode, pReinvest, inflOn, pCustomOpen, pView, tab: currentTab }));
-  } catch (e) { /* storage unavailable: the calculator still works, it just won't remember */ }
+/* ---------------- persistence + share link ---------------- */
+function collectState() {
+  const inputs = {};
+  document.querySelectorAll('input[type=number], select').forEach((el) => { inputs[el.id] = el.value; });
+  return { inputs, pAlloc, iAlloc, iAllocEdited, iCustomOpen, pMode, pReinvest, inflOn, pCustomOpen, pView, tab: currentTab, lang: LANG };
 }
 
+function saveState() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(collectState())); } catch (e) { /* storage unavailable: the calculator still works, it just won't remember */ }
+}
+
+function applyState(d) {
+  Object.keys(d.inputs || {}).forEach((id) => {
+    const el = $(id);
+    if (!el) return;
+    if (el.type === 'number') el.value = d.inputs[id];
+    else if (el.tagName === 'SELECT' && Array.from(el.options).some((o) => o.value === d.inputs[id])) el.value = d.inputs[id];
+  });
+  if (d.pAlloc && FUNDS.every((f) => typeof d.pAlloc[f] === 'number') &&
+      FUNDS.reduce((s, f) => s + d.pAlloc[f], 0) === 100) pAlloc = d.pAlloc;
+  if (d.iAlloc && FUNDS.every((f) => typeof d.iAlloc[f] === 'number') &&
+      FUNDS.reduce((s, f) => s + d.iAlloc[f], 0) === 100) iAlloc = d.iAlloc;
+  if (typeof d.iAllocEdited === 'boolean') iAllocEdited = d.iAllocEdited;
+  if (typeof d.iCustomOpen === 'boolean') iCustomOpen = d.iCustomOpen;
+  if (d.pMode === 'dollar' || d.pMode === 'percent') pMode = d.pMode;
+  if (typeof d.pReinvest === 'boolean') pReinvest = d.pReinvest;
+  if (SHOW_INFLATION_UI && typeof d.inflOn === 'boolean') inflOn = d.inflOn;
+  if (typeof d.pCustomOpen === 'boolean') pCustomOpen = d.pCustomOpen;
+  if (d.pView === 'growth' || d.pView === 'div') pView = d.pView;
+  if (TABS.includes(d.tab)) currentTab = d.tab;
+  if (d.lang === 'en' || d.lang === 'es') LANG = d.lang;
+  if (!d.inputs || !('p-freq' in d.inputs)) $('p-freq').value = 'monthly';
+}
+
+// Share links carry only the values that differ from the defaults, in the URL fragment (never sent to a server).
+function b64url(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = '';
+  bytes.forEach((b) => { bin += String.fromCharCode(b); });
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function unb64url(code) {
+  const bin = atob(code.replace(/-/g, '+').replace(/_/g, '/'));
+  return new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
+}
+function shareUrl() {
+  const st = collectState();
+  const diff = {};
+  Object.keys(st.inputs).forEach((id) => { if (st.inputs[id] !== DEFAULT_INPUTS[id]) diff[id] = st.inputs[id]; });
+  st.inputs = diff;
+  return location.origin + location.pathname + location.search + '#s=' + b64url(JSON.stringify(st));
+}
+function readShare() {
+  const m = /^#s=([A-Za-z0-9_-]+)$/.exec(location.hash);
+  if (!m) return null;
+  try {
+    const d = JSON.parse(unb64url(m[1]));
+    if (!d || typeof d !== 'object') return null;
+    d.inputs = Object.assign({}, DEFAULT_INPUTS, d.inputs && typeof d.inputs === 'object' ? d.inputs : {});
+    return d;
+  } catch (e) { return null; }
+}
+
+let sharedLoaded = false;
 function loadState() {
   try {
+    const shared = readShare();
+    if (shared) {
+      applyState(shared);
+      sharedLoaded = true;
+      history.replaceState(null, '', location.pathname + location.search);
+      return;
+    }
     const raw = localStorage.getItem(STORE_KEY);
-    if (!raw) return;
-    const d = JSON.parse(raw);
-    Object.keys(d.inputs || {}).forEach((id) => {
-      const el = $(id);
-      if (!el) return;
-      if (el.type === 'number') el.value = d.inputs[id];
-      else if (el.tagName === 'SELECT' && Array.from(el.options).some((o) => o.value === d.inputs[id])) el.value = d.inputs[id];
-    });
-    if (d.pAlloc && FUNDS.every((f) => typeof d.pAlloc[f] === 'number') &&
-        FUNDS.reduce((s, f) => s + d.pAlloc[f], 0) === 100) pAlloc = d.pAlloc;
-    if (d.iAlloc && FUNDS.every((f) => typeof d.iAlloc[f] === 'number') &&
-        FUNDS.reduce((s, f) => s + d.iAlloc[f], 0) === 100) iAlloc = d.iAlloc;
-    if (typeof d.iAllocEdited === 'boolean') iAllocEdited = d.iAllocEdited;
-    if (typeof d.iCustomOpen === 'boolean') iCustomOpen = d.iCustomOpen;
-    if (d.pMode === 'dollar' || d.pMode === 'percent') pMode = d.pMode;
-    if (typeof d.pReinvest === 'boolean') pReinvest = d.pReinvest;
-    if (SHOW_INFLATION_UI && typeof d.inflOn === 'boolean') inflOn = d.inflOn;
-    if (typeof d.pCustomOpen === 'boolean') pCustomOpen = d.pCustomOpen;
-    if (d.pView === 'growth' || d.pView === 'div') pView = d.pView;
-    if (TABS.includes(d.tab)) currentTab = d.tab;
-    if (!d.inputs || !('p-freq' in d.inputs)) $('p-freq').value = 'monthly';
+    if (raw) applyState(JSON.parse(raw));
   } catch (e) { /* ignore a corrupt or unavailable store */ }
 }
+
+let shareTimer;
+function flashShare(msg) {
+  const el = $('share-status');
+  el.textContent = msg;
+  clearTimeout(shareTimer);
+  shareTimer = setTimeout(() => { el.textContent = ''; }, 3500);
+}
+$('share-btn').addEventListener('click', () => {
+  const url = shareUrl();
+  const fallback = () => {
+    const ta = document.createElement('textarea');
+    ta.value = url;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    flashShare(ok ? tr('Link copied') : tr('Couldn\'t copy. Copy the address from the box that opens next.'));
+    if (!ok) window.prompt(tr('Copy this link'), url);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(() => flashShare(tr('Link copied')), fallback);
+  } else fallback();
+});
+$('share-dismiss').addEventListener('click', () => { $('share-note').hidden = true; });
 
 $('reset-btn').addEventListener('click', () => {
   try { localStorage.removeItem(STORE_KEY); } catch (e) { /* ignore */ }
@@ -1285,7 +1456,7 @@ function simPersonal(p, delta) {
   FUNDS.forEach((f) => { out.fund[f] = [bal[f]]; out.div[f] = []; });
 
   for (let y = 1; y <= p.years; y++) {
-    const yearMonthly = p.monthly * Math.pow(1 + p.growth / 100, y - 1);
+    const yearMonthly = p.monthlyFn ? p.monthlyFn(y) : p.monthly * Math.pow(1 + p.growth / 100, y - 1);
     let yearCash = 0;
     FUNDS.forEach((f) => {
       const amt = (yearMonthly * p.alloc[f]) / 100;
@@ -1393,7 +1564,9 @@ function simK401(p, delta) {
   for (let y = 1; y <= p.years; y++) {
     const yearSalary = p.salary * Math.pow(1 + p.raise / 100, y - 1);
     let employeeAnnual = yearSalary * (p.contribPct / 100);
-    if (employeeAnnual > p.limit) { employeeAnnual = p.limit; capped = true; }
+    // from age 50 the plan limit rises by the catch-up amount
+    const limitY = p.limit + kCatchUp(p.limit, p.age + y - 1);
+    if (employeeAnnual > limitY) { employeeAnnual = limitY; capped = true; }
     // the match is based on what you actually contribute, after the plan limit
     const matchable = Math.min(employeeAnnual, yearSalary * (p.matchCap / 100));
     const employerAnnual = matchable * (p.matchRate / 100);
@@ -1415,7 +1588,7 @@ function computeK401(s) {
   const p = {
     rate: num('k-return'), start: num('k-starting'), salary: s.salary, raise: s.raise,
     contribPct: num('k-contrib-pct'), matchRate: num('k-match-rate'), matchCap: num('k-match-cap'),
-    years: s.years, inflRate: s.inflRate, limit: kLimit(),
+    years: s.years, inflRate: s.inflRate, limit: kLimit(), age: s.age,
   };
   const base = simK401(p, 0);
   const low = simK401(p, LOW_DELTA);
@@ -1448,8 +1621,12 @@ function computeK401(s) {
     kGrowthChart.update();
   }
 
+  const cu = K_CATCHUP[p.limit] || { amt: 1500 };
   $('k-footnote').textContent =
-    'The limit is held at its 2026 level for the whole projection and age-50+ catch-up contributions are not modeled. ' +
+    tr('The limit is held at its 2026 level for the whole projection.') + ' ' +
+    (cu.sup
+      ? tr('From age 50 it rises by the {0} catch-up ({1} at ages 60 to 63), which is included automatically when your contribution is high enough to use it.', fmt(cu.amt), fmt(cu.sup))
+      : tr('From age 50 it rises by the {0} catch-up, which is included automatically when your contribution is high enough to use it.', fmt(cu.amt))) + ' ' +
     (p.start > 0 ? 'The contribution line includes your starting balance. ' : '') +
     'The low and high cases shift the expected return by ' + LOW_DELTA + ' and +' + HIGH_DELTA + ' points a year to show sensitivity; they are not a forecast range.' +
     (inflOn ? " Figures are in today's dollars at " + num('s-infl-rate') + '% annual inflation.' : '');
@@ -1462,13 +1639,16 @@ function computeK401(s) {
 // with contributions capped at the annual limit.
 function computeIRA(s) {
   const perYear = iraPerYear();
-  const limit = Number($('i-limit').value) || 7500;
   const wanted = num('i-amount') * perYear;
-  const annual = Math.min(wanted, limit);
-  const capped = wanted > limit;
-  const monthly = annual / 12;
+  const limitAt = (y) => iraLimitAt(s.age + y - 1);
+  let capped = false;
+  for (let y = 1; y <= s.years; y++) if (wanted > limitAt(y)) capped = true;
+  const annual = Math.min(wanted, limitAt(1));
   const start = num('i-starting');
-  const p = { start, monthly, perYear, growth: 0, years: s.years, alloc: iraAlloc(), reinvest: true, inflRate: s.inflRate };
+  const p = {
+    start, monthly: annual / 12, monthlyFn: (y) => Math.min(wanted, limitAt(y)) / 12, perYear, growth: 0,
+    years: s.years, alloc: iraAlloc(), reinvest: true, inflRate: s.inflRate,
+  };
   const base = simPersonal(p, 0);
   const low = simPersonal(p, LOW_DELTA);
   const high = simPersonal(p, HIGH_DELTA);
@@ -1477,14 +1657,15 @@ function computeIRA(s) {
   const finalValue = base.invested[N] * d(N);
   const contributed = base.realContrib[N];
 
+  $('i-limit-hint').textContent = tr('2026 limit: {0} a year, or {1} from age 50. It is shared across all your IRAs.', fmt(IRA_LIMIT), fmt(IRA_LIMIT + IRA_CATCHUP));
   $('i-effective').textContent = wanted <= 0
-    ? 'Enter an amount to start modeling an IRA. Until then it is left out of your combined total.'
+    ? tr('Enter an amount to start modeling an IRA. Until then it is left out of your combined total.')
     : (perYear === 26
-        ? '= about ' + fmt(annual / 12) + ' / month on average (26 paychecks a year), ' + fmt(annual) + ' a year.'
-        : '= ' + fmt(annual) + ' a year.');
+        ? tr('= about {0} / month on average (26 paychecks a year), {1} a year.', fmt(annual / 12), fmt(annual))
+        : tr('= {0} a year.', fmt(annual)));
   $('i-warn').style.display = capped ? 'block' : 'none';
-  $('i-warn').textContent = 'That is more than the ' + fmt(limit) + ' annual limit, so contributions are capped at ' + fmt(limit) + ' a year (' + fmt(limit / 12) + ' a month).';
-  $('i-alloc-same').textContent = 'Uses your Personal mix: ' + allocText(pAlloc) + '.';
+  $('i-warn').textContent = tr('That is more than the IRA annual limit ({0}, or {1} from age 50), so contributions are capped at the limit each year.', fmt(IRA_LIMIT), fmt(IRA_LIMIT + IRA_CATCHUP));
+  $('i-alloc-same').textContent = tr('Uses your Personal mix: {0}.', allocText(pAlloc));
   $('i-stat-final').textContent = fmt(finalValue);
   $('i-stat-starting').textContent = fmt(start);
   $('i-stat-contributed').textContent = fmt(contributed);
@@ -1500,12 +1681,12 @@ function computeIRA(s) {
     iGrowthChart.update();
   }
   $('i-footnote').textContent =
-    'Uses the same return and dividend assumptions as the Personal tab, with dividends reinvested. The limit is held at its 2026 level for the whole projection and is shared across all your IRAs. ' +
+    tr('Uses the same return and dividend assumptions as the Personal tab, with dividends reinvested. The limit is held at its 2026 level for the whole projection, and the {0} catch-up is added from age 50.', fmt(IRA_CATCHUP)) + ' ' +
     (start > 0 ? 'The contribution line includes your starting balance. ' : '') +
     'The low and high cases shift every fund\'s return by ' + LOW_DELTA + ' and +' + HIGH_DELTA + ' points a year to show sensitivity; they are not a forecast range.' +
     (inflOn ? " Figures are in today's dollars at " + num('s-infl-rate') + '% annual inflation.' : '');
 
-  return { final: finalValue, series: Array.from({ length: N + 1 }, (_, y) => base.invested[y] * d(y)), capped, limit, active: start > 0 || monthly > 0 };
+  return { final: finalValue, series: Array.from({ length: N + 1 }, (_, y) => base.invested[y] * d(y)), capped, limit: IRA_LIMIT, active: start > 0 || wanted > 0 };
 }
 
 /* ---------------- goal ---------------- */
@@ -1541,20 +1722,34 @@ function updateGoal(s, P, K, I) {
     (extra > 0 ? ' Adding about ' + fmt(extra) + (perYear === 26 ? ' per paycheck' : ' a month') + ' to your personal account would close the gap.' : '');
 }
 
+/* ---------------- retirement income ---------------- */
+function updateIncome(s, P, K, I) {
+  const rate = s.wd / 100;
+  const monthly = (v) => (v * rate) / 12;
+  const total = P.final + K.final + I.final;
+  $('ss-inc-label').textContent = tr('Possible income at age {0}', s.age + s.years);
+  $('ss-inc-month').textContent = fmt(monthly(total));
+  const parts = [tr('Personal') + ' ' + fmt(monthly(P.final)), '401(k) ' + fmt(monthly(K.final))];
+  if (I.active) parts.push('IRA ' + fmt(monthly(I.final)));
+  $('ss-inc-detail').textContent = tr('About {0} a year at a {1}% withdrawal rate. Per month: {2}.', fmt(total * rate), s.wd, parts.join(' · '));
+}
+
 /* ---------------- sources ---------------- */
 function link(url, text) { return '<a href="' + url + '" target="_blank" rel="noopener">' + text + '</a>'; }
-function renderWhy() {
+function renderWhy(custom) {
+  const D = DEFAULT_RATES;
   $('p-why-body').innerHTML =
-    '<p><b>VOO, ' + RATES.voo.total + '% a year.</b> The S&amp;P 500 returned about 10.5% a year with dividends reinvested from 1926 to 2026 (' +
-      link('https://www.officialdata.org/us/stocks/s-p-500/1926', 'Official Data') + '). Dividend yield ' + RATES.voo.div + '% (' +
+    (custom ? '<p><b>' + tr('You have changed some return assumptions. The notes below describe the default figures.') + '</b></p>' : '') +
+    '<p><b>VOO, ' + D.voo.total + '% a year.</b> The S&amp;P 500 returned about 10.5% a year with dividends reinvested from 1926 to 2026 (' +
+      link('https://www.officialdata.org/us/stocks/s-p-500/1926', 'Official Data') + '). Dividend yield ' + D.voo.div + '% (' +
       link('https://www.wisesheets.io/etf/VOO/dividends', 'trailing, Wisesheets') + ').</p>' +
-    '<p><b>QQQM, ' + RATES.qqq.total + '% a year.</b> QQQM tracks the Nasdaq-100, which Nasdaq says returned 14.25% a year since 1985 (' +
+    '<p><b>QQQM, ' + D.qqq.total + '% a year.</b> QQQM tracks the Nasdaq-100, which Nasdaq says returned 14.25% a year since 1985 (' +
       link('https://www.nasdaq.com/press-release/celebrating-40-years-nasdaq-100-indexr-ndxr-2025-01-31', 'Nasdaq') +
       '). That span includes the 1990s tech boom, and the index fell about 82% from 2000 to 2002 (' +
       link('https://www.cmegroup.com/insights/economic-research/2024/nasdaqs-stellar-returns-potential-risks-ahead.html', 'CME Group') +
-      '), so the calculator trims it to ' + RATES.qqq.total + '%. The fund launched in 2020, with a 0.15% expense ratio and a ' + RATES.qqq.div + '% yield (' +
+      '), so the calculator trims it to ' + D.qqq.total + '%. The fund launched in 2020, with a 0.15% expense ratio and a ' + D.qqq.div + '% yield (' +
       link('https://chartrow.com/compare/qqq-vs-qqqm', 'Chartrow') + ').</p>' +
-    '<p><b>SCHD, ' + RATES.schd.total + '% a year.</b> This comes from a long-run study of dividend-growing stocks, not the fund\'s short history. SCHD itself returned about 13.4% a year since 2011, a strong stretch for stocks, and yields about 3.1% to 3.2% (' +
+    '<p><b>SCHD, ' + D.schd.total + '% a year.</b> This comes from a long-run study of dividend-growing stocks, not the fund\'s short history. SCHD itself returned about 13.4% a year since 2011, a strong stretch for stocks, and yields about 3.1% to 3.2% (' +
       link('https://www.fool.com/investing/2026/08/23/where-will-schd-be-in-2035/', 'Motley Fool') + ').</p>' +
     '<p>Checked October 2026. Yields and returns change over time.</p>';
   $('i-why-body').innerHTML =
@@ -1568,11 +1763,15 @@ function renderWhy() {
     '<p><b>Contribution limits.</b> For 2026 the Puerto Rico Treasury allows $15,000 in employee deferrals for plans qualified only under Section 1081.01(a) of the PR Code, and $22,500 for dual-qualified plans that adopted the higher limit. The U.S. limit is $24,500 (' +
       link('https://www.littler.com/news-analysis/asap/puerto-rico-department-treasury-announces-2026-limits-qualified-retirement-plans', 'Littler') + ', ' +
       link('https://www.mcvpr.com/newsroom/publications/2026_Annual_Limits_Qualified_Retirement_Plans', 'McConnell Valdés') + ').</p>' +
+    '<p><b>Catch-up at 50 or older.</b> Puerto Rico plans that are not sponsored by the federal government allow an extra $1,500 (the Treasury circular lists no separate figure for dual-qualified plans, so the calculator uses $1,500 for them too; ask your plan to confirm). The U.S. limit allows an extra $8,000, or $11,250 at ages 60 to 63 (' +
+      link('https://www.cpapracticeadvisor.com/2025/11/13/irs-bumps-up-401k-ira-contribution-limits-for-2026/173130/', 'CPA Practice Advisor') + ').</p>' +
     '<p><b>Employer match.</b> Assumes the full match is yours immediately. Your plan may have a vesting schedule.</p>';
 }
 
 /* ---------------- everything ---------------- */
 function recomputeAll() {
+  const custom = syncRates();
+  renderWhy(custom);
   const s = shared();
   const P = computePersonal(s);
   const K = computeK401(s);
@@ -1599,13 +1798,14 @@ function recomputeAll() {
   $('ss-bi').style.width = (tot > 0 ? ira / tot * 100 : (I.active ? 34 : 0)) + '%';
   $('ss-label').textContent = 'After ' + s.years + (s.years === 1 ? ' year' : ' years') + (inflOn ? " · today's dollars" : '');
   updateGoal(s, P, K, I);
+  updateIncome(s, P, K, I);
   $('s-label').textContent = 'Combined after ' + s.years + (s.years === 1 ? ' year' : ' years') + (inflOn ? " · today's dollars" : '');
   saveState();
 }
 
-renderWhy();
 $('s-infl-field').hidden = !SHOW_INFLATION_UI;
 loadState();
+$('share-note').hidden = !sharedLoaded;
 if (!matchesPreset()) pCustomOpen = true;
 if (!matchesIraPreset() && iAllocEdited) iCustomOpen = true;
 syncAllocInputs();
