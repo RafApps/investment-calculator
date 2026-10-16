@@ -170,7 +170,7 @@
   .unit { font-size: 14px; color: var(--text-2); white-space: nowrap; }
   .ctl.nowrap { flex-wrap: nowrap; }
   @media (max-width: 380px) { .field { flex-wrap: wrap; } .ctl.nowrap { flex-wrap: wrap; } }
-  .field > .lbl, .field > label { flex-shrink: 0; }
+  .field > .lbl, .field > label, .field > .lbl-wrap { flex-shrink: 0; }
   .num {
     width: 72px; height: 40px; padding: 0 8px; text-align: right;
     font-size: 16px; /* 16px stops iOS from zooming on focus */
@@ -180,7 +180,7 @@
   .num.wide { width: 112px; }
   .num:focus { outline: 2px solid var(--accent); outline-offset: 0; background: var(--surface); }
   .ctl > .unit:last-child { min-width: var(--uw, 44px); }
-  #panel-401k .inputs-col { --uw: 80px; }
+  #panel-401k .inputs-col { --uw: 66px; }
   .box {
     display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 10px;
     border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2);
@@ -295,6 +295,15 @@
   details.why summary { cursor: pointer; min-height: 40px; display: flex; align-items: center; color: var(--accent-ink); }
   details.why p { margin: 0 0 10px; line-height: 1.5; }
   details.why a { color: var(--accent-ink); }
+  .lbl-wrap { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .info-btn {
+    position: relative; width: 22px; height: 22px; padding: 0; border-radius: 50%; border: 1px solid var(--border);
+    background: var(--surface-2); color: var(--text-2); font: italic 700 12px/1 Georgia, serif; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .info-btn::after { content: ''; position: absolute; inset: -11px; } /* 44px touch target */
+  .info-btn[aria-expanded=true] { background: var(--accent-bg); border-color: var(--accent-border); color: var(--accent-ink); }
+  details.why .footnote { font-size: 13px; }
   .head-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
   .lang { display: inline-flex; flex-shrink: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
   .lang-btn { min-height: 36px; min-width: 44px; border: none; background: transparent; color: var(--text-2); font-size: 13px; font-weight: 600; cursor: pointer; }
@@ -402,10 +411,10 @@
         </div>
       </div>
       <div class="ss-income">
-        <span class="ss-label" id="ss-inc-label">Possible income in retirement</span>
+        <span class="lbl-wrap"><span class="ss-label" id="ss-inc-label">Possible income in retirement</span><button type="button" class="info-btn" data-info="ss-inc-note" aria-label="More info" aria-expanded="false">i</button></span>
         <span class="ss-inc-val"><b id="ss-inc-month">$0</b> <small>/ month</small></span>
         <p class="goal-result" id="ss-inc-detail"></p>
-        <p class="hint">A rule of thumb for roughly 30 years of withdrawals. Taxes, Social Security and other income aren't included.</p>
+        <p class="hint" id="ss-inc-note" hidden>A rule of thumb for roughly 30 years of withdrawals. Taxes, Social Security and other income aren't included.</p>
       </div>
       <div class="ss-goal">
         <div class="ss-goal-head" id="ss-goal-head" hidden><span>Goal progress</span><b id="ss-goal-pct">0%</b></div>
@@ -561,8 +570,7 @@
           <div class="chart-wrap"><canvas id="p-div-chart" role="img" aria-label="Annual dividend payout by fund"></canvas></div>
         </div>
 
-        <p class="footnote" id="p-footnote"></p>
-        <details class="why"><summary>Where do these numbers come from?</summary><div id="p-why-body"></div></details>
+        <details class="why"><summary>Notes and sources</summary><p class="footnote" id="p-footnote"></p><div id="p-why-body"></div></details>
       </section>
     </div>
   </div>
@@ -595,7 +603,7 @@
           </div>
           <p class="hint" id="k-match-hint"></p>
           <div class="field">
-            <label for="k-limit">Annual limit</label>
+            <span class="lbl-wrap"><label for="k-limit">Annual limit</label><button type="button" class="info-btn" data-info="k-limit-hint" aria-label="More info" aria-expanded="false">i</button></span>
             <div class="ctl">
               <select id="k-limit" class="num sel">
                 <option value="15000" selected>PR · $15,000</option>
@@ -604,17 +612,17 @@
               </select>
             </div>
           </div>
-          <p class="hint">Most Puerto Rico plans cap your contributions at $15,000 a year. "PR dual" means a dual-qualified plan with a higher limit, which drops to $22,500 if you also contribute to an IRA. Ask HR which one yours is. From age 50 a catch-up is added on top.</p>
+          <p class="hint" id="k-limit-hint" hidden>Most Puerto Rico plans cap your contributions at $15,000 a year. "PR dual" means a dual-qualified plan with a higher limit, which drops to $22,500 if you also contribute to an IRA. Ask HR which one yours is. From age 50 a catch-up is added on top.</p>
           <div class="warn" id="k-warn" style="display:none;"></div>
         </div>
 
         <div class="section">
           <h3>Growth assumptions</h3>
           <div class="field">
-            <label for="k-return">Expected return</label>
+            <span class="lbl-wrap"><label for="k-return">Expected return</label><button type="button" class="info-btn" data-info="k-return-hint" aria-label="More info" aria-expanded="false">i</button></span>
             <div class="ctl"><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.5" value="7" id="k-return" class="num"></span><span class="unit">% / yr</span></div>
           </div>
-          <p class="hint">Diversified 401(k) plans have historically returned around 5-8% a year; 7% is a commonly cited long-run average.</p>
+          <p class="hint" id="k-return-hint" hidden>Diversified 401(k) plans have historically returned around 5-8% a year; 7% is a commonly cited long-run average.</p>
         </div>
       </section>
 
@@ -632,8 +640,7 @@
         <div class="legend" id="k-growth-legend"></div>
         <div class="chart-wrap"><canvas id="k-growth-chart" role="img" aria-label="401(k) growth over time"></canvas></div>
 
-        <p class="footnote" id="k-footnote"></p>
-        <details class="why"><summary>Where do these numbers come from?</summary><div id="k-why-body"></div></details>
+        <details class="why"><summary>Notes and sources</summary><p class="footnote" id="k-footnote"></p><div id="k-why-body"></div></details>
       </section>
     </div>
   </div>
@@ -653,7 +660,7 @@
         <div class="section">
           <h3>Contributions</h3>
           <div class="field">
-            <label for="i-type">Account type</label>
+            <span class="lbl-wrap"><label for="i-type">Account type</label><button type="button" class="info-btn" data-info="i-type-hint" aria-label="More info" aria-expanded="false">i</button></span>
             <div class="ctl">
               <select id="i-type" class="num sel">
                 <option value="traditional" selected>Traditional</option>
@@ -661,7 +668,7 @@
               </select>
             </div>
           </div>
-          <p class="hint" id="i-type-hint"></p>
+          <p class="hint" id="i-type-hint" hidden></p>
           <div class="field">
             <label for="i-freq">How often</label>
             <div class="ctl">
@@ -739,8 +746,7 @@
         <h3>IRA growth</h3>
         <div class="legend" id="i-growth-legend"></div>
         <div class="chart-wrap"><canvas id="i-growth-chart" role="img" aria-label="IRA growth over time"></canvas></div>
-        <p class="footnote" id="i-footnote"></p>
-        <details class="why"><summary>Where do these numbers come from?</summary><div id="i-why-body"></div></details>
+        <details class="why"><summary>Notes and sources</summary><p class="footnote" id="i-footnote"></p><div id="i-why-body"></div></details>
       </section>
     </div>
   </div>
@@ -851,7 +857,10 @@ const ES = {
   "Portfolio growth": "Crecimiento del portafolio",
   "Dividend payout": "Pago de dividendos",
   "Estimated annual dividend payout by fund": "Pago anual estimado de dividendos por fondo",
-  "Where do these numbers come from?": "¿De dónde salen estos números?",
+  "Notes and sources": "Notas y fuentes",
+  "More info": "Más información",
+  "i": "i",
+  "The same plan with returns {0} and +{1} points a year from the base case. A sensitivity check, not a forecast.": "El mismo plan con rendimientos {0} y +{1} puntos al año respecto al caso base. Una prueba de sensibilidad, no un pronóstico.",
   "Dividends are reinvested to buy more shares (DRIP).": "Los dividendos se reinvierten para comprar más acciones (DRIP).",
   "Dividends are paid out as cash and not reinvested.": "Los dividendos se pagan en efectivo y no se reinvierten.",
   "Hide custom percentages": "Ocultar porcentajes personalizados",
@@ -925,7 +934,7 @@ const ES = {
   "Adding about {0} per paycheck to your personal account would close the gap.": "Aportar unos {0} más por cheque a tu cuenta personal cerraría la brecha.",
   "Adding about {0} a month to your personal account would close the gap.": "Aportar unos {0} más al mes a tu cuenta personal cerraría la brecha.",
   "Possible income at age {0}": "Ingreso posible a los {0} años",
-  "About {0} a year at a {1}% withdrawal rate. Per month: {2}.": "Unos {0} al año con una tasa de retiro de {1}%. Por mes: {2}.",
+  "About {0} a year. Per month: {1}.": "Unos {0} al año. Por mes: {1}.",
   "at {0} limit": "en el límite de {0}",
   "After {0}": "Después de {0}",
   "Combined after {0}": "Combinado después de {0}",
@@ -1282,6 +1291,16 @@ $('rates-reset').addEventListener('click', () => {
 });
 ['i-starting', 'i-amount'].forEach((id) => $(id).addEventListener('input', recomputeAll));
 
+/* ---------------- info toggles ---------------- */
+document.querySelectorAll('.info-btn').forEach((btn) => {
+  const target = $(btn.dataset.info);
+  btn.setAttribute('aria-controls', btn.dataset.info);
+  btn.addEventListener('click', () => {
+    target.hidden = !target.hidden;
+    btn.setAttribute('aria-expanded', String(!target.hidden));
+  });
+});
+
 /* ---------------- persistence + share link ---------------- */
 function collectState() {
   const inputs = {};
@@ -1549,6 +1568,7 @@ function buildLegend(containerId, chart, items, hint) {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'lg';
+    if (it.title) b.title = it.title;
     const sw = document.createElement('span');
     sw.className = 'lg-sw' + (it.box ? ' box' : '');
     if (it.box) sw.style.background = it.color;
@@ -1608,7 +1628,7 @@ function initCharts() {
       { group: tr('Portfolio'), label: tr('Your contributions'), color: CONTRIB_COLOR, idx: [2] },
       { group: tr('Portfolio'), label: () => (pReinvest ? 'Portfolio value' : 'Invested value'), color: t.total, idx: [0] },
       { group: tr('Portfolio'), label: tr('Dividend cash'), color: CASH_COLOR, idx: [1], avail: () => !pReinvest },
-      { group: tr('Portfolio'), label: tr('Low / high range'), color: t.muted, dash: 'dotted', idx: [6, 7] },
+      { group: tr('Portfolio'), label: tr('Low / high range'), title: tr('The same plan with returns {0} and +{1} points a year from the base case. A sensitivity check, not a forecast.', LOW_DELTA, HIGH_DELTA), color: t.muted, dash: 'dotted', idx: [6, 7] },
       { group: tr('By fund'), label: tr('VOO'), color: RATES.voo.color, dash: 'dashed', idx: [3], avail: fundOn('voo') },
       { group: tr('By fund'), label: tr('QQQM'), color: RATES.qqq.color, dash: 'dashed', idx: [4], avail: fundOn('qqq') },
       { group: tr('By fund'), label: tr('SCHD'), color: RATES.schd.color, dash: 'dashed', idx: [5], avail: fundOn('schd') },
@@ -1652,7 +1672,7 @@ function initCharts() {
       { label: tr('Your contributions'), color: CONTRIB_COLOR, idx: [2] },
       { label: tr('Employer match'), color: MATCH_COLOR, dash: 'dashed', idx: [1] },
       { label: tr('Portfolio value'), color: t.total, idx: [0] },
-      { label: tr('Low / high range'), color: t.muted, dash: 'dotted', idx: [3, 4] },
+      { label: tr('Low / high range'), title: tr('The same plan with returns {0} and +{1} points a year from the base case. A sensitivity check, not a forecast.', LOW_DELTA, HIGH_DELTA), color: t.muted, dash: 'dotted', idx: [3, 4] },
     ], tr('Tap a label to show or hide it.'));
   } catch (e) {
     console.error('401(k) chart init failed', e);
@@ -1679,7 +1699,7 @@ function initCharts() {
     buildLegend('i-growth-legend', iGrowthChart, [
       { label: tr('Your contributions'), color: CONTRIB_COLOR, idx: [1] },
       { label: tr('Portfolio value'), color: t.total, idx: [0] },
-      { label: tr('Low / high range'), color: t.muted, dash: 'dotted', idx: [2, 3] },
+      { label: tr('Low / high range'), title: tr('The same plan with returns {0} and +{1} points a year from the base case. A sensitivity check, not a forecast.', LOW_DELTA, HIGH_DELTA), color: t.muted, dash: 'dotted', idx: [2, 3] },
     ], tr('Tap a label to show or hide it.'));
   } catch (e) {
     console.error('IRA chart init failed', e);
@@ -1994,7 +2014,7 @@ function updateIncome(s, P, K, I) {
   $('ss-inc-month').textContent = fmt(monthly(total));
   const parts = [tr('Personal') + ' ' + fmt(monthly(P.final)), tr('401(k)') + ' ' + fmt(monthly(K.final))];
   if (I.active) parts.push(tr('IRA') + ' ' + fmt(monthly(I.final)));
-  $('ss-inc-detail').textContent = tr('About {0} a year at a {1}% withdrawal rate. Per month: {2}.', fmt(total * rate), s.wd, parts.join(' · '));
+  $('ss-inc-detail').textContent = tr('About {0} a year. Per month: {1}.', fmt(total * rate), parts.join(' · '));
 }
 
 /* ---------------- sources ---------------- */
