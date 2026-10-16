@@ -296,6 +296,10 @@
   details.why p { margin: 0 0 10px; line-height: 1.5; }
   details.why a { color: var(--accent-ink); }
   .head-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .lang { display: inline-flex; flex-shrink: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
+  .lang-btn { min-height: 36px; min-width: 44px; border: none; background: transparent; color: var(--text-2); font-size: 13px; font-weight: 600; cursor: pointer; }
+  .lang-btn + .lang-btn { border-left: 1px solid var(--border); }
+  .lang-btn[aria-pressed=true] { background: var(--accent-bg); color: var(--accent-ink); }
   .share-status { font-size: 12px; color: var(--green-ink); min-width: 0; }
   .card-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
   .note {
@@ -335,8 +339,16 @@
 </header>
 
 <main class="page">
-  <h1>Investment growth calculator</h1>
-  <p class="subtitle">Model your personal brokerage account, your workplace 401(k) and an IRA side by side.</p>
+  <div class="head-row">
+    <div>
+      <h1>Investment growth calculator</h1>
+      <p class="subtitle">Model your personal brokerage account, your workplace 401(k) and an IRA side by side.</p>
+    </div>
+    <div class="lang" role="group" aria-label="Language">
+      <button class="lang-btn" id="lang-en" type="button" aria-pressed="true" lang="en">EN</button>
+      <button class="lang-btn" id="lang-es" type="button" aria-pressed="false" lang="es">ES</button>
+    </div>
+  </div>
   <div class="note" id="share-note" hidden role="status"><span>Showing a shared scenario. Change any input to make it your own.</span><button class="link-btn" id="share-dismiss" type="button">Dismiss</button></div>
 
   <section class="card" aria-labelledby="shared-h">
@@ -760,8 +772,217 @@ const SHOW_INFLATION_UI = false; // flip to true to bring back the today's-dolla
 FUNDS.forEach((f) => document.documentElement.style.setProperty('--c-' + f, RATES[f].color));
 
 /* ---------------- language ---------------- */
-let LANG = 'en';
-const ES = {};
+let LANG = /^es\b/i.test(navigator.language || '') ? 'es' : 'en';
+// Spanish table, keyed by the English text.
+const ES = {
+  "EN": "EN",
+  "ES": "ES",
+  "$": "$",
+  "%": "%",
+  "VOO": "VOO",
+  "QQQM": "QQQM",
+  "SCHD": "SCHD",
+  "401(k)": "401(k)",
+  "IRA": "IRA",
+  "Roth": "Roth",
+  "Personal": "Personal",
+  "Personal + 401(k)": "Personal + 401(k)",
+  "Personal + 401(k) + IRA": "Personal + 401(k) + IRA",
+  "PR · $15,000": "PR · $15,000",
+  "yrs": "años",
+  "/ yr": "/ año",
+  "% / yr": "% / año",
+  "/ month": "/ mes",
+  "% of salary": "% del salario",
+  "% of yours": "% de la tuya",
+  "{0}% dividend": "{0}% de dividendo",
+  "Per paycheck": "Por cheque",
+  "Per month": "Por mes",
+  "Yr {0}": "Año {0}",
+  "Start": "Inicio",
+  "1 year": "1 año",
+  "{0} years": "{0} años",
+  "{0}% of {1}": "{0}% de {1}",
+  "Investment growth calculator": "Calculadora de crecimiento de inversiones",
+  "Model your personal brokerage account, your workplace 401(k) and an IRA side by side.": "Modela lado a lado tu cuenta personal de corretaje, tu 401(k) del trabajo y una IRA.",
+  "Showing a shared scenario. Change any input to make it your own.": "Mostrando un escenario compartido. Cambia cualquier dato para hacerlo tuyo.",
+  "Dismiss": "Cerrar",
+  "Applies to all accounts": "Aplica a todas las cuentas",
+  "Copy share link": "Copiar enlace para compartir",
+  "Your age": "Tu edad",
+  "Years to invest": "Años para invertir",
+  "Annual salary": "Salario anual",
+  "Annual raise": "Aumento anual",
+  "Today's dollars": "Dólares de hoy",
+  "Combined goal": "Meta combinada",
+  "Withdrawal rate": "Tasa de retiro",
+  "A rule of thumb for roughly 30 years of withdrawals. Taxes, Social Security and other income aren't included.": "Una regla general para unos 30 años de retiros. No incluye impuestos, Seguro Social ni otros ingresos.",
+  "Goal progress": "Progreso de la meta",
+  "Link copied": "Enlace copiado",
+  "Couldn't copy. Copy the address from the box that opens next.": "No se pudo copiar. Copia la dirección del cuadro que se abre a continuación.",
+  "Copy this link": "Copia este enlace",
+  "Fund return assumptions": "Supuestos de rendimiento de los fondos",
+  "Customized": "Personalizado",
+  "Used by the Personal and IRA tabs. Total return includes dividends. The defaults are long-run historical figures, so changing them shows a what-if, not a forecast. The 401(k) tab has its own expected return.": "Se usan en las pestañas Personal e IRA. El rendimiento total incluye los dividendos. Los valores por defecto son cifras históricas a largo plazo, así que cambiarlos muestra un \"qué pasaría si\", no un pronóstico. La pestaña 401(k) tiene su propio rendimiento esperado.",
+  "Total return": "Rendimiento total",
+  "Dividend": "Dividendo",
+  "Restore default rates": "Restaurar tasas por defecto",
+  "Personal investing": "Inversión personal",
+  "Starting point": "Punto de partida",
+  "Starting balance": "Balance inicial",
+  "Contributions": "Aportaciones",
+  "Contribute": "Aportar",
+  "A fixed $ amount": "Una cantidad fija en $",
+  "A % of salary": "Un % del salario",
+  "How often": "Con qué frecuencia",
+  "Bi-weekly": "Cada dos semanas",
+  "Monthly": "Mensual",
+  "Share of salary": "Porción del salario",
+  "Allocation": "Distribución",
+  "Growth-tilted": "Enfocada en crecimiento",
+  "Balanced": "Balanceada",
+  "Income-leaning": "Enfocada en ingresos",
+  "Simplified 2-fund": "Simplificada de 2 fondos",
+  "The three always add up to 100%. Changing one rebalances the others.": "Los tres siempre suman 100%. Al cambiar uno, se ajustan los demás.",
+  "Dividends": "Dividendos",
+  "Reinvest dividends": "Reinvertir dividendos",
+  "Investment growth": "Crecimiento de la inversión",
+  "Cash (not reinvested)": "Efectivo (no reinvertido)",
+  "Portfolio growth": "Crecimiento del portafolio",
+  "Dividend payout": "Pago de dividendos",
+  "Estimated annual dividend payout by fund": "Pago anual estimado de dividendos por fondo",
+  "Where do these numbers come from?": "¿De dónde salen estos números?",
+  "Dividends are reinvested to buy more shares (DRIP).": "Los dividendos se reinvierten para comprar más acciones (DRIP).",
+  "Dividends are paid out as cash and not reinvested.": "Los dividendos se pagan en efectivo y no se reinvierten.",
+  "Hide custom percentages": "Ocultar porcentajes personalizados",
+  "Customize percentages": "Personalizar porcentajes",
+  "= about {0} / month on average (26 paychecks a year). Stays fixed each year.": "= unos {0} / mes en promedio (26 cheques al año). Se mantiene fijo cada año.",
+  "= {0} / month. Stays fixed each year.": "= {0} / mes. Se mantiene fijo cada año.",
+  "= {0} / month now (about {1} per bi-weekly paycheck), from a {2} salary growing {3}% a year": "= {0} / mes ahora (unos {1} por cheque cada dos semanas), de un salario de {2} que crece {3}% al año",
+  "Rates are assumptions based on long-run history, not guarantees.": "Las tasas son supuestos basados en la historia a largo plazo, no garantías.",
+  "Dividend yields ({0}) are held at today's levels for the whole period.": "Los rendimientos por dividendos ({0}) se mantienen en los niveles de hoy durante todo el período.",
+  "The low and high cases shift every fund's return by {0} and +{1} points a year to show sensitivity; they are not a forecast range.": "Los casos bajo y alto cambian el rendimiento de cada fondo en {0} y +{1} puntos al año para mostrar la sensibilidad; no son un rango de pronóstico.",
+  "The contributions line includes your starting balance.": "La línea de aportaciones incluye tu balance inicial.",
+  "Monthly contributions grow each year with your annual raise.": "Las aportaciones mensuales crecen cada año con tu aumento anual.",
+  "Bi-weekly contributions are modeled as 26 paychecks a year, spread evenly across the months.": "Las aportaciones cada dos semanas se modelan como 26 cheques al año, repartidos en partes iguales entre los meses.",
+  "Figures are in today's dollars at {0}% annual inflation.": "Las cifras están en dólares de hoy con una inflación anual de {0}%.",
+  "Your contribution": "Tu aportación",
+  "Match limit": "Límite del patrono",
+  "Annual limit": "Límite anual",
+  "PR dual · $22,500": "PR doble · $22,500",
+  "U.S. · $24,500": "EE. UU. · $24,500",
+  "Most Puerto Rico plans cap your contributions at $15,000 a year. \"PR dual\" means a dual-qualified plan with a higher limit, which drops to $22,500 if you also contribute to an IRA. Ask HR which one yours is. From age 50 a catch-up is added on top.": "La mayoría de los planes de Puerto Rico limitan tus aportaciones a $15,000 al año. \"PR doble\" significa un plan con doble cualificación y un límite más alto, que baja a $22,500 si también aportas a una IRA. Pregunta en Recursos Humanos cuál es el tuyo. A partir de los 50 años se suma una aportación adicional (catch-up).",
+  "Growth assumptions": "Supuestos de crecimiento",
+  "Expected return": "Rendimiento esperado",
+  "Diversified 401(k) plans have historically returned around 5-8% a year; 7% is a commonly cited long-run average.": "Los planes 401(k) diversificados han rendido históricamente entre 5 y 8% al año; 7% es un promedio a largo plazo muy citado.",
+  "Total contributions": "Aportaciones totales",
+  "401(k) growth": "Crecimiento del 401(k)",
+  "Employer match": "Aportación del patrono",
+  "Match": "Patrono",
+  "Your employer adds {0} cents for every $1 you contribute, up to {1}% of your salary.": "Tu patrono aporta {0} centavos por cada $1 que aportas, hasta {1}% de tu salario.",
+  "No employer match.": "Sin aportación del patrono.",
+  "Your contribution reaches your plan's {0} annual limit in at least one year of this projection, so it's capped there from then on.": "Tu aportación alcanza el límite anual de {0} de tu plan en al menos un año de esta proyección, así que queda limitada ahí desde entonces.",
+  "The limit is held at its 2026 level for the whole projection.": "El límite se mantiene en su nivel de 2026 durante toda la proyección.",
+  "From age 50 it rises by the {0} catch-up ({1} at ages 60 to 63), which is included automatically when your contribution is high enough to use it.": "A partir de los 50 años sube por la aportación adicional (catch-up) de {0} ({1} entre los 60 y 63 años), que se incluye automáticamente cuando tu aportación es lo bastante alta para usarla.",
+  "From age 50 it rises by the {0} catch-up, which is included automatically when your contribution is high enough to use it.": "A partir de los 50 años sube por la aportación adicional (catch-up) de {0}, que se incluye automáticamente cuando tu aportación es lo bastante alta para usarla.",
+  "The low and high cases shift the expected return by {0} and +{1} points a year to show sensitivity; they are not a forecast range.": "Los casos bajo y alto cambian el rendimiento esperado en {0} y +{1} puntos al año para mostrar la sensibilidad; no son un rango de pronóstico.",
+  "Account type": "Tipo de cuenta",
+  "Traditional": "Tradicional",
+  "Funds": "Fondos",
+  "Same as Personal": "Igual que Personal",
+  "Custom mix": "Mezcla personalizada",
+  "IRA growth": "Crecimiento de la IRA",
+  "Uses your Personal mix: {0}.": "Usa tu mezcla de Personal: {0}.",
+  "Roth: withdrawals in retirement are tax-free, but eligibility phases out at higher incomes (2026: starting at $153,000 single or $242,000 married filing jointly). Taxes aren't modeled here.": "Roth: los retiros en la jubilación están libres de impuestos, pero la elegibilidad se reduce con ingresos más altos (2026: a partir de $153,000 si eres soltero o $242,000 si estás casado y declaras en conjunto). Aquí no se modelan los impuestos.",
+  "Traditional: contributions may be tax-deductible and withdrawals are taxed. Deductibility depends on your income and workplace plan. Taxes aren't modeled here.": "Tradicional: las aportaciones pueden ser deducibles de impuestos y los retiros tributan. La deducibilidad depende de tus ingresos y de tu plan de trabajo. Aquí no se modelan los impuestos.",
+  "2026 limit: {0} a year, or {1} from age 50. It is shared across all your IRAs.": "Límite de 2026: {0} al año, o {1} a partir de los 50 años. Se comparte entre todas tus IRA.",
+  "Enter an amount to start modeling an IRA. Until then it is left out of your combined total.": "Ingresa una cantidad para empezar a modelar una IRA. Hasta entonces no se incluye en tu total combinado.",
+  "= about {0} / month on average (26 paychecks a year), {1} a year.": "= unos {0} / mes en promedio (26 cheques al año), {1} al año.",
+  "= {0} a year.": "= {0} al año.",
+  "That is more than the IRA annual limit ({0}, or {1} from age 50), so contributions are capped at the limit each year.": "Eso es más que el límite anual de la IRA ({0}, o {1} a partir de los 50 años), así que las aportaciones se limitan al máximo cada año.",
+  "Uses the same return and dividend assumptions as the Personal tab, with dividends reinvested. The limit is held at its 2026 level for the whole projection, and the {0} catch-up is added from age 50.": "Usa los mismos supuestos de rendimiento y dividendos que la pestaña Personal, con los dividendos reinvertidos. El límite se mantiene en su nivel de 2026 durante toda la proyección y se suma la aportación adicional (catch-up) de {0} a partir de los 50 años.",
+  "Portfolio value: {0}": "Valor del portafolio: {0}",
+  "Portfolio value": "Valor del portafolio",
+  "Portfolio": "Portafolio",
+  "Dividend cash": "Dividendos en efectivo",
+  "Cash": "Efectivo",
+  "Your contributions": "Tus aportaciones",
+  "Contributed": "Aportado",
+  "Low case": "Caso bajo",
+  "Low": "Bajo",
+  "High case": "Caso alto",
+  "High": "Alto",
+  "Low / high range": "Rango bajo / alto",
+  "By fund": "Por fondo",
+  "Tap a label to show or hide it.": "Toca una etiqueta para mostrarla u ocultarla.",
+  "Invested value": "Valor invertido",
+  "Invested": "Invertido",
+  "The chart library couldn't load (it needs an internet connection the first time). The numbers still work.": "No se pudo cargar la biblioteca de gráficas (necesita conexión a internet la primera vez). Los números siguen funcionando.",
+  "Add a goal to see the year you'd reach it.": "Agrega una meta para ver el año en que la alcanzarías.",
+  "You already have {0} at the start.": "Ya tienes {0} al comienzo.",
+  "{0} together reach {1} in year {2} ({3}).": "{0} juntos alcanzan {1} en el año {2} ({3}).",
+  "{0} together land about {1} short of {2} after {3}.": "{0} juntos quedan unos {1} por debajo de {2} después de {3}.",
+  "Adding about {0} per paycheck to your personal account would close the gap.": "Aportar unos {0} más por cheque a tu cuenta personal cerraría la brecha.",
+  "Adding about {0} a month to your personal account would close the gap.": "Aportar unos {0} más al mes a tu cuenta personal cerraría la brecha.",
+  "Possible income at age {0}": "Ingreso posible a los {0} años",
+  "About {0} a year at a {1}% withdrawal rate. Per month: {2}.": "Unos {0} al año con una tasa de retiro de {1}%. Por mes: {2}.",
+  "at {0} limit": "en el límite de {0}",
+  "After {0}": "Después de {0}",
+  "Combined after {0}": "Combinado después de {0}",
+  " · today's dollars": " · dólares de hoy",
+  "You have changed some return assumptions. The notes below describe the default figures.": "Cambiaste algunos supuestos de rendimiento. Las notas de abajo describen las cifras por defecto.",
+  "{0}, {1}% a year.": "{0}, {1}% al año.",
+  "The S&amp;P 500 returned about 10.5% a year with dividends reinvested from 1926 to 2026 ({0}). Dividend yield {1}% ({2}).": "El S&amp;P 500 rindió alrededor de 10.5% al año con los dividendos reinvertidos de 1926 a 2026 ({0}). Rendimiento por dividendos de {1}% ({2}).",
+  "trailing, Wisesheets": "últimos 12 meses, Wisesheets",
+  "QQQM tracks the Nasdaq-100, which Nasdaq says returned 14.25% a year since 1985 ({0}). That span includes the 1990s tech boom, and the index fell about 82% from 2000 to 2002 ({1}), so the calculator trims it to {2}%. The fund launched in 2020, with a 0.15% expense ratio and a {3}% yield ({4}).": "QQQM sigue el Nasdaq-100, que según Nasdaq rindió 14.25% al año desde 1985 ({0}). Ese período incluye el auge tecnológico de los años 90, y el índice cayó cerca de 82% de 2000 a 2002 ({1}), por eso la calculadora lo reduce a {2}%. El fondo se lanzó en 2020, con una razón de gastos de 0.15% y un rendimiento por dividendos de {3}% ({4}).",
+  "This comes from a long-run study of dividend-growing stocks, not the fund's short history. SCHD itself returned about 13.4% a year since 2011, a strong stretch for stocks, and yields about 3.1% to 3.2% ({0}).": "Esto proviene de un estudio a largo plazo de acciones que aumentan sus dividendos, no de la corta historia del fondo. SCHD rindió cerca de 13.4% al año desde 2011, un período fuerte para las acciones, y paga alrededor de 3.1% a 3.2% en dividendos ({0}).",
+  "Checked October 2026. Yields and returns change over time.": "Verificado en octubre de 2026. Los rendimientos y retornos cambian con el tiempo.",
+  "Contribution limit.": "Límite de aportación.",
+  "For 2026 the IRA limit is $7,500, plus a $1,100 catch-up if you are 50 or older, and Roth eligibility phases out starting at $153,000 (single) or $242,000 (married filing jointly) ({0}). Puerto Rico IRAs follow the same limit starting in 2025 ({1}).": "Para 2026 el límite de la IRA es $7,500, más $1,100 adicionales (catch-up) si tienes 50 años o más, y la elegibilidad para Roth se reduce a partir de $153,000 (soltero) o $242,000 (casados que declaran en conjunto) ({0}). Las IRA de Puerto Rico siguen el mismo límite desde 2025 ({1}).",
+  "Returns.": "Rendimientos.",
+  "Same fund assumptions as the Personal tab. Dividends are reinvested because an IRA does not pay tax on them each year.": "Los mismos supuestos de fondos que la pestaña Personal. Los dividendos se reinvierten porque una IRA no paga impuestos sobre ellos cada año.",
+  "Taxes.": "Impuestos.",
+  "Not modeled. Traditional and Roth accounts are taxed differently when you contribute and when you withdraw, so the balance shown is before any tax on withdrawal.": "No se modelan. Las cuentas Tradicional y Roth tributan de forma distinta cuando aportas y cuando retiras, así que el balance mostrado es antes de cualquier impuesto al retirar.",
+  "7% a year.": "7% al año.",
+  "Diversified 401(k) plans have historically returned around 5% to 8%. This is a rule of thumb, not tied to the funds in your plan.": "Los planes 401(k) diversificados han rendido históricamente entre 5% y 8%. Es una regla general, no está ligada a los fondos de tu plan.",
+  "Contribution limits.": "Límites de aportación.",
+  "For 2026 the Puerto Rico Treasury allows $15,000 in employee deferrals for plans qualified only under Section 1081.01(a) of the PR Code, and $22,500 for dual-qualified plans that adopted the higher limit. The U.S. limit is $24,500 ({0}, {1}).": "Para 2026 el Departamento de Hacienda de Puerto Rico permite $15,000 en aportaciones del empleado en planes cualificados solo bajo la Sección 1081.01(a) del Código de PR, y $22,500 en planes con doble cualificación que adoptaron el límite más alto. El límite de EE. UU. es $24,500 ({0}, {1}).",
+  "Catch-up at 50 or older.": "Aportación adicional a los 50 años o más.",
+  "Puerto Rico plans that are not sponsored by the federal government allow an extra $1,500 (the Treasury circular lists no separate figure for dual-qualified plans, so the calculator uses $1,500 for them too; ask your plan to confirm). The U.S. limit allows an extra $8,000, or $11,250 at ages 60 to 63 ({0}).": "Los planes de Puerto Rico que no son del gobierno federal permiten $1,500 adicionales (la circular de Hacienda no indica una cifra aparte para los planes con doble cualificación, así que la calculadora usa $1,500 también para ellos; confírmalo con tu plan). El límite de EE. UU. permite $8,000 adicionales, o $11,250 entre los 60 y 63 años ({0}).",
+  "Employer match.": "Aportación del patrono.",
+  "Assumes the full match is yours immediately. Your plan may have a vesting schedule.": "Supone que la aportación completa del patrono es tuya de inmediato. Tu plan puede tener un calendario de adquisición de derechos (vesting).",
+  "For education and estimates only, not financial, tax or legal advice. Results come from the assumed returns shown and are not guarantees; real markets rise and fall from year to year. Figures are in future dollars (not adjusted for inflation) and don't include taxes or fund fees. Your inputs are saved only in this browser and are never sent anywhere.": "Solo con fines educativos y de estimación; no es asesoría financiera, contributiva ni legal. Los resultados provienen de los rendimientos supuestos que se muestran y no son garantías; los mercados reales suben y bajan de un año a otro. Las cifras están en dólares futuros (sin ajustar por inflación) y no incluyen impuestos ni costos de los fondos. Tus datos se guardan solo en este navegador y nunca se envían a ningún sitio.",
+  "Reset all inputs to defaults": "Restablecer todos los datos a los valores por defecto",
+  "Language": "Idioma",
+  "Inflation rate per year": "Tasa de inflación por año",
+  "Summary": "Resumen",
+  "VOO total return": "Rendimiento total de VOO",
+  "VOO dividend yield": "Rendimiento por dividendos de VOO",
+  "QQQM total return": "Rendimiento total de QQQM",
+  "QQQM dividend yield": "Rendimiento por dividendos de QQQM",
+  "SCHD total return": "Rendimiento total de SCHD",
+  "SCHD dividend yield": "Rendimiento por dividendos de SCHD",
+  "Personal investing inputs": "Datos de inversión personal",
+  "VOO allocation": "Distribución de VOO",
+  "QQQM allocation": "Distribución de QQQM",
+  "SCHD allocation": "Distribución de SCHD",
+  "Personal investing results": "Resultados de inversión personal",
+  "Chart": "Gráfica",
+  "Portfolio growth over time": "Crecimiento del portafolio a lo largo del tiempo",
+  "Annual dividend payout by fund": "Pago anual de dividendos por fondo",
+  "401(k) inputs": "Datos del 401(k)",
+  "401(k) results": "Resultados del 401(k)",
+  "401(k) growth over time": "Crecimiento del 401(k) a lo largo del tiempo",
+  "IRA inputs": "Datos de la IRA",
+  "IRA VOO allocation": "Distribución de VOO en la IRA",
+  "IRA QQQM allocation": "Distribución de QQQM en la IRA",
+  "IRA SCHD allocation": "Distribución de SCHD en la IRA",
+  "IRA results": "Resultados de la IRA",
+  "IRA growth over time": "Crecimiento de la IRA a lo largo del tiempo",
+  "optional": "opcional",
+  "Estimate how your personal investments, workplace 401(k) and IRA could grow over 15+ years. Free, private, and works on your phone.": "Estima cómo podrían crecer tus inversiones personales, tu 401(k) del trabajo y tu IRA en más de 15 años. Gratis, privada y funciona en tu teléfono.",
+  "Investment Growth Calculator: Personal, 401(k) and IRA": "Calculadora de crecimiento de inversiones: Personal, 401(k) e IRA",
+};
 const MISSING = new Set();
 window.__i18nMissing = MISSING;
 // tr('text {0}', value): looks the English text up in the Spanish table when Spanish is on, then fills {0}, {1}...
@@ -773,6 +994,31 @@ function tr(s) {
 }
 
 const $ = (id) => document.getElementById(id);
+
+// Static page text is translated by swapping each text node (and a few attributes) for its table entry.
+const I18N_NODES = [];
+const I18N_ATTRS = [];
+const I18N_TITLE = document.title;
+(function collectI18n() {
+  const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  while (w.nextNode()) {
+    const n = w.currentNode;
+    if (!n.nodeValue.trim() || n.parentNode.nodeName === 'SCRIPT') continue;
+    I18N_NODES.push({ n, orig: n.nodeValue.trim(), lead: n.nodeValue.match(/^\s*/)[0], trail: n.nodeValue.match(/\s*$/)[0] });
+  }
+  ['aria-label', 'placeholder'].forEach((attr) => document.querySelectorAll('[' + attr + ']').forEach((el) => I18N_ATTRS.push({ el, attr, orig: el.getAttribute(attr) })));
+  const meta = document.querySelector('meta[name=description]');
+  if (meta) I18N_ATTRS.push({ el: meta, attr: 'content', orig: meta.getAttribute('content') });
+})();
+function applyI18n() {
+  document.documentElement.lang = LANG;
+  document.title = tr(I18N_TITLE);
+  I18N_NODES.forEach((r) => { if (r.n.isConnected) r.n.nodeValue = r.lead + tr(r.orig) + r.trail; });
+  I18N_ATTRS.forEach((r) => r.el.setAttribute(r.attr, tr(r.orig)));
+  $('lang-en').setAttribute('aria-pressed', String(LANG === 'en'));
+  $('lang-es').setAttribute('aria-pressed', String(LANG === 'es'));
+}
+
 // the page's starting values, used to keep share links short and to restore defaults
 const DEFAULT_INPUTS = {};
 document.querySelectorAll('input[type=number], select').forEach((el) => { DEFAULT_INPUTS[el.id] = el.value; });
@@ -932,15 +1178,15 @@ function renderToggles() {
   $('p-view-div-btn').setAttribute('aria-selected', String(pView === 'div'));
   [pGrowthChart, pDivChart].forEach((c) => c && c.resize());
   $('p-monthly-row').style.display = pMode === 'dollar' ? 'block' : 'none';
-  $('p-amount-lbl').textContent = payPerYear() === 26 ? 'Per paycheck' : 'Per month';
+  $('p-amount-lbl').textContent = payPerYear() === 26 ? tr('Per paycheck') : tr('Per month');
   $('p-percent-fields').style.display = pMode === 'percent' ? 'block' : 'none';
   $('p-reinvest-switch').setAttribute('aria-checked', String(pReinvest));
-  $('p-reinvest-label').textContent = pReinvest ? 'Dividends are reinvested to buy more shares (DRIP).' : 'Dividends are paid out as cash and not reinvested.';
+  $('p-reinvest-label').textContent = pReinvest ? tr('Dividends are reinvested to buy more shares (DRIP).') : tr('Dividends are paid out as cash and not reinvested.');
   $('s-infl-switch').setAttribute('aria-checked', String(inflOn));
   $('s-infl-rate').style.opacity = inflOn ? '1' : '0.5';
   $('p-alloc-sliders').hidden = !pCustomOpen;
   $('p-custom-btn').setAttribute('aria-expanded', String(pCustomOpen));
-  $('p-custom-btn').textContent = pCustomOpen ? 'Hide custom percentages' : 'Customize percentages';
+  $('p-custom-btn').textContent = pCustomOpen ? tr('Hide custom percentages') : tr('Customize percentages');
   renderIraToggles();
 }
 $('p-view-growth-btn').addEventListener('click', () => { pView = 'growth'; renderToggles(); saveState(); });
@@ -993,14 +1239,14 @@ function renderIraToggles() {
   const custom = $('i-alloc-mode').value === 'custom';
   $('i-alloc-custom').hidden = !custom;
   $('i-alloc-same').hidden = custom;
-  $('i-alloc-same').textContent = 'Uses your Personal mix: ' + allocText(pAlloc) + '.';
+  $('i-alloc-same').textContent = tr('Uses your Personal mix: {0}.', allocText(pAlloc));
   $('i-alloc-sliders').hidden = !iCustomOpen;
   $('i-custom-btn').setAttribute('aria-expanded', String(iCustomOpen));
-  $('i-custom-btn').textContent = iCustomOpen ? 'Hide custom percentages' : 'Customize percentages';
-  $('i-amount-lbl').textContent = iraPerYear() === 26 ? 'Per paycheck' : 'Per month';
+  $('i-custom-btn').textContent = iCustomOpen ? tr('Hide custom percentages') : tr('Customize percentages');
+  $('i-amount-lbl').textContent = iraPerYear() === 26 ? tr('Per paycheck') : tr('Per month');
   $('i-type-hint').textContent = $('i-type').value === 'roth'
-    ? "Roth: withdrawals in retirement are tax-free, but eligibility phases out at higher incomes (2026: starting at $153,000 single or $242,000 married filing jointly). Taxes aren't modeled here."
-    : "Traditional: contributions may be tax-deductible and withdrawals are taxed. Deductibility depends on your income and workplace plan. Taxes aren't modeled here.";
+    ? tr("Roth: withdrawals in retirement are tax-free, but eligibility phases out at higher incomes (2026: starting at $153,000 single or $242,000 married filing jointly). Taxes aren't modeled here.")
+    : tr("Traditional: contributions may be tax-deductible and withdrawals are taxed. Deductibility depends on your income and workplace plan. Taxes aren't modeled here.");
 }
 FUNDS.forEach((f) => {
   ['range', 'num'].forEach((kind) => {
@@ -1143,6 +1389,16 @@ $('share-btn').addEventListener('click', () => {
 });
 $('share-dismiss').addEventListener('click', () => { $('share-note').hidden = true; });
 
+function setLang(l) {
+  if (l === LANG) return;
+  LANG = l;
+  applyI18n();
+  renderToggles();
+  rebuildCharts();
+}
+$('lang-en').addEventListener('click', () => setLang('en'));
+$('lang-es').addEventListener('click', () => setLang('es'));
+
 $('reset-btn').addEventListener('click', () => {
   try { localStorage.removeItem(STORE_KEY); } catch (e) { /* ignore */ }
   location.reload();
@@ -1206,12 +1462,16 @@ const endLabels = {
 
 // Same year labels on every chart: a fixed step based on the horizon, never an auto-skipped subset.
 function yearStep(n) { return n <= 6 ? 1 : n <= 12 ? 2 : n <= 30 ? 5 : n <= 60 ? 10 : 20; }
+const yrLabel = (y) => tr('Yr {0}', y);
+const labelYear = (l) => Number(String(l).replace(/\D/g, ''));
 function yearTick(value) {
   const labels = this.chart.data.labels;
   if (!labels.length) return '';
-  const last = Number(String(labels[labels.length - 1]).replace('Yr ', ''));
-  const y = Number(String(this.getLabelForValue(value)).replace('Yr ', ''));
-  return y % yearStep(last) === 0 ? 'Yr ' + y : '';
+  const last = labelYear(labels[labels.length - 1]);
+  const y = labelYear(this.getLabelForValue(value));
+  // Spanish labels ("Año 10") are wider, so on narrow charts show every other tick
+  const step = yearStep(last) * (LANG === 'es' && this.chart.width < 420 ? 2 : 1);
+  return y % step === 0 ? yrLabel(y) : '';
 }
 
 function baseOptions(t, yStacked, xStacked, lines, labels) {
@@ -1230,13 +1490,13 @@ function baseOptions(t, yStacked, xStacked, lines, labels) {
         // drop $0 rows (an unused fund, no dividend cash yet) but keep the first row
         filter: (it) => it.raw !== 0 || it.datasetIndex === 0,
         callbacks: {
-          title: (items) => (items[0].label === 'Yr 0' ? 'Start' : items[0].label),
+          title: (items) => (labelYear(items[0].label) === 0 ? tr('Start') : items[0].label),
           label: (c) => ' ' + c.dataset.label + ': ' + fmt(c.raw),
           labelPointStyle: (c) => ({ pointStyle: swatchImg(c.dataset.swColor || c.dataset.borderColor, c.dataset.swDash || 'solid'), rotation: 0 }),
           footer: (items) => {
             // when dividends aren't reinvested, the first two rows stack into the portfolio total
             const stacked = items.filter((i) => i.dataset.stackTotal);
-            return stacked.length > 1 ? 'Portfolio value: ' + fmt(stacked.reduce((a, i) => a + i.raw, 0)) : '';
+            return stacked.length > 1 ? tr('Portfolio value: {0}', fmt(stacked.reduce((a, i) => a + i.raw, 0))) : '';
           },
         },
       },
@@ -1253,7 +1513,7 @@ function showChartFallback(canvasId) {
   if (!el || !el.parentNode) return;
   el.parentNode.innerHTML =
     '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:var(--text-3);font-size:13px;text-align:center;padding:0 16px;">' +
-    'The chart library couldn\'t load (it needs an internet connection the first time). The numbers still work.</div>';
+    tr("The chart library couldn't load (it needs an internet connection the first time). The numbers still work.") + '</div>';
 }
 
 const LEGENDS = {};
@@ -1330,29 +1590,29 @@ function initCharts() {
       data: {
         labels: [],
         datasets: [
-          { label: 'Portfolio value', endLabel: 'Portfolio', swColor: '#f1f5f9', stackTotal: true, data: [], borderColor: t.total, backgroundColor: t.totalFill, borderWidth: 2, pointRadius: 0, fill: true, stack: 'g', tension: 0.15 },
-          { label: 'Dividend cash', endLabel: 'Cash', endColor: CASH_COLOR, swColor: CASH_COLOR, stackTotal: true, data: [], borderColor: t.total, backgroundColor: 'rgba(201,133,0,0.22)', borderWidth: 2, pointRadius: 0, fill: '-1', stack: 'g', tension: 0.15 },
-          { label: 'Your contributions', endLabel: 'Contributed', data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, stack: 'c', fill: false, tension: 0 },
-          { label: 'VOO', endLabel: 'VOO', swDash: 'dashed', data: [], borderColor: RATES.voo.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 3], pointRadius: 0, stack: 'v', fill: false, tension: 0.15 },
-          { label: 'QQQM', endLabel: 'QQQM', swDash: 'dashed', data: [], borderColor: RATES.qqq.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 3], pointRadius: 0, stack: 'q', fill: false, tension: 0.15 },
-          { label: 'SCHD', endLabel: 'SCHD', swDash: 'dashed', data: [], borderColor: RATES.schd.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 3], pointRadius: 0, stack: 's', fill: false, tension: 0.15 },
+          { label: tr('Portfolio value'), endLabel: tr('Portfolio'), swColor: '#f1f5f9', stackTotal: true, data: [], borderColor: t.total, backgroundColor: t.totalFill, borderWidth: 2, pointRadius: 0, fill: true, stack: 'g', tension: 0.15 },
+          { label: tr('Dividend cash'), endLabel: tr('Cash'), endColor: CASH_COLOR, swColor: CASH_COLOR, stackTotal: true, data: [], borderColor: t.total, backgroundColor: 'rgba(201,133,0,0.22)', borderWidth: 2, pointRadius: 0, fill: '-1', stack: 'g', tension: 0.15 },
+          { label: tr('Your contributions'), endLabel: tr('Contributed'), data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, stack: 'c', fill: false, tension: 0 },
+          { label: tr('VOO'), endLabel: tr('VOO'), swDash: 'dashed', data: [], borderColor: RATES.voo.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 3], pointRadius: 0, stack: 'v', fill: false, tension: 0.15 },
+          { label: tr('QQQM'), endLabel: tr('QQQM'), swDash: 'dashed', data: [], borderColor: RATES.qqq.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 3], pointRadius: 0, stack: 'q', fill: false, tension: 0.15 },
+          { label: tr('SCHD'), endLabel: tr('SCHD'), swDash: 'dashed', data: [], borderColor: RATES.schd.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 3], pointRadius: 0, stack: 's', fill: false, tension: 0.15 },
           // the low and high cases are drawn as one shaded band (low fills up to high)
-          { label: 'Low case', endLabel: 'Low', swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: withAlpha(t.muted, 0.16), borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, stack: 'lo', fill: 7, tension: 0.15 },
-          { label: 'High case', endLabel: 'High', swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, stack: 'hi', fill: false, tension: 0.15 },
+          { label: tr('Low case'), endLabel: tr('Low'), swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: withAlpha(t.muted, 0.16), borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, stack: 'lo', fill: 7, tension: 0.15 },
+          { label: tr('High case'), endLabel: tr('High'), swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, stack: 'hi', fill: false, tension: 0.15 },
         ],
       },
       options: baseOptions(t, true, false, true, true),
     });
     const fundOn = (f) => () => pAlloc[f] > 0;
     buildLegend('p-growth-legend', pGrowthChart, [
-      { group: 'Portfolio', label: 'Your contributions', color: CONTRIB_COLOR, idx: [2] },
-      { group: 'Portfolio', label: () => (pReinvest ? 'Portfolio value' : 'Invested value'), color: t.total, idx: [0] },
-      { group: 'Portfolio', label: 'Dividend cash', color: CASH_COLOR, idx: [1], avail: () => !pReinvest },
-      { group: 'Portfolio', label: 'Low / high range', color: t.muted, dash: 'dotted', idx: [6, 7] },
-      { group: 'By fund', label: 'VOO', color: RATES.voo.color, dash: 'dashed', idx: [3], avail: fundOn('voo') },
-      { group: 'By fund', label: 'QQQM', color: RATES.qqq.color, dash: 'dashed', idx: [4], avail: fundOn('qqq') },
-      { group: 'By fund', label: 'SCHD', color: RATES.schd.color, dash: 'dashed', idx: [5], avail: fundOn('schd') },
-    ], 'Tap a label to show or hide it.');
+      { group: tr('Portfolio'), label: tr('Your contributions'), color: CONTRIB_COLOR, idx: [2] },
+      { group: tr('Portfolio'), label: () => (pReinvest ? 'Portfolio value' : 'Invested value'), color: t.total, idx: [0] },
+      { group: tr('Portfolio'), label: tr('Dividend cash'), color: CASH_COLOR, idx: [1], avail: () => !pReinvest },
+      { group: tr('Portfolio'), label: tr('Low / high range'), color: t.muted, dash: 'dotted', idx: [6, 7] },
+      { group: tr('By fund'), label: tr('VOO'), color: RATES.voo.color, dash: 'dashed', idx: [3], avail: fundOn('voo') },
+      { group: tr('By fund'), label: tr('QQQM'), color: RATES.qqq.color, dash: 'dashed', idx: [4], avail: fundOn('qqq') },
+      { group: tr('By fund'), label: tr('SCHD'), color: RATES.schd.color, dash: 'dashed', idx: [5], avail: fundOn('schd') },
+    ], tr('Tap a label to show or hide it.'));
 
     pDivChart = new Chart($('p-div-chart').getContext('2d'), {
       type: 'bar',
@@ -1363,7 +1623,7 @@ function initCharts() {
       },
       options: baseOptions(t, true, true, false, true),
     });
-    buildLegend('p-div-legend', pDivChart, FUNDS.map((f, i) => ({ label: RATES[f].label, color: RATES[f].color, box: true, idx: [i], avail: () => pAlloc[f] > 0 })), 'Tap a label to show or hide it.');
+    buildLegend('p-div-legend', pDivChart, FUNDS.map((f, i) => ({ label: RATES[f].label, color: RATES[f].color, box: true, idx: [i], avail: () => pAlloc[f] > 0 })), tr('Tap a label to show or hide it.'));
   } catch (e) {
     console.error('Personal chart init failed', e);
     ['p-growth-chart', 'p-div-chart'].forEach(showChartFallback);
@@ -1379,21 +1639,21 @@ function initCharts() {
       data: {
         labels: [],
         datasets: [
-          { label: 'Portfolio value', endLabel: 'Portfolio', swColor: '#f1f5f9', data: [], borderColor: t.total, backgroundColor: t.totalFill, borderWidth: 2, pointRadius: 0, fill: true, tension: 0.15 },
-          { label: 'Employer match', endLabel: 'Match', swDash: 'dashed', data: [], borderColor: MATCH_COLOR, backgroundColor: 'transparent', borderWidth: 2, borderDash: [4, 3], pointRadius: 0, fill: false, tension: 0 },
-          { label: 'Your contributions', endLabel: 'Contributed', data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, fill: false, tension: 0 },
-          { label: 'Low case', endLabel: 'Low', swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: withAlpha(t.muted, 0.16), borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, fill: 4, tension: 0.15 },
-          { label: 'High case', endLabel: 'High', swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, fill: false, tension: 0.15 },
+          { label: tr('Portfolio value'), endLabel: tr('Portfolio'), swColor: '#f1f5f9', data: [], borderColor: t.total, backgroundColor: t.totalFill, borderWidth: 2, pointRadius: 0, fill: true, tension: 0.15 },
+          { label: tr('Employer match'), endLabel: tr('Match'), swDash: 'dashed', data: [], borderColor: MATCH_COLOR, backgroundColor: 'transparent', borderWidth: 2, borderDash: [4, 3], pointRadius: 0, fill: false, tension: 0 },
+          { label: tr('Your contributions'), endLabel: tr('Contributed'), data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, fill: false, tension: 0 },
+          { label: tr('Low case'), endLabel: tr('Low'), swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: withAlpha(t.muted, 0.16), borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, fill: 4, tension: 0.15 },
+          { label: tr('High case'), endLabel: tr('High'), swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, fill: false, tension: 0.15 },
         ],
       },
       options: baseOptions(t, false, false, true, true),
     });
     buildLegend('k-growth-legend', kGrowthChart, [
-      { label: 'Your contributions', color: CONTRIB_COLOR, idx: [2] },
-      { label: 'Employer match', color: MATCH_COLOR, dash: 'dashed', idx: [1] },
-      { label: 'Portfolio value', color: t.total, idx: [0] },
-      { label: 'Low / high range', color: t.muted, dash: 'dotted', idx: [3, 4] },
-    ], 'Tap a label to show or hide it.');
+      { label: tr('Your contributions'), color: CONTRIB_COLOR, idx: [2] },
+      { label: tr('Employer match'), color: MATCH_COLOR, dash: 'dashed', idx: [1] },
+      { label: tr('Portfolio value'), color: t.total, idx: [0] },
+      { label: tr('Low / high range'), color: t.muted, dash: 'dotted', idx: [3, 4] },
+    ], tr('Tap a label to show or hide it.'));
   } catch (e) {
     console.error('401(k) chart init failed', e);
     showChartFallback('k-growth-chart');
@@ -1408,19 +1668,19 @@ function initCharts() {
       data: {
         labels: [],
         datasets: [
-          { label: 'Portfolio value', endLabel: 'Portfolio', swColor: '#f1f5f9', data: [], borderColor: t.total, backgroundColor: t.totalFill, borderWidth: 2, pointRadius: 0, fill: true, tension: 0.15 },
-          { label: 'Your contributions', endLabel: 'Contributed', data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, fill: false, tension: 0 },
-          { label: 'Low case', endLabel: 'Low', swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: withAlpha(t.muted, 0.16), borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, fill: 3, tension: 0.15 },
-          { label: 'High case', endLabel: 'High', swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, fill: false, tension: 0.15 },
+          { label: tr('Portfolio value'), endLabel: tr('Portfolio'), swColor: '#f1f5f9', data: [], borderColor: t.total, backgroundColor: t.totalFill, borderWidth: 2, pointRadius: 0, fill: true, tension: 0.15 },
+          { label: tr('Your contributions'), endLabel: tr('Contributed'), data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, fill: false, tension: 0 },
+          { label: tr('Low case'), endLabel: tr('Low'), swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: withAlpha(t.muted, 0.16), borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, fill: 3, tension: 0.15 },
+          { label: tr('High case'), endLabel: tr('High'), swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, fill: false, tension: 0.15 },
         ],
       },
       options: baseOptions(t, false, false, true, true),
     });
     buildLegend('i-growth-legend', iGrowthChart, [
-      { label: 'Your contributions', color: CONTRIB_COLOR, idx: [1] },
-      { label: 'Portfolio value', color: t.total, idx: [0] },
-      { label: 'Low / high range', color: t.muted, dash: 'dotted', idx: [2, 3] },
-    ], 'Tap a label to show or hide it.');
+      { label: tr('Your contributions'), color: CONTRIB_COLOR, idx: [1] },
+      { label: tr('Portfolio value'), color: t.total, idx: [0] },
+      { label: tr('Low / high range'), color: t.muted, dash: 'dotted', idx: [2, 3] },
+    ], tr('Tap a label to show or hide it.'));
   } catch (e) {
     console.error('IRA chart init failed', e);
     showChartFallback('i-growth-chart');
@@ -1494,9 +1754,9 @@ function computePersonal(s) {
   const perCheck = (baseMonthly * 12) / 26;
   $('p-effective-monthly').textContent = pMode === 'dollar'
     ? (perYear === 26
-        ? '= about ' + fmt(baseMonthly) + ' / month on average (26 paychecks a year). Stays fixed each year.'
-        : '= ' + fmt(baseMonthly) + ' / month. Stays fixed each year.')
-    : '= ' + fmt(baseMonthly) + ' / month now (about ' + fmt(perCheck) + ' per bi-weekly paycheck), from a ' + fmt(s.salary) + ' salary growing ' + s.raise + '% a year';
+        ? tr('= about {0} / month on average (26 paychecks a year). Stays fixed each year.', fmt(baseMonthly))
+        : tr('= {0} / month. Stays fixed each year.', fmt(baseMonthly)))
+    : tr('= {0} / month now (about {1} per bi-weekly paycheck), from a {2} salary growing {3}% a year', fmt(baseMonthly), fmt(perCheck), fmt(s.salary), s.raise);
 
   const base = simPersonal(p, 0);
   const low = simPersonal(p, LOW_DELTA);
@@ -1521,9 +1781,9 @@ function computePersonal(s) {
   if (pGrowthChart) {
     const idx = Array.from({ length: N + 1 }, (_, y) => y);
     const series = (arr) => idx.map((y) => Math.round(arr[y] * d(y)));
-    pGrowthChart.data.labels = idx.map((y) => 'Yr ' + y);
-    pGrowthChart.data.datasets[0].label = pReinvest ? 'Portfolio value' : 'Invested value';
-    pGrowthChart.data.datasets[0].endLabel = pReinvest ? 'Portfolio' : 'Invested';
+    pGrowthChart.data.labels = idx.map(yrLabel);
+    pGrowthChart.data.datasets[0].label = pReinvest ? tr('Portfolio value') : tr('Invested value');
+    pGrowthChart.data.datasets[0].endLabel = pReinvest ? tr('Portfolio') : tr('Invested');
     pGrowthChart.data.datasets[0].data = series(base.invested);
     pGrowthChart.data.datasets[1].data = series(base.cash);
     pGrowthChart.data.datasets[2].data = idx.map((y) => Math.round(start + base.realContrib[y]));
@@ -1538,20 +1798,20 @@ function computePersonal(s) {
   if (pDivChart) {
     // starts at Yr 0 (no payout yet) so the year axis matches the growth chart
     const yrs = Array.from({ length: N + 1 }, (_, i) => i);
-    pDivChart.data.labels = yrs.map((y) => 'Yr ' + y);
+    pDivChart.data.labels = yrs.map(yrLabel);
     FUNDS.forEach((f, i) => { pDivChart.data.datasets[i].data = yrs.map((y) => (y === 0 ? null : Math.round(base.div[f][y - 1] * d(y)))); });
     refreshLegend('p-div-legend');
     pDivChart.update();
   }
 
   $('p-footnote').innerHTML =
-    'Rates are assumptions based on long-run history, not guarantees. Dividend yields (' + FUNDS.map((f) => RATES[f].div + '%').join(' / ') +
-    ") are held at today's levels for the whole period. The low and high cases shift every fund's return by " + LOW_DELTA + ' and +' + HIGH_DELTA +
-    ' points a year to show sensitivity; they are not a forecast range.' +
-    (start > 0 ? ' The contributions line includes your starting balance.' : '') +
-    (pMode === 'percent' ? ' Monthly contributions grow each year with your annual raise.' : '') +
-    (pMode === 'dollar' && payPerYear() === 26 ? ' Bi-weekly contributions are modeled as 26 paychecks a year, spread evenly across the months.' : '') +
-    (inflOn ? " Figures are in today's dollars at " + num('s-infl-rate') + '% annual inflation.' : '');
+    tr('Rates are assumptions based on long-run history, not guarantees.') + ' ' +
+    tr("Dividend yields ({0}) are held at today's levels for the whole period.", FUNDS.map((f) => RATES[f].div + '%').join(' / ')) + ' ' +
+    tr("The low and high cases shift every fund's return by {0} and +{1} points a year to show sensitivity; they are not a forecast range.", LOW_DELTA, HIGH_DELTA) +
+    (start > 0 ? ' ' + tr('The contributions line includes your starting balance.') : '') +
+    (pMode === 'percent' ? ' ' + tr('Monthly contributions grow each year with your annual raise.') : '') +
+    (pMode === 'dollar' && payPerYear() === 26 ? ' ' + tr('Bi-weekly contributions are modeled as 26 paychecks a year, spread evenly across the months.') : '') +
+    (inflOn ? ' ' + tr("Figures are in today's dollars at {0}% annual inflation.", num('s-infl-rate')) : '');
 
   return { final: finalTotal, p, series: Array.from({ length: N + 1 }, (_, y) => (base.invested[y] + base.cash[y]) * d(y)) };
 }
@@ -1599,10 +1859,10 @@ function computeK401(s) {
   const finalValue = base.bal[N] * d(N);
   const t = base.totals;
   $('k-match-hint').textContent = p.matchRate > 0 && p.matchCap > 0
-    ? 'Your employer adds ' + p.matchRate + ' cents for every $1 you contribute, up to ' + p.matchCap + '% of your salary.'
-    : 'No employer match.';
+    ? tr('Your employer adds {0} cents for every $1 you contribute, up to {1}% of your salary.', p.matchRate, p.matchCap)
+    : tr('No employer match.');
   $('k-warn').style.display = t.capped ? 'block' : 'none';
-  $('k-warn').textContent = 'Your contribution reaches your plan\'s ' + fmt(p.limit) + ' annual limit in at least one year of this projection, so it\'s capped there from then on.';
+  $('k-warn').textContent = tr("Your contribution reaches your plan's {0} annual limit in at least one year of this projection, so it's capped there from then on.", fmt(p.limit));
   $('k-stat-final').textContent = fmt(finalValue);
   $('k-stat-starting').textContent = fmt(p.start);
   $('k-stat-employee').textContent = fmt(t.rEmp);
@@ -1612,7 +1872,7 @@ function computeK401(s) {
 
   if (kGrowthChart) {
     const idx = Array.from({ length: N + 1 }, (_, y) => y);
-    kGrowthChart.data.labels = idx.map((y) => 'Yr ' + y);
+    kGrowthChart.data.labels = idx.map(yrLabel);
     kGrowthChart.data.datasets[0].data = idx.map((y) => Math.round(base.bal[y] * d(y)));
     kGrowthChart.data.datasets[1].data = idx.map((y) => Math.round(base.er[y]));
     kGrowthChart.data.datasets[2].data = idx.map((y) => Math.round(p.start + base.emp[y]));
@@ -1627,9 +1887,9 @@ function computeK401(s) {
     (cu.sup
       ? tr('From age 50 it rises by the {0} catch-up ({1} at ages 60 to 63), which is included automatically when your contribution is high enough to use it.', fmt(cu.amt), fmt(cu.sup))
       : tr('From age 50 it rises by the {0} catch-up, which is included automatically when your contribution is high enough to use it.', fmt(cu.amt))) + ' ' +
-    (p.start > 0 ? 'The contribution line includes your starting balance. ' : '') +
-    'The low and high cases shift the expected return by ' + LOW_DELTA + ' and +' + HIGH_DELTA + ' points a year to show sensitivity; they are not a forecast range.' +
-    (inflOn ? " Figures are in today's dollars at " + num('s-infl-rate') + '% annual inflation.' : '');
+    (p.start > 0 ? tr('The contributions line includes your starting balance.') + ' ' : '') +
+    tr('The low and high cases shift the expected return by {0} and +{1} points a year to show sensitivity; they are not a forecast range.', LOW_DELTA, HIGH_DELTA) +
+    (inflOn ? ' ' + tr("Figures are in today's dollars at {0}% annual inflation.", num('s-infl-rate')) : '');
 
   return { final: finalValue, series: Array.from({ length: N + 1 }, (_, y) => base.bal[y] * d(y)), capped: t.capped, limit: p.limit };
 }
@@ -1673,7 +1933,7 @@ function computeIRA(s) {
 
   if (iGrowthChart) {
     const idx = Array.from({ length: N + 1 }, (_, y) => y);
-    iGrowthChart.data.labels = idx.map((y) => 'Yr ' + y);
+    iGrowthChart.data.labels = idx.map(yrLabel);
     iGrowthChart.data.datasets[0].data = idx.map((y) => Math.round(base.invested[y] * d(y)));
     iGrowthChart.data.datasets[1].data = idx.map((y) => Math.round(start + base.realContrib[y]));
     iGrowthChart.data.datasets[2].data = idx.map((y) => Math.round(low.invested[y] * d(y)));
@@ -1682,34 +1942,35 @@ function computeIRA(s) {
   }
   $('i-footnote').textContent =
     tr('Uses the same return and dividend assumptions as the Personal tab, with dividends reinvested. The limit is held at its 2026 level for the whole projection, and the {0} catch-up is added from age 50.', fmt(IRA_CATCHUP)) + ' ' +
-    (start > 0 ? 'The contribution line includes your starting balance. ' : '') +
-    'The low and high cases shift every fund\'s return by ' + LOW_DELTA + ' and +' + HIGH_DELTA + ' points a year to show sensitivity; they are not a forecast range.' +
-    (inflOn ? " Figures are in today's dollars at " + num('s-infl-rate') + '% annual inflation.' : '');
+    (start > 0 ? tr('The contributions line includes your starting balance.') + ' ' : '') +
+    tr("The low and high cases shift every fund's return by {0} and +{1} points a year to show sensitivity; they are not a forecast range.", LOW_DELTA, HIGH_DELTA) +
+    (inflOn ? ' ' + tr("Figures are in today's dollars at {0}% annual inflation.", num('s-infl-rate')) : '');
 
   return { final: finalValue, series: Array.from({ length: N + 1 }, (_, y) => base.invested[y] * d(y)), capped, limit: IRA_LIMIT, active: start > 0 || wanted > 0 };
 }
 
 /* ---------------- goal ---------------- */
+function yearsText(n) { return n === 1 ? tr('1 year') : tr('{0} years', n); }
 function updateGoal(s, P, K, I) {
   const goal = num('s-goal');
   const el = $('s-goal-result');
   const total = P.final + K.final + I.final;
-  const names = 'Personal + 401(k)' + (I.active ? ' + IRA' : '');
+  const names = I.active ? tr('Personal + 401(k) + IRA') : tr('Personal + 401(k)');
   const pct = goal > 0 ? total / goal * 100 : 0;
   $('ss-goal-head').hidden = goal <= 0;
   $('ss-prog').hidden = goal <= 0;
   $('ss-prog').classList.toggle('done', pct >= 100);
   $('ss-prog-bar').style.width = Math.min(100, pct) + '%';
-  $('ss-goal-pct').textContent = Math.floor(pct) + '%' + ' of ' + short(goal);
-  if (goal <= 0) { el.className = 'goal-result'; el.textContent = "Add a goal to see the year you'd reach it."; return; }
+  $('ss-goal-pct').textContent = tr('{0}% of {1}', Math.floor(pct), short(goal));
+  if (goal <= 0) { el.className = 'goal-result'; el.textContent = tr("Add a goal to see the year you'd reach it."); return; }
   const N = s.years;
   let hit = -1;
   for (let y = 0; y <= N; y++) { if (P.series[y] + K.series[y] + I.series[y] >= goal) { hit = y; break; } }
   if (hit >= 0) {
     el.className = 'goal-result ok';
     el.textContent = hit === 0
-      ? 'You already have ' + short(goal) + ' at the start.'
-      : names + ' together reach ' + short(goal) + ' in year ' + hit + ' (' + (new Date().getFullYear() + hit) + ').';
+      ? tr('You already have {0} at the start.', short(goal))
+      : tr('{0} together reach {1} in year {2} ({3}).', names, short(goal), hit, new Date().getFullYear() + hit);
     return;
   }
   const gap = goal - total;
@@ -1718,8 +1979,10 @@ function updateGoal(s, P, K, I) {
   const perYear = P.p.perYear || 12;
   const extra = perDollar > 0 ? Math.ceil(((gap / perDollar) * 12) / perYear / 5) * 5 : 0;
   el.className = 'goal-result';
-  el.textContent = names + ' together land about ' + fmt(gap) + ' short of ' + short(goal) + ' after ' + N + ' years.' +
-    (extra > 0 ? ' Adding about ' + fmt(extra) + (perYear === 26 ? ' per paycheck' : ' a month') + ' to your personal account would close the gap.' : '');
+  el.textContent = tr('{0} together land about {1} short of {2} after {3}.', names, fmt(gap), short(goal), yearsText(N)) +
+    (extra > 0 ? ' ' + (perYear === 26
+      ? tr('Adding about {0} per paycheck to your personal account would close the gap.', fmt(extra))
+      : tr('Adding about {0} a month to your personal account would close the gap.', fmt(extra))) : '');
 }
 
 /* ---------------- retirement income ---------------- */
@@ -1729,8 +1992,8 @@ function updateIncome(s, P, K, I) {
   const total = P.final + K.final + I.final;
   $('ss-inc-label').textContent = tr('Possible income at age {0}', s.age + s.years);
   $('ss-inc-month').textContent = fmt(monthly(total));
-  const parts = [tr('Personal') + ' ' + fmt(monthly(P.final)), '401(k) ' + fmt(monthly(K.final))];
-  if (I.active) parts.push('IRA ' + fmt(monthly(I.final)));
+  const parts = [tr('Personal') + ' ' + fmt(monthly(P.final)), tr('401(k)') + ' ' + fmt(monthly(K.final))];
+  if (I.active) parts.push(tr('IRA') + ' ' + fmt(monthly(I.final)));
   $('ss-inc-detail').textContent = tr('About {0} a year at a {1}% withdrawal rate. Per month: {2}.', fmt(total * rate), s.wd, parts.join(' · '));
 }
 
@@ -1738,34 +2001,39 @@ function updateIncome(s, P, K, I) {
 function link(url, text) { return '<a href="' + url + '" target="_blank" rel="noopener">' + text + '</a>'; }
 function renderWhy(custom) {
   const D = DEFAULT_RATES;
+  const para = (head, body) => '<p><b>' + head + '</b> ' + body + '</p>';
   $('p-why-body').innerHTML =
     (custom ? '<p><b>' + tr('You have changed some return assumptions. The notes below describe the default figures.') + '</b></p>' : '') +
-    '<p><b>VOO, ' + D.voo.total + '% a year.</b> The S&amp;P 500 returned about 10.5% a year with dividends reinvested from 1926 to 2026 (' +
-      link('https://www.officialdata.org/us/stocks/s-p-500/1926', 'Official Data') + '). Dividend yield ' + D.voo.div + '% (' +
-      link('https://www.wisesheets.io/etf/VOO/dividends', 'trailing, Wisesheets') + ').</p>' +
-    '<p><b>QQQM, ' + D.qqq.total + '% a year.</b> QQQM tracks the Nasdaq-100, which Nasdaq says returned 14.25% a year since 1985 (' +
-      link('https://www.nasdaq.com/press-release/celebrating-40-years-nasdaq-100-indexr-ndxr-2025-01-31', 'Nasdaq') +
-      '). That span includes the 1990s tech boom, and the index fell about 82% from 2000 to 2002 (' +
-      link('https://www.cmegroup.com/insights/economic-research/2024/nasdaqs-stellar-returns-potential-risks-ahead.html', 'CME Group') +
-      '), so the calculator trims it to ' + D.qqq.total + '%. The fund launched in 2020, with a 0.15% expense ratio and a ' + D.qqq.div + '% yield (' +
-      link('https://chartrow.com/compare/qqq-vs-qqqm', 'Chartrow') + ').</p>' +
-    '<p><b>SCHD, ' + D.schd.total + '% a year.</b> This comes from a long-run study of dividend-growing stocks, not the fund\'s short history. SCHD itself returned about 13.4% a year since 2011, a strong stretch for stocks, and yields about 3.1% to 3.2% (' +
-      link('https://www.fool.com/investing/2026/08/23/where-will-schd-be-in-2035/', 'Motley Fool') + ').</p>' +
-    '<p>Checked October 2026. Yields and returns change over time.</p>';
+    para(tr('{0}, {1}% a year.', 'VOO', D.voo.total),
+      tr('The S&amp;P 500 returned about 10.5% a year with dividends reinvested from 1926 to 2026 ({0}). Dividend yield {1}% ({2}).',
+        link('https://www.officialdata.org/us/stocks/s-p-500/1926', 'Official Data'), D.voo.div,
+        link('https://www.wisesheets.io/etf/VOO/dividends', tr('trailing, Wisesheets')))) +
+    para(tr('{0}, {1}% a year.', 'QQQM', D.qqq.total),
+      tr('QQQM tracks the Nasdaq-100, which Nasdaq says returned 14.25% a year since 1985 ({0}). That span includes the 1990s tech boom, and the index fell about 82% from 2000 to 2002 ({1}), so the calculator trims it to {2}%. The fund launched in 2020, with a 0.15% expense ratio and a {3}% yield ({4}).',
+        link('https://www.nasdaq.com/press-release/celebrating-40-years-nasdaq-100-indexr-ndxr-2025-01-31', 'Nasdaq'),
+        link('https://www.cmegroup.com/insights/economic-research/2024/nasdaqs-stellar-returns-potential-risks-ahead.html', 'CME Group'),
+        D.qqq.total, D.qqq.div, link('https://chartrow.com/compare/qqq-vs-qqqm', 'Chartrow'))) +
+    para(tr('{0}, {1}% a year.', 'SCHD', D.schd.total),
+      tr("This comes from a long-run study of dividend-growing stocks, not the fund's short history. SCHD itself returned about 13.4% a year since 2011, a strong stretch for stocks, and yields about 3.1% to 3.2% ({0}).",
+        link('https://www.fool.com/investing/2026/08/23/where-will-schd-be-in-2035/', 'Motley Fool'))) +
+    '<p>' + tr('Checked October 2026. Yields and returns change over time.') + '</p>';
   $('i-why-body').innerHTML =
-    '<p><b>Contribution limit.</b> For 2026 the IRA limit is $7,500, plus a $1,100 catch-up if you are 50 or older, and Roth eligibility phases out starting at $153,000 (single) or $242,000 (married filing jointly) (' +
-      link('https://www.cpapracticeadvisor.com/2025/11/13/irs-bumps-up-401k-ira-contribution-limits-for-2026/173130/', 'CPA Practice Advisor') + '). Puerto Rico IRAs follow the same limit starting in 2025 (' +
-      link('https://www.mcvpr.com/newsroom/publications/PR-IRA', 'McConnell Valdés') + ').</p>' +
-    '<p><b>Returns.</b> Same fund assumptions as the Personal tab. Dividends are reinvested because an IRA does not pay tax on them each year.</p>' +
-    '<p><b>Taxes.</b> Not modeled. Traditional and Roth accounts are taxed differently when you contribute and when you withdraw, so the balance shown is before any tax on withdrawal.</p>';
+    para(tr('Contribution limit.'),
+      tr('For 2026 the IRA limit is $7,500, plus a $1,100 catch-up if you are 50 or older, and Roth eligibility phases out starting at $153,000 (single) or $242,000 (married filing jointly) ({0}). Puerto Rico IRAs follow the same limit starting in 2025 ({1}).',
+        link('https://www.cpapracticeadvisor.com/2025/11/13/irs-bumps-up-401k-ira-contribution-limits-for-2026/173130/', 'CPA Practice Advisor'),
+        link('https://www.mcvpr.com/newsroom/publications/PR-IRA', 'McConnell Valdés'))) +
+    para(tr('Returns.'), tr('Same fund assumptions as the Personal tab. Dividends are reinvested because an IRA does not pay tax on them each year.')) +
+    para(tr('Taxes.'), tr('Not modeled. Traditional and Roth accounts are taxed differently when you contribute and when you withdraw, so the balance shown is before any tax on withdrawal.'));
   $('k-why-body').innerHTML =
-    '<p><b>7% a year.</b> Diversified 401(k) plans have historically returned around 5% to 8%. This is a rule of thumb, not tied to the funds in your plan.</p>' +
-    '<p><b>Contribution limits.</b> For 2026 the Puerto Rico Treasury allows $15,000 in employee deferrals for plans qualified only under Section 1081.01(a) of the PR Code, and $22,500 for dual-qualified plans that adopted the higher limit. The U.S. limit is $24,500 (' +
-      link('https://www.littler.com/news-analysis/asap/puerto-rico-department-treasury-announces-2026-limits-qualified-retirement-plans', 'Littler') + ', ' +
-      link('https://www.mcvpr.com/newsroom/publications/2026_Annual_Limits_Qualified_Retirement_Plans', 'McConnell Valdés') + ').</p>' +
-    '<p><b>Catch-up at 50 or older.</b> Puerto Rico plans that are not sponsored by the federal government allow an extra $1,500 (the Treasury circular lists no separate figure for dual-qualified plans, so the calculator uses $1,500 for them too; ask your plan to confirm). The U.S. limit allows an extra $8,000, or $11,250 at ages 60 to 63 (' +
-      link('https://www.cpapracticeadvisor.com/2025/11/13/irs-bumps-up-401k-ira-contribution-limits-for-2026/173130/', 'CPA Practice Advisor') + ').</p>' +
-    '<p><b>Employer match.</b> Assumes the full match is yours immediately. Your plan may have a vesting schedule.</p>';
+    para(tr('7% a year.'), tr('Diversified 401(k) plans have historically returned around 5% to 8%. This is a rule of thumb, not tied to the funds in your plan.')) +
+    para(tr('Contribution limits.'),
+      tr('For 2026 the Puerto Rico Treasury allows $15,000 in employee deferrals for plans qualified only under Section 1081.01(a) of the PR Code, and $22,500 for dual-qualified plans that adopted the higher limit. The U.S. limit is $24,500 ({0}, {1}).',
+        link('https://www.littler.com/news-analysis/asap/puerto-rico-department-treasury-announces-2026-limits-qualified-retirement-plans', 'Littler'),
+        link('https://www.mcvpr.com/newsroom/publications/2026_Annual_Limits_Qualified_Retirement_Plans', 'McConnell Valdés'))) +
+    para(tr('Catch-up at 50 or older.'),
+      tr('Puerto Rico plans that are not sponsored by the federal government allow an extra $1,500 (the Treasury circular lists no separate figure for dual-qualified plans, so the calculator uses $1,500 for them too; ask your plan to confirm). The U.S. limit allows an extra $8,000, or $11,250 at ages 60 to 63 ({0}).',
+        link('https://www.cpapracticeadvisor.com/2025/11/13/irs-bumps-up-401k-ira-contribution-limits-for-2026/173130/', 'CPA Practice Advisor'))) +
+    para(tr('Employer match.'), tr('Assumes the full match is yours immediately. Your plan may have a vesting schedule.'));
 }
 
 /* ---------------- everything ---------------- */
@@ -1786,7 +2054,7 @@ function recomputeAll() {
   $('s-ira-part').hidden = !I.active;
   $('s-parts').classList.toggle('three', I.active);
   $('s-cap').hidden = !K.capped;
-  $('s-cap').textContent = 'at ' + fmt(K.limit) + ' limit';
+  $('s-cap').textContent = tr('at {0} limit', fmt(K.limit));
   const tot = personal + k401 + ira;
   $('ss-total').textContent = fmt(tot);
   $('ss-personal').textContent = fmt(personal);
@@ -1796,10 +2064,10 @@ function recomputeAll() {
   $('ss-bp').style.width = (tot > 0 ? personal / tot * 100 : (I.active ? 33 : 50)) + '%';
   $('ss-bk').style.width = (tot > 0 ? k401 / tot * 100 : (I.active ? 33 : 50)) + '%';
   $('ss-bi').style.width = (tot > 0 ? ira / tot * 100 : (I.active ? 34 : 0)) + '%';
-  $('ss-label').textContent = 'After ' + s.years + (s.years === 1 ? ' year' : ' years') + (inflOn ? " · today's dollars" : '');
+  $('ss-label').textContent = tr('After {0}', yearsText(s.years)) + (inflOn ? tr(" · today's dollars") : '');
   updateGoal(s, P, K, I);
   updateIncome(s, P, K, I);
-  $('s-label').textContent = 'Combined after ' + s.years + (s.years === 1 ? ' year' : ' years') + (inflOn ? " · today's dollars" : '');
+  $('s-label').textContent = tr('Combined after {0}', yearsText(s.years)) + (inflOn ? tr(" · today's dollars") : '');
   saveState();
 }
 
@@ -1814,6 +2082,7 @@ renderToggles();
 switchTab(currentTab);
 initCharts();
 recomputeAll();
+applyI18n();
 </script>
 </body>
 </html>
