@@ -323,11 +323,17 @@
   details.assump { margin-top: 16px; padding: 0 18px; }
   details.assump summary { cursor: pointer; min-height: 48px; display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; }
   .assump-body { padding: 0 0 12px; }
-  .a-grid { display: grid; grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr); gap: 8px 10px; align-items: center; margin-bottom: 4px; max-width: 460px; }
-  .a-head { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--text-3); text-align: right; }
-  .a-fund { font-size: 14px; display: flex; align-items: center; gap: 8px; }
-  .a-grid .box { width: auto; }
-  .a-grid .box .num { flex: 1; width: auto; min-width: 0; }
+  .a-slots { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; max-width: 460px; margin-bottom: 8px; }
+  .a-slot { min-width: 0; }
+  .a-slot + .a-slot { border-top: 1px solid var(--border); padding-top: 12px; }
+  .a-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .a-top .a-select { flex: 1 1 0; min-width: 0; width: 0; max-width: none; }
+  .a-top .a-name { width: 104px; flex: none; text-align: left; }
+  .a-top .a-name[hidden] { display: none; }
+  .a-vals { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+  .a-val { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-2); }
+  .a-val .box .num { width: 52px; }
+  .a-desc { margin: 6px 0 0; font-size: 12px; color: var(--text-3); }
   .badge { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; background: var(--amber-bg); color: var(--amber-ink); border: 1px solid var(--amber-border); }
 </style>
 </head>
@@ -426,22 +432,48 @@
   </section>
 
   <details class="card assump" id="assump">
-    <summary>Fund return assumptions <span class="badge" id="assump-badge" hidden>Customized</span></summary>
+    <summary>Funds and returns <span class="badge" id="assump-badge" hidden>Customized</span></summary>
     <div class="assump-body">
-      <p class="hint">Used by the Personal and IRA tabs. Total return includes dividends. The defaults are long-run historical figures, so changing them shows a what-if, not a forecast. The 401(k) tab has its own expected return.</p>
-      <div class="a-grid">
-        <span></span><span class="a-head">Total return</span><span class="a-head">Dividend</span>
-        <span class="a-fund"><span class="dot" style="background:var(--c-voo)"></span>VOO</span>
-        <span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.1" value="10.5" id="a-voo-total" class="num" aria-label="VOO total return"><span class="unit">%</span></span>
-        <span class="box"><input type="number" inputmode="decimal" min="0" max="15" step="0.1" value="1.1" id="a-voo-div" class="num" aria-label="VOO dividend yield"><span class="unit">%</span></span>
-        <span class="a-fund"><span class="dot" style="background:var(--c-qqq)"></span>QQQM</span>
-        <span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.1" value="12" id="a-qqq-total" class="num" aria-label="QQQM total return"><span class="unit">%</span></span>
-        <span class="box"><input type="number" inputmode="decimal" min="0" max="15" step="0.1" value="0.4" id="a-qqq-div" class="num" aria-label="QQQM dividend yield"><span class="unit">%</span></span>
-        <span class="a-fund"><span class="dot" style="background:var(--c-schd)"></span>SCHD</span>
-        <span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.1" value="10.07" id="a-schd-total" class="num" aria-label="SCHD total return"><span class="unit">%</span></span>
-        <span class="box"><input type="number" inputmode="decimal" min="0" max="15" step="0.1" value="3.2" id="a-schd-div" class="num" aria-label="SCHD dividend yield"><span class="unit">%</span></span>
+      <p class="hint">Pick up to three funds for the Personal and IRA tabs, or choose Custom to enter your own numbers. Total return includes dividends. The numbers are long-run historical averages, so changing them shows a what-if, not a forecast. The 401(k) tab has its own expected return.</p>
+      <div class="a-slots">
+        <div class="a-slot">
+          <div class="a-top">
+            <span class="dot" style="background:var(--c-voo)"></span>
+            <select id="a-voo-fund" class="num sel a-select" aria-label="Fund 1"></select>
+            <input type="text" id="a-voo-name" class="num a-name" maxlength="8" placeholder="Name" aria-label="Custom fund 1 name" autocomplete="off" hidden>
+          </div>
+          <div class="a-vals">
+            <label class="a-val"><span>Total return</span><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.1" value="10.5" id="a-voo-total" class="num"><span class="unit">%</span></span></label>
+            <label class="a-val"><span>Dividend</span><span class="box"><input type="number" inputmode="decimal" min="0" max="15" step="0.1" value="1.1" id="a-voo-div" class="num"><span class="unit">%</span></span></label>
+          </div>
+          <p class="a-desc" id="a-voo-desc"></p>
+        </div>
+        <div class="a-slot">
+          <div class="a-top">
+            <span class="dot" style="background:var(--c-qqq)"></span>
+            <select id="a-qqq-fund" class="num sel a-select" aria-label="Fund 2"></select>
+            <input type="text" id="a-qqq-name" class="num a-name" maxlength="8" placeholder="Name" aria-label="Custom fund 2 name" autocomplete="off" hidden>
+          </div>
+          <div class="a-vals">
+            <label class="a-val"><span>Total return</span><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.1" value="12" id="a-qqq-total" class="num"><span class="unit">%</span></span></label>
+            <label class="a-val"><span>Dividend</span><span class="box"><input type="number" inputmode="decimal" min="0" max="15" step="0.1" value="0.4" id="a-qqq-div" class="num"><span class="unit">%</span></span></label>
+          </div>
+          <p class="a-desc" id="a-qqq-desc"></p>
+        </div>
+        <div class="a-slot">
+          <div class="a-top">
+            <span class="dot" style="background:var(--c-schd)"></span>
+            <select id="a-schd-fund" class="num sel a-select" aria-label="Fund 3"></select>
+            <input type="text" id="a-schd-name" class="num a-name" maxlength="8" placeholder="Name" aria-label="Custom fund 3 name" autocomplete="off" hidden>
+          </div>
+          <div class="a-vals">
+            <label class="a-val"><span>Total return</span><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.1" value="10.07" id="a-schd-total" class="num"><span class="unit">%</span></span></label>
+            <label class="a-val"><span>Dividend</span><span class="box"><input type="number" inputmode="decimal" min="0" max="15" step="0.1" value="3.2" id="a-schd-div" class="num"><span class="unit">%</span></span></label>
+          </div>
+          <p class="a-desc" id="a-schd-desc"></p>
+        </div>
       </div>
-      <button class="link-btn" id="rates-reset" type="button">Restore default rates</button>
+      <button class="link-btn" id="rates-reset" type="button">Restore default funds and rates</button>
     </div>
   </details>
 
@@ -511,24 +543,24 @@
           <div id="p-alloc-sliders" hidden>
           <div class="alloc">
             <div class="alloc-head">
-              <label for="p-voo-num"><span class="dot" style="background:var(--c-voo)"></span>VOO <span class="muted" data-yield="voo"></span></label>
+              <label for="p-voo-num"><span class="dot" style="background:var(--c-voo)"></span><span data-fname="voo"></span> <span class="muted" data-yield="voo"></span></label>
               <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="50" id="p-voo-num" class="num"></span><span class="unit">%</span></div>
             </div>
-            <input type="range" min="0" max="100" step="1" value="50" id="p-voo-range" aria-label="VOO allocation">
+            <input type="range" min="0" max="100" step="1" value="50" id="p-voo-range">
           </div>
           <div class="alloc">
             <div class="alloc-head">
-              <label for="p-qqq-num"><span class="dot" style="background:var(--c-qqq)"></span>QQQM <span class="muted" data-yield="qqq"></span></label>
+              <label for="p-qqq-num"><span class="dot" style="background:var(--c-qqq)"></span><span data-fname="qqq"></span> <span class="muted" data-yield="qqq"></span></label>
               <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="25" id="p-qqq-num" class="num"></span><span class="unit">%</span></div>
             </div>
-            <input type="range" min="0" max="100" step="1" value="25" id="p-qqq-range" aria-label="QQQM allocation">
+            <input type="range" min="0" max="100" step="1" value="25" id="p-qqq-range">
           </div>
           <div class="alloc">
             <div class="alloc-head">
-              <label for="p-schd-num"><span class="dot" style="background:var(--c-schd)"></span>SCHD <span class="muted" data-yield="schd"></span></label>
+              <label for="p-schd-num"><span class="dot" style="background:var(--c-schd)"></span><span data-fname="schd"></span> <span class="muted" data-yield="schd"></span></label>
               <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="25" id="p-schd-num" class="num"></span><span class="unit">%</span></div>
             </div>
-            <input type="range" min="0" max="100" step="1" value="25" id="p-schd-range" aria-label="SCHD allocation">
+            <input type="range" min="0" max="100" step="1" value="25" id="p-schd-range">
           </div>
           <p class="hint">The three always add up to 100%. Changing one rebalances the others.</p>
           </div>
@@ -711,24 +743,24 @@
           <div id="i-alloc-sliders" hidden>
           <div class="alloc">
             <div class="alloc-head">
-              <label for="i-voo-num"><span class="dot" style="background:var(--c-voo)"></span>VOO <span class="muted" data-yield="voo"></span></label>
+              <label for="i-voo-num"><span class="dot" style="background:var(--c-voo)"></span><span data-fname="voo"></span> <span class="muted" data-yield="voo"></span></label>
               <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="50" id="i-voo-num" class="num"></span><span class="unit">%</span></div>
             </div>
-            <input type="range" min="0" max="100" step="1" value="50" id="i-voo-range" aria-label="IRA VOO allocation">
+            <input type="range" min="0" max="100" step="1" value="50" id="i-voo-range">
           </div>
           <div class="alloc">
             <div class="alloc-head">
-              <label for="i-qqq-num"><span class="dot" style="background:var(--c-qqq)"></span>QQQM <span class="muted" data-yield="qqq"></span></label>
+              <label for="i-qqq-num"><span class="dot" style="background:var(--c-qqq)"></span><span data-fname="qqq"></span> <span class="muted" data-yield="qqq"></span></label>
               <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="25" id="i-qqq-num" class="num"></span><span class="unit">%</span></div>
             </div>
-            <input type="range" min="0" max="100" step="1" value="25" id="i-qqq-range" aria-label="IRA QQQM allocation">
+            <input type="range" min="0" max="100" step="1" value="25" id="i-qqq-range">
           </div>
           <div class="alloc">
             <div class="alloc-head">
-              <label for="i-schd-num"><span class="dot" style="background:var(--c-schd)"></span>SCHD <span class="muted" data-yield="schd"></span></label>
+              <label for="i-schd-num"><span class="dot" style="background:var(--c-schd)"></span><span data-fname="schd"></span> <span class="muted" data-yield="schd"></span></label>
               <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="25" id="i-schd-num" class="num"></span><span class="unit">%</span></div>
             </div>
-            <input type="range" min="0" max="100" step="1" value="25" id="i-schd-range" aria-label="IRA SCHD allocation">
+            <input type="range" min="0" max="100" step="1" value="25" id="i-schd-range">
           </div>
           <p class="hint">The three always add up to 100%. Changing one rebalances the others.</p>
           </div>
@@ -758,12 +790,30 @@
 </main>
 
 <script>
-const RATES = {
-  voo:  { total: 10.5,  div: 1.1, label: 'VOO',  color: '#2a78d6' },
-  qqq:  { total: 12,    div: 0.4, label: 'QQQM', color: '#eb6834' },
-  schd: { total: 10.07, div: 3.2, label: 'SCHD', color: '#1baf7a' },
-};
+// Three fund slots. The slot keys (voo, qqq, schd) stay fixed because colors, allocations and presets hang on them;
+// the fund shown in each slot is chosen from CATALOG, or set to CUSTOM with the person's own numbers.
 const FUNDS = ['voo', 'qqq', 'schd'];
+const DEFAULT_FUND = { voo: 'VOO', qqq: 'QQQM', schd: 'SCHD' };
+// total = assumed long-run annual return with dividends reinvested, div = dividend yield, fee = expense ratio (all %), since = launch year
+const CATALOG = {
+  VOO:  { name: 'S&P 500',                      group: 'Core U.S. stocks',   total: 10.5,  div: 1.1, fee: 0.03, since: 2010 },
+  VTI:  { name: 'Total U.S. stock market',      group: 'Core U.S. stocks',   total: 10,    div: 1,   fee: 0.03, since: 2001 },
+  VUG:  { name: 'U.S. large-company growth',    group: 'Growth',             total: 12,    div: 0.4, fee: 0.03, since: 2004 },
+  QQQM: { name: 'Nasdaq-100',                   group: 'Growth',             total: 12,    div: 0.4, fee: 0.15, since: 2020 },
+  SCHD: { name: 'Quality dividend stocks',      group: 'Dividend stocks',    total: 10.07, div: 3.2, fee: 0.06, since: 2011 },
+  VYM:  { name: 'High dividend yield',          group: 'Dividend stocks',    total: 9,     div: 2.3, fee: 0.04, since: 2006 },
+  VIG:  { name: 'Dividend growers',             group: 'Dividend stocks',    total: 10,    div: 1.5, fee: 0.04, since: 2006 },
+  VB:   { name: 'U.S. small companies',         group: 'Smaller companies',  total: 9,     div: 1.3, fee: 0.03, since: 2004 },
+  VXUS: { name: 'International stocks',         group: 'International',      total: 6,     div: 2.4, fee: 0.05, since: 2011 },
+  VNQ:  { name: 'U.S. real estate (REITs)',     group: 'Real estate',        total: 5.5,   div: 3.7, fee: 0.13, since: 2004 },
+  BND:  { name: 'U.S. bonds',                   group: 'Bonds',              total: 4,     div: 4,   fee: 0.03, since: 2007 },
+};
+const FUND_GROUPS = ['Core U.S. stocks', 'Growth', 'Dividend stocks', 'Smaller companies', 'International', 'Real estate', 'Bonds'];
+const RATES = {
+  voo:  { total: CATALOG.VOO.total,  div: CATALOG.VOO.div,  label: 'VOO',  color: '#2a78d6' },
+  qqq:  { total: CATALOG.QQQM.total, div: CATALOG.QQQM.div, label: 'QQQM', color: '#eb6834' },
+  schd: { total: CATALOG.SCHD.total, div: CATALOG.SCHD.div, label: 'SCHD', color: '#1baf7a' },
+};
 const DEFAULT_RATES = {};
 FUNDS.forEach((f) => { DEFAULT_RATES[f] = { total: RATES[f].total, div: RATES[f].div }; });
 const CASH_COLOR = '#c98500';
@@ -781,6 +831,44 @@ FUNDS.forEach((f) => document.documentElement.style.setProperty('--c-' + f, RATE
 let LANG = /^es\b/i.test(navigator.language || '') ? 'es' : 'en';
 // Spanish table, keyed by the English text.
 const ES = {
+  "Funds and returns": "Fondos y rendimientos",
+  "Pick up to three funds for the Personal and IRA tabs, or choose Custom to enter your own numbers. Total return includes dividends. The numbers are long-run historical averages, so changing them shows a what-if, not a forecast. The 401(k) tab has its own expected return.": "Elige hasta tres fondos para las pestañas Personal e IRA, o elige Personalizado para escribir tus propias cifras. El rendimiento total incluye los dividendos. Las cifras son promedios históricos a largo plazo, así que cambiarlas muestra un \"qué pasaría si\", no un pronóstico. La pestaña 401(k) tiene su propio rendimiento esperado.",
+  "Restore default funds and rates": "Restaurar fondos y tasas por defecto",
+  "Name": "Nombre",
+  "Fund 1": "Fondo 1",
+  "Fund 2": "Fondo 2",
+  "Fund 3": "Fondo 3",
+  "Custom fund 1 name": "Nombre del fondo personalizado 1",
+  "Custom fund 2 name": "Nombre del fondo personalizado 2",
+  "Custom fund 3 name": "Nombre del fondo personalizado 3",
+  "Core U.S. stocks": "Acciones base de EE. UU.",
+  "Growth": "Crecimiento",
+  "Dividend stocks": "Acciones de dividendos",
+  "Smaller companies": "Empresas pequeñas",
+  "International": "Internacional",
+  "Real estate": "Bienes raíces",
+  "Bonds": "Bonos",
+  "S&P 500": "S&P 500",
+  "Total U.S. stock market": "Mercado accionario total de EE. UU.",
+  "U.S. large-company growth": "Grandes empresas de crecimiento de EE. UU.",
+  "Nasdaq-100": "Nasdaq-100",
+  "Quality dividend stocks": "Acciones de dividendos de calidad",
+  "High dividend yield": "Alto rendimiento por dividendos",
+  "Dividend growers": "Empresas que aumentan sus dividendos",
+  "U.S. small companies": "Empresas pequeñas de EE. UU.",
+  "International stocks": "Acciones internacionales",
+  "U.S. real estate (REITs)": "Bienes raíces de EE. UU. (REIT)",
+  "U.S. bonds": "Bonos de EE. UU.",
+  "Custom fund": "Fondo personalizado",
+  "Custom {0}": "Personalizado {0}",
+  "{0} · {1}% fee · launched {2}": "{0} · comisión {1}% · lanzado en {2}",
+  "Your own numbers. A long-run average works better than a recent year.": "Tus propias cifras. Un promedio a largo plazo funciona mejor que un año reciente.",
+  "{0} allocation": "Asignación a {0}",
+  "IRA {0} allocation": "Asignación a {0} en la IRA",
+  "Your own numbers for a fund that is not in the list.": "Tus propias cifras para un fondo que no está en la lista.",
+  "You changed the numbers for {0}. The notes below describe the standard figures.": "Cambiaste las cifras de {0}. Las notas de abajo describen las cifras estándar.",
+  "A bond fund's future return is close to its starting yield, not its past. BND returned only about 2.0% a year since 2007 ({0}) because rates jumped in 2022, so the calculator uses today's yield of about 4% instead. Yield {1}%, fee {2}% ({3}).": "El rendimiento futuro de un fondo de bonos se parece a su rendimiento inicial, no a su pasado. BND rindió solo cerca de 2.0% anual desde 2007 ({0}) porque las tasas subieron en 2022, así que la calculadora usa el rendimiento actual de cerca de 4%. Rendimiento {1}%, comisión {2}% ({3}).",
+  "The lower of the fund's since-launch and 20-year annualized returns with dividends reinvested ({0}), rounded to the nearest half point. Yield {1}%, fee {2}% ({3}).": "El menor entre el rendimiento anualizado del fondo desde su lanzamiento y el de 20 años, con los dividendos reinvertidos ({0}), redondeado al medio punto más cercano. Rendimiento {1}%, comisión {2}% ({3}).",
   "EN": "EN",
   "ES": "ES",
   "$": "$",
@@ -1028,9 +1116,33 @@ function applyI18n() {
   $('lang-es').setAttribute('aria-pressed', String(LANG === 'es'));
 }
 
+// Fills the three fund drop-downs (re-run when the language changes) and greys out funds already used in another slot.
+function buildFundSelects() {
+  FUNDS.forEach((f) => {
+    const sel = $('a-' + f + '-fund');
+    const cur = sel.value || DEFAULT_FUND[f];
+    sel.innerHTML = '';
+    FUND_GROUPS.forEach((g) => {
+      const og = document.createElement('optgroup');
+      og.label = tr(g);
+      Object.keys(CATALOG).filter((t) => CATALOG[t].group === g).forEach((t) => og.appendChild(new Option(t + ' \u00b7 ' + tr(CATALOG[t].name), t)));
+      sel.appendChild(og);
+    });
+    sel.appendChild(new Option(tr('Custom fund'), 'CUSTOM'));
+    sel.value = cur;
+  });
+  refreshFundOptions();
+}
+function refreshFundOptions() {
+  const used = FUNDS.map((f) => $('a-' + f + '-fund').value);
+  FUNDS.forEach((f, i) => {
+    Array.from($('a-' + f + '-fund').options).forEach((o) => { o.disabled = o.value !== 'CUSTOM' && used.some((u, j) => j !== i && u === o.value); });
+  });
+}
+buildFundSelects();
 // the page's starting values, used to keep share links short and to restore defaults
 const DEFAULT_INPUTS = {};
-document.querySelectorAll('input[type=number], select').forEach((el) => { DEFAULT_INPUTS[el.id] = el.value; });
+document.querySelectorAll('input[type=number], input[type=text], select').forEach((el) => { DEFAULT_INPUTS[el.id] = el.value; });
 // Reads a number input, kept inside the input's own min/max so a stray negative or huge value can't skew results.
 const num = (id) => {
   const el = $(id);
@@ -1090,19 +1202,45 @@ const IRA_CATCHUP = 1100;
 function iraLimitAt(age) { return IRA_LIMIT + (age >= 50 ? IRA_CATCHUP : 0); }
 
 /* ---------------- fund rate assumptions ---------------- */
+function fundLabel(f) {
+  const code = $('a-' + f + '-fund').value;
+  if (code !== 'CUSTOM') return code;
+  return $('a-' + f + '-name').value.trim() || tr('Custom {0}', FUNDS.indexOf(f) + 1);
+}
+// Reads the three slots into RATES. Returns the slots whose numbers were edited away from the catalog, and whether anything differs from the page defaults.
 function syncRates() {
-  let custom = false;
+  let customized = false;
+  const edited = [];
   FUNDS.forEach((f) => {
+    const code = $('a-' + f + '-fund').value;
+    const isCustom = code === 'CUSTOM';
+    $('a-' + f + '-name').hidden = !isCustom;
     const total = num('a-' + f + '-total');
     const div = Math.min(num('a-' + f + '-div'), total);
     RATES[f].total = total;
     RATES[f].div = div;
-    if (total !== DEFAULT_RATES[f].total || div !== DEFAULT_RATES[f].div) custom = true;
+    RATES[f].label = fundLabel(f);
+    const ref = isCustom ? null : CATALOG[code];
+    const wasEdited = !!ref && (total !== ref.total || div !== ref.div);
+    if (wasEdited) edited.push(RATES[f].label);
+    if (code !== DEFAULT_FUND[f] || wasEdited) customized = true;
+    $('a-' + f + '-desc').textContent = ref
+      ? tr('{0} \u00b7 {1}% fee \u00b7 launched {2}', tr(ref.name), ref.fee, ref.since)
+      : tr('Your own numbers. A long-run average works better than a recent year.');
     document.querySelectorAll('[data-yield="' + f + '"]').forEach((el) => { el.textContent = tr('{0}% dividend', div); });
   });
-  $('assump-badge').hidden = !custom;
-  return custom;
+  renderFundNames();
+  $('assump-badge').hidden = !customized;
+  return edited;
 }
+function renderFundNames() {
+  document.querySelectorAll('[data-fname]').forEach((el) => { el.textContent = RATES[el.dataset.fname].label; });
+  FUNDS.forEach((f) => {
+    $('p-' + f + '-range').setAttribute('aria-label', tr('{0} allocation', RATES[f].label));
+    $('i-' + f + '-range').setAttribute('aria-label', tr('IRA {0} allocation', RATES[f].label));
+  });
+}
+const fundKey = () => FUNDS.map((f) => RATES[f].label).join('|');
 // Multiply a nominal amount at year y by this to express it in the chosen dollars.
 function deflator(inflRate, y) { return Math.pow(1 + inflRate / 100, -y); }
 
@@ -1286,8 +1424,29 @@ $('i-custom-btn').addEventListener('click', () => { iCustomOpen = !iCustomOpen; 
 $('i-freq').addEventListener('change', () => { renderIraToggles(); recomputeAll(); });
 $('i-type').addEventListener('change', () => { renderIraToggles(); recomputeAll(); });
 $('rates-reset').addEventListener('click', () => {
-  FUNDS.forEach((f) => { $('a-' + f + '-total').value = DEFAULT_RATES[f].total; $('a-' + f + '-div').value = DEFAULT_RATES[f].div; });
+  FUNDS.forEach((f) => {
+    $('a-' + f + '-fund').value = DEFAULT_FUND[f];
+    $('a-' + f + '-name').value = '';
+    $('a-' + f + '-total').value = DEFAULT_RATES[f].total;
+    $('a-' + f + '-div').value = DEFAULT_RATES[f].div;
+  });
+  refreshFundOptions();
   recomputeAll();
+});
+FUNDS.forEach((f) => {
+  $('a-' + f + '-fund').addEventListener('change', () => {
+    const code = $('a-' + f + '-fund').value;
+    if (code !== 'CUSTOM') {
+      $('a-' + f + '-total').value = CATALOG[code].total;
+      $('a-' + f + '-div').value = CATALOG[code].div;
+    } else {
+      $('a-' + f + '-name').value = '';
+    }
+    refreshFundOptions();
+    recomputeAll();
+    if (code === 'CUSTOM') $('a-' + f + '-name').focus();
+  });
+  $('a-' + f + '-name').addEventListener('change', recomputeAll);
 });
 ['i-starting', 'i-amount'].forEach((id) => $(id).addEventListener('input', recomputeAll));
 
@@ -1304,7 +1463,7 @@ document.querySelectorAll('.info-btn').forEach((btn) => {
 /* ---------------- persistence + share link ---------------- */
 function collectState() {
   const inputs = {};
-  document.querySelectorAll('input[type=number], select').forEach((el) => { inputs[el.id] = el.value; });
+  document.querySelectorAll('input[type=number], input[type=text], select').forEach((el) => { inputs[el.id] = el.value; });
   return { inputs, pAlloc, iAlloc, iAllocEdited, iCustomOpen, pMode, pReinvest, inflOn, pCustomOpen, pView, tab: currentTab, lang: LANG };
 }
 
@@ -1317,6 +1476,7 @@ function applyState(d) {
     const el = $(id);
     if (!el) return;
     if (el.type === 'number') el.value = d.inputs[id];
+    else if (el.type === 'text') el.value = String(d.inputs[id]).slice(0, 8);
     else if (el.tagName === 'SELECT' && Array.from(el.options).some((o) => o.value === d.inputs[id])) el.value = d.inputs[id];
   });
   if (d.pAlloc && FUNDS.every((f) => typeof d.pAlloc[f] === 'number') &&
@@ -1333,6 +1493,7 @@ function applyState(d) {
   if (TABS.includes(d.tab)) currentTab = d.tab;
   if (d.lang === 'en' || d.lang === 'es') LANG = d.lang;
   if (!d.inputs || !('p-freq' in d.inputs)) $('p-freq').value = 'monthly';
+  refreshFundOptions();
 }
 
 // Share links carry only the values that differ from the defaults, in the URL fragment (never sent to a server).
@@ -1412,6 +1573,7 @@ function setLang(l) {
   if (l === LANG) return;
   LANG = l;
   applyI18n();
+  buildFundSelects();
   renderToggles();
   rebuildCharts();
 }
@@ -1613,9 +1775,9 @@ function initCharts() {
           { label: tr('Portfolio value'), endLabel: tr('Portfolio'), swColor: '#f1f5f9', stackTotal: true, data: [], borderColor: t.total, backgroundColor: t.totalFill, borderWidth: 2, pointRadius: 0, fill: true, stack: 'g', tension: 0.15 },
           { label: tr('Dividend cash'), endLabel: tr('Cash'), endColor: CASH_COLOR, swColor: CASH_COLOR, stackTotal: true, data: [], borderColor: t.total, backgroundColor: 'rgba(201,133,0,0.22)', borderWidth: 2, pointRadius: 0, fill: '-1', stack: 'g', tension: 0.15 },
           { label: tr('Your contributions'), endLabel: tr('Contributed'), data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, stack: 'c', fill: false, tension: 0 },
-          { label: tr('VOO'), endLabel: tr('VOO'), swDash: 'dashed', data: [], borderColor: RATES.voo.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 3], pointRadius: 0, stack: 'v', fill: false, tension: 0.15 },
-          { label: tr('QQQM'), endLabel: tr('QQQM'), swDash: 'dashed', data: [], borderColor: RATES.qqq.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 3], pointRadius: 0, stack: 'q', fill: false, tension: 0.15 },
-          { label: tr('SCHD'), endLabel: tr('SCHD'), swDash: 'dashed', data: [], borderColor: RATES.schd.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 3], pointRadius: 0, stack: 's', fill: false, tension: 0.15 },
+          { label: RATES.voo.label, endLabel: RATES.voo.label, swDash: 'dashed', data: [], borderColor: RATES.voo.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 3], pointRadius: 0, stack: 'v', fill: false, tension: 0.15 },
+          { label: RATES.qqq.label, endLabel: RATES.qqq.label, swDash: 'dashed', data: [], borderColor: RATES.qqq.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 3], pointRadius: 0, stack: 'q', fill: false, tension: 0.15 },
+          { label: RATES.schd.label, endLabel: RATES.schd.label, swDash: 'dashed', data: [], borderColor: RATES.schd.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 3], pointRadius: 0, stack: 's', fill: false, tension: 0.15 },
           // the low and high cases are drawn as one shaded band (low fills up to high)
           { label: tr('Low case'), endLabel: tr('Low'), swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: withAlpha(t.muted, 0.16), borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, stack: 'lo', fill: 7, tension: 0.15 },
           { label: tr('High case'), endLabel: tr('High'), swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, stack: 'hi', fill: false, tension: 0.15 },
@@ -1629,9 +1791,9 @@ function initCharts() {
       { group: tr('Portfolio'), label: () => (pReinvest ? 'Portfolio value' : 'Invested value'), color: t.total, idx: [0] },
       { group: tr('Portfolio'), label: tr('Dividend cash'), color: CASH_COLOR, idx: [1], avail: () => !pReinvest },
       { group: tr('Portfolio'), label: tr('Low / high range'), title: tr('The same plan with returns {0} and +{1} points a year from the base case. A sensitivity check, not a forecast.', LOW_DELTA, HIGH_DELTA), color: t.muted, dash: 'dotted', idx: [6, 7] },
-      { group: tr('By fund'), label: tr('VOO'), color: RATES.voo.color, dash: 'dashed', idx: [3], avail: fundOn('voo') },
-      { group: tr('By fund'), label: tr('QQQM'), color: RATES.qqq.color, dash: 'dashed', idx: [4], avail: fundOn('qqq') },
-      { group: tr('By fund'), label: tr('SCHD'), color: RATES.schd.color, dash: 'dashed', idx: [5], avail: fundOn('schd') },
+      { group: tr('By fund'), label: RATES.voo.label, color: RATES.voo.color, dash: 'dashed', idx: [3], avail: fundOn('voo') },
+      { group: tr('By fund'), label: RATES.qqq.label, color: RATES.qqq.color, dash: 'dashed', idx: [4], avail: fundOn('qqq') },
+      { group: tr('By fund'), label: RATES.schd.label, color: RATES.schd.color, dash: 'dashed', idx: [5], avail: fundOn('schd') },
     ], tr('Tap a label to show or hide it.'));
 
     pDivChart = new Chart($('p-div-chart').getContext('2d'), {
@@ -2019,23 +2181,49 @@ function updateIncome(s, P, K, I) {
 
 /* ---------------- sources ---------------- */
 function link(url, text) { return '<a href="' + url + '" target="_blank" rel="noopener">' + text + '</a>'; }
-function renderWhy(custom) {
-  const D = DEFAULT_RATES;
+function fundNote(code, label) {
   const para = (head, body) => '<p><b>' + head + '</b> ' + body + '</p>';
-  $('p-why-body').innerHTML =
-    (custom ? '<p><b>' + tr('You have changed some return assumptions. The notes below describe the default figures.') + '</b></p>' : '') +
-    para(tr('{0}, {1}% a year.', 'VOO', D.voo.total),
+  const c = CATALOG[code];
+  if (code === 'VOO') {
+    return para(tr('{0}, {1}% a year.', 'VOO', c.total),
       tr('The S&amp;P 500 returned about 10.5% a year with dividends reinvested from 1926 to 2026 ({0}). Dividend yield {1}% ({2}).',
-        link('https://www.officialdata.org/us/stocks/s-p-500/1926', 'Official Data'), D.voo.div,
-        link('https://www.wisesheets.io/etf/VOO/dividends', tr('trailing, Wisesheets')))) +
-    para(tr('{0}, {1}% a year.', 'QQQM', D.qqq.total),
+        link('https://www.officialdata.org/us/stocks/s-p-500/1926', 'Official Data'), c.div,
+        link('https://www.wisesheets.io/etf/VOO/dividends', tr('trailing, Wisesheets'))));
+  }
+  if (code === 'QQQM') {
+    return para(tr('{0}, {1}% a year.', 'QQQM', c.total),
       tr('QQQM tracks the Nasdaq-100, which Nasdaq says returned 14.25% a year since 1985 ({0}). That span includes the 1990s tech boom, and the index fell about 82% from 2000 to 2002 ({1}), so the calculator trims it to {2}%. The fund launched in 2020, with a 0.15% expense ratio and a {3}% yield ({4}).',
         link('https://www.nasdaq.com/press-release/celebrating-40-years-nasdaq-100-indexr-ndxr-2025-01-31', 'Nasdaq'),
         link('https://www.cmegroup.com/insights/economic-research/2024/nasdaqs-stellar-returns-potential-risks-ahead.html', 'CME Group'),
-        D.qqq.total, D.qqq.div, link('https://chartrow.com/compare/qqq-vs-qqqm', 'Chartrow'))) +
-    para(tr('{0}, {1}% a year.', 'SCHD', D.schd.total),
+        c.total, c.div, link('https://chartrow.com/compare/qqq-vs-qqqm', 'Chartrow')));
+  }
+  if (code === 'SCHD') {
+    return para(tr('{0}, {1}% a year.', 'SCHD', c.total),
       tr("This comes from a long-run study of dividend-growing stocks, not the fund's short history. SCHD itself returned about 13.4% a year since 2011, a strong stretch for stocks, and yields about 3.1% to 3.2% ({0}).",
-        link('https://www.fool.com/investing/2026/08/23/where-will-schd-be-in-2035/', 'Motley Fool'))) +
+        link('https://www.fool.com/investing/2026/08/23/where-will-schd-be-in-2035/', 'Motley Fool')));
+  }
+  const t = code.toLowerCase();
+  const perf = link('https://chartrow.com/quote/' + t + '/trailing-returns', 'Chartrow');
+  const fund = link('https://stockanalysis.com/etf/' + t + '/', 'StockAnalysis');
+  if (code === 'BND') {
+    return para(tr('{0}, {1}% a year.', code, c.total),
+      tr("A bond fund's future return is close to its starting yield, not its past. BND returned only about 2.0% a year since 2007 ({0}) because rates jumped in 2022, so the calculator uses today's yield of about 4% instead. Yield {1}%, fee {2}% ({3}).",
+        perf, c.div, c.fee, fund));
+  }
+  return para(tr('{0}, {1}% a year.', code, c.total),
+    tr("The lower of the fund's since-launch and 20-year annualized returns with dividends reinvested ({0}), rounded to the nearest half point. Yield {1}%, fee {2}% ({3}).",
+      perf, c.div, c.fee, fund));
+}
+function renderWhy(edited) {
+  const para = (head, body) => '<p><b>' + head + '</b> ' + body + '</p>';
+  const notes = FUNDS.map((f) => {
+    const code = $('a-' + f + '-fund').value;
+    if (code === 'CUSTOM') return para(tr('{0}, {1}% a year.', RATES[f].label, RATES[f].total), tr('Your own numbers for a fund that is not in the list.'));
+    return fundNote(code, RATES[f].label);
+  });
+  $('p-why-body').innerHTML =
+    (edited.length ? '<p><b>' + tr('You changed the numbers for {0}. The notes below describe the standard figures.', edited.join(', ')) + '</b></p>' : '') +
+    notes.join('') +
     '<p>' + tr('Checked October 2026. Yields and returns change over time.') + '</p>';
   $('i-why-body').innerHTML =
     para(tr('Contribution limit.'),
@@ -2057,9 +2245,12 @@ function renderWhy(custom) {
 }
 
 /* ---------------- everything ---------------- */
+let lastFundKey = null;
 function recomputeAll() {
-  const custom = syncRates();
-  renderWhy(custom);
+  const edited = syncRates();
+  if (lastFundKey !== null && fundKey() !== lastFundKey) { lastFundKey = fundKey(); rebuildCharts(); return; }
+  lastFundKey = fundKey();
+  renderWhy(edited);
   const s = shared();
   const P = computePersonal(s);
   const K = computeK401(s);
@@ -2100,6 +2291,7 @@ syncAllocInputs();
 syncIraAlloc();
 renderToggles();
 switchTab(currentTab);
+syncRates();
 initCharts();
 recomputeAll();
 applyI18n();
