@@ -187,7 +187,7 @@
   }
   .box:focus-within { outline: 2px solid var(--accent); background: var(--surface); }
   .box .num { width: 56px; height: 38px; padding: 0; border: none; border-radius: 0; background: transparent; }
-  .box .num.wide { width: 84px; }
+  .box .num.wide { width: 96px; }
   .box .num:focus { outline: none; background: transparent; }
   .hint { font-size: 12px; color: var(--text-2); margin: 0 0 10px; }
   .section { padding-top: 16px; margin-top: 16px; border-top: 1px solid var(--border); }
@@ -383,7 +383,7 @@
       </div>
       <div class="field">
         <label for="s-salary">Annual salary</label>
-        <div class="ctl"><span class="box"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="2000000" value="70000" step="100" id="s-salary" class="num wide"></span><span class="unit">/ yr</span></div>
+        <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="2000000" value="70000" id="s-salary" class="num wide"></span><span class="unit">/ yr</span></div>
       </div>
       <div class="field">
         <label for="s-raise">Annual raise</label>
@@ -398,7 +398,7 @@
       </div>
       <div class="field">
         <label for="s-goal">Combined goal</label>
-        <div class="ctl"><span class="box"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" step="10000" placeholder="optional" id="s-goal" class="num wide"></span><span class="unit"></span></div>
+        <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" placeholder="optional" id="s-goal" class="num wide"></span><span class="unit"></span></div>
       </div>
       <div class="field">
         <label for="s-wd">Withdrawal rate</label>
@@ -491,7 +491,7 @@
           <h3>Starting point</h3>
           <div class="field">
             <label for="p-starting">Starting balance</label>
-            <div class="ctl"><span class="box"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="5000000" value="0" step="100" id="p-starting" class="num wide"></span></div>
+            <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="5000000" value="0" id="p-starting" class="num wide"></span></div>
           </div>
         </div>
 
@@ -518,7 +518,7 @@
             </div>
             <div class="field">
               <label for="p-monthly" id="p-amount-lbl">Per paycheck</label>
-              <div class="ctl"><span class="box"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="50000" value="250" step="100" id="p-monthly" class="num wide"></span></div>
+              <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="50000" value="250" id="p-monthly" class="num wide"></span></div>
             </div>
           </div>
           <div id="p-percent-fields" style="display:none;">
@@ -615,7 +615,7 @@
           <h3>Starting point</h3>
           <div class="field">
             <label for="k-starting">Starting balance</label>
-            <div class="ctl"><span class="box"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="5000000" value="0" step="100" id="k-starting" class="num wide"></span></div>
+            <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="5000000" value="0" id="k-starting" class="num wide"></span></div>
           </div>
         </div>
 
@@ -685,7 +685,7 @@
           <h3>Starting point</h3>
           <div class="field">
             <label for="i-starting">Starting balance</label>
-            <div class="ctl"><span class="box"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="5000000" value="0" step="100" id="i-starting" class="num wide"></span></div>
+            <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="5000000" value="0" id="i-starting" class="num wide"></span></div>
           </div>
         </div>
 
@@ -712,7 +712,7 @@
           </div>
           <div class="field">
             <label for="i-amount" id="i-amount-lbl">Per month</label>
-            <div class="ctl"><span class="box"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="50000" value="0" step="100" id="i-amount" class="num wide"></span></div>
+            <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="50000" value="0" id="i-amount" class="num wide"></span></div>
           </div>
           <p class="hint" id="i-effective"></p>
           <p class="hint" id="i-limit-hint"></p>
@@ -1143,12 +1143,36 @@ buildFundSelects();
 // the page's starting values, used to keep share links short and to restore defaults
 const DEFAULT_INPUTS = {};
 document.querySelectorAll('input[type=number], input[type=text], select').forEach((el) => { DEFAULT_INPUTS[el.id] = el.value; });
+// Dollar fields are text inputs that show thousands separators as you type (82400 becomes 82,400).
+function fmtMoneyInput(str) {
+  const clean = String(str).replace(/[^\d.]/g, '');
+  const dot = clean.indexOf('.');
+  let whole = dot === -1 ? clean : clean.slice(0, dot);
+  const frac = dot === -1 ? '' : clean.slice(dot + 1).replace(/\./g, '').slice(0, 2);
+  whole = whole.replace(/^0+(?=\d)/, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return dot === -1 ? whole : (whole || '0') + '.' + frac;
+}
+function formatAllMoney() { document.querySelectorAll('input[data-money]').forEach((el) => { el.value = fmtMoneyInput(el.value); }); }
+document.querySelectorAll('input[data-money]').forEach((el) => {
+  el.addEventListener('input', () => {
+    const before = el.value;
+    const pos = el.selectionStart == null ? before.length : el.selectionStart;
+    const keep = before.slice(0, pos).replace(/[^\d.]/g, '').length;
+    const after = fmtMoneyInput(before);
+    if (after === before) return;
+    el.value = after;
+    let n = 0, i = 0;
+    for (; i < after.length && n < keep; i++) if (/[\d.]/.test(after[i])) n++;
+    try { el.setSelectionRange(i, i); } catch (e) { /* not supported: caret stays at the end */ }
+  });
+});
 // Reads a number input, kept inside the input's own min/max so a stray negative or huge value can't skew results.
 const num = (id) => {
   const el = $(id);
-  let v = Number(el.value) || 0;
-  if (el.min !== '' && el.min != null && v < Number(el.min)) v = Number(el.min);
-  if (el.max !== '' && el.max != null && v > Number(el.max)) v = Number(el.max);
+  let v = Number(String(el.value).replace(/,/g, '')) || 0;
+  const lo = el.getAttribute('min'), hi = el.getAttribute('max');
+  if (lo !== null && lo !== '' && v < Number(lo)) v = Number(lo);
+  if (hi !== null && hi !== '' && v > Number(hi)) v = Number(hi);
   return v;
 };
 function fmt(n) { return (n < 0 ? '-$' : '$') + Math.abs(Math.round(n)).toLocaleString('en-US'); }
@@ -1463,7 +1487,7 @@ document.querySelectorAll('.info-btn').forEach((btn) => {
 /* ---------------- persistence + share link ---------------- */
 function collectState() {
   const inputs = {};
-  document.querySelectorAll('input[type=number], input[type=text], select').forEach((el) => { inputs[el.id] = el.value; });
+  document.querySelectorAll('input[type=number], input[type=text], select').forEach((el) => { inputs[el.id] = el.hasAttribute('data-money') ? el.value.replace(/,/g, '') : el.value; });
   return { inputs, pAlloc, iAlloc, iAllocEdited, iCustomOpen, pMode, pReinvest, inflOn, pCustomOpen, pView, tab: currentTab, lang: LANG };
 }
 
@@ -1476,7 +1500,7 @@ function applyState(d) {
     const el = $(id);
     if (!el) return;
     if (el.type === 'number') el.value = d.inputs[id];
-    else if (el.type === 'text') el.value = String(d.inputs[id]).slice(0, 8);
+    else if (el.type === 'text') el.value = el.hasAttribute('data-money') ? fmtMoneyInput(d.inputs[id]) : String(d.inputs[id]).slice(0, 8);
     else if (el.tagName === 'SELECT' && Array.from(el.options).some((o) => o.value === d.inputs[id])) el.value = d.inputs[id];
   });
   if (d.pAlloc && FUNDS.every((f) => typeof d.pAlloc[f] === 'number') &&
@@ -2290,6 +2314,7 @@ function recomputeAll() {
 
 $('s-infl-field').hidden = !SHOW_INFLATION_UI;
 loadState();
+formatAllMoney();
 $('share-note').hidden = !sharedLoaded;
 if (!matchesPreset()) pCustomOpen = true;
 if (!matchesIraPreset() && iAllocEdited) iCustomOpen = true;
