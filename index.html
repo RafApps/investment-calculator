@@ -25,6 +25,7 @@
     --amber-bg: #fff7e0;
     --amber-border: #f1d98a;
     --amber-ink: #8a5a00;
+    --ira: #7c4dd6;
     --switch-off: #cbd1d9;
     --chart-text: #7b8494;
     --chart-grid: #e9ecf0;
@@ -50,6 +51,7 @@
       --amber-bg: #2b2412;
       --amber-border: #5a4a1d;
       --amber-ink: #e6c067;
+      --ira: #a78bfa;
       --switch-off: #3a4350;
       --chart-text: #8d97a7;
       --chart-grid: #262c36;
@@ -90,6 +92,7 @@
   .sum-part { text-align: right; }
   .sum-part span { display: block; font-size: 12px; color: var(--text-2); }
   .sum-part b { display: block; font-size: 15px; font-weight: 600; }
+  @media (max-width: 520px) { .summary-inner { flex-wrap: wrap; } .sum-parts.three { width: 100%; justify-content: space-between; } }
   @media (max-width: 380px) {
     .summary-inner { padding: 8px 12px; gap: 8px; }
     .sum-value { font-size: 21px; }
@@ -131,6 +134,7 @@
   .ss-bar > i { display: block; height: 100%; }
   .ss-bar .b-p { background: var(--accent); }
   .ss-bar .b-k { background: var(--green-ink); }
+  .ss-bar .b-i { background: var(--ira); }
   .ss-parts { display: flex; gap: 4px 18px; margin-top: 8px; flex-wrap: wrap; }
   .ss-part { font-size: 13px; color: var(--text-2); display: flex; align-items: center; gap: 6px; }
   .ss-part b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -172,14 +176,15 @@
 
   /* ---------- tabs + segmented ---------- */
   .tabs {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
     background: var(--surface-2); border: 1px solid var(--border);
     border-radius: 10px; padding: 4px; margin: 16px 0;
   }
   .tab-btn {
-    min-height: 44px; padding: 0 22px; font-size: 15px; border: none; border-radius: 7px;
+    min-height: 44px; padding: 4px 8px; font-size: 15px; line-height: 1.2; border: none; border-radius: 7px;
     background: transparent; color: var(--text-2); cursor: pointer;
   }
+  @media (max-width: 480px) { .tab-btn { font-size: 14px; padding: 4px 4px; } }
   .tab-btn[aria-selected=true] { background: var(--surface); color: var(--text); font-weight: 600; box-shadow: var(--shadow); }
   .strategies { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
   .strat-btn {
@@ -281,20 +286,21 @@
       <span class="sum-label" id="s-label">Combined after 25 years</span>
       <span class="sum-value" id="s-total">$0</span>
     </div>
-    <div class="sum-parts">
+    <div class="sum-parts" id="s-parts">
       <div class="sum-part"><span>Personal</span><b id="s-personal">$0</b></div>
       <div class="sum-part"><span>401(k)</span><b id="s-k401">$0</b><em class="cap" id="s-cap" hidden></em></div>
+      <div class="sum-part" id="s-ira-part" hidden><span>IRA</span><b id="s-ira">$0</b></div>
     </div>
   </div>
 </header>
 
 <main class="page">
   <h1>Investment growth calculator</h1>
-  <p class="subtitle">Model your personal brokerage account and your workplace 401(k) side by side.</p>
+  <p class="subtitle">Model your personal brokerage account, your workplace 401(k) and an IRA side by side.</p>
 
   <section class="card" aria-labelledby="shared-h">
     <div class="card-head">
-      <h2 id="shared-h">Applies to both accounts</h2>
+      <h2 id="shared-h">Applies to all accounts</h2>
     </div>
     <div class="shared-grid">
      <div class="shared-inputs">
@@ -326,10 +332,11 @@
       <div>
         <span class="ss-label" id="ss-label">After 25 years</span>
         <span class="ss-total" id="ss-total">$0</span>
-        <div class="ss-bar" aria-hidden="true"><i class="b-p" id="ss-bp"></i><i class="b-k" id="ss-bk"></i></div>
+        <div class="ss-bar" aria-hidden="true"><i class="b-p" id="ss-bp"></i><i class="b-k" id="ss-bk"></i><i class="b-i" id="ss-bi"></i></div>
         <div class="ss-parts">
           <span class="ss-part"><span class="ss-dot" style="background:var(--accent)"></span>Personal <b id="ss-personal">$0</b></span>
           <span class="ss-part"><span class="ss-dot" style="background:var(--green-ink)"></span>401(k) <b id="ss-k401">$0</b></span>
+          <span class="ss-part" id="ss-ira-part" hidden><span class="ss-dot" style="background:var(--ira)"></span>IRA <b id="ss-ira">$0</b></span>
         </div>
       </div>
       <div class="ss-goal">
@@ -344,6 +351,7 @@
   <div class="tabs" role="tablist">
     <button class="tab-btn" id="tab-personal-btn" role="tab" aria-selected="true" aria-controls="panel-personal" type="button">Personal investing</button>
     <button class="tab-btn" id="tab-401k-btn" role="tab" aria-selected="false" aria-controls="panel-401k" type="button">401(k)</button>
+    <button class="tab-btn" id="tab-ira-btn" role="tab" aria-selected="false" aria-controls="panel-ira" type="button">IRA</button>
   </div>
 
   <!-- PERSONAL TAB -->
@@ -508,7 +516,7 @@
               </select>
             </div>
           </div>
-          <p class="hint">Most Puerto Rico plans cap your contributions at $15,000 a year. "PR dual" means a dual-qualified plan with the higher $22,500 limit. Ask HR which one yours is.</p>
+          <p class="hint">Most Puerto Rico plans cap your contributions at $15,000 a year. "PR dual" means a dual-qualified plan with a higher limit, which drops to $22,500 if you also contribute to an IRA. Ask HR which one yours is.</p>
           <div class="warn" id="k-warn" style="display:none;"></div>
         </div>
 
@@ -541,6 +549,122 @@
       </section>
     </div>
   </div>
+
+  <!-- IRA TAB -->
+  <div class="panel" id="panel-ira" role="tabpanel" aria-labelledby="tab-ira-btn">
+    <div class="layout">
+      <section class="card inputs-col" aria-label="IRA inputs">
+        <div class="section">
+          <h3>Starting point</h3>
+          <div class="field">
+            <label for="i-starting">Starting balance</label>
+            <div class="ctl"><span class="box"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="5000000" value="0" step="100" id="i-starting" class="num wide"></span></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Contributions</h3>
+          <div class="field">
+            <label for="i-type">Account type</label>
+            <div class="ctl">
+              <select id="i-type" class="num sel">
+                <option value="traditional" selected>Traditional</option>
+                <option value="roth">Roth</option>
+              </select>
+            </div>
+          </div>
+          <p class="hint" id="i-type-hint"></p>
+          <div class="field">
+            <label for="i-freq">How often</label>
+            <div class="ctl">
+              <select id="i-freq" class="num sel">
+                <option value="monthly" selected>Monthly</option>
+                <option value="biweekly">Bi-weekly</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="i-amount" id="i-amount-lbl">Per month</label>
+            <div class="ctl"><span class="box"><span class="unit">$</span><input type="number" inputmode="numeric" min="0" max="50000" value="0" step="100" id="i-amount" class="num wide"></span></div>
+          </div>
+          <p class="hint" id="i-effective"></p>
+          <div class="field">
+            <label for="i-limit">Annual limit</label>
+            <div class="ctl">
+              <select id="i-limit" class="num sel">
+                <option value="7500" selected>Under 50 · $7,500</option>
+                <option value="8600">50 or older · $8,600</option>
+              </select>
+            </div>
+          </div>
+          <div class="warn" id="i-warn" style="display:none;"></div>
+        </div>
+
+        <div class="section">
+          <h3>Allocation</h3>
+          <div class="field">
+            <label for="i-alloc-mode">Funds</label>
+            <div class="ctl">
+              <select id="i-alloc-mode" class="num sel">
+                <option value="same" selected>Same as Personal</option>
+                <option value="custom">Custom mix</option>
+              </select>
+            </div>
+          </div>
+          <p class="hint" id="i-alloc-same"></p>
+          <div id="i-alloc-custom" hidden>
+          <div class="strategies" id="i-strategies">
+            <button class="strat-btn" type="button" data-voo="60" data-qqq="25" data-schd="15">Growth-tilted</button>
+            <button class="strat-btn" type="button" data-voo="50" data-qqq="25" data-schd="25">Balanced</button>
+            <button class="strat-btn" type="button" data-voo="50" data-qqq="15" data-schd="35">Income-leaning</button>
+            <button class="strat-btn" type="button" data-voo="60" data-qqq="40" data-schd="0">Simplified 2-fund</button>
+          </div>
+          <div class="alloc-bar" id="i-alloc-bar" aria-hidden="true"></div>
+          <button class="link-btn alloc-toggle" id="i-custom-btn" type="button" aria-expanded="false" aria-controls="i-alloc-sliders">Customize percentages</button>
+          <div id="i-alloc-sliders" hidden>
+          <div class="alloc">
+            <div class="alloc-head">
+              <label for="i-voo-num"><span class="dot" style="background:var(--c-voo)"></span>VOO <span class="muted" data-yield="voo"></span></label>
+              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="50" id="i-voo-num" class="num"></span><span class="unit">%</span></div>
+            </div>
+            <input type="range" min="0" max="100" step="1" value="50" id="i-voo-range" aria-label="IRA VOO allocation">
+          </div>
+          <div class="alloc">
+            <div class="alloc-head">
+              <label for="i-qqq-num"><span class="dot" style="background:var(--c-qqq)"></span>QQQM <span class="muted" data-yield="qqq"></span></label>
+              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="25" id="i-qqq-num" class="num"></span><span class="unit">%</span></div>
+            </div>
+            <input type="range" min="0" max="100" step="1" value="25" id="i-qqq-range" aria-label="IRA QQQM allocation">
+          </div>
+          <div class="alloc">
+            <div class="alloc-head">
+              <label for="i-schd-num"><span class="dot" style="background:var(--c-schd)"></span>SCHD <span class="muted" data-yield="schd"></span></label>
+              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="25" id="i-schd-num" class="num"></span><span class="unit">%</span></div>
+            </div>
+            <input type="range" min="0" max="100" step="1" value="25" id="i-schd-range" aria-label="IRA SCHD allocation">
+          </div>
+          <p class="hint">The three always add up to 100%. Changing one rebalances the others.</p>
+          </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card results-col" aria-label="IRA results">
+        <div class="stats">
+          <div class="stat hero"><p class="stat-label">Total IRA value</p><p class="stat-value" id="i-stat-final">$0</p></div>
+          <div class="stat"><p class="stat-label">Starting balance</p><p class="stat-value" id="i-stat-starting">$0</p></div>
+          <div class="stat"><p class="stat-label">You contributed</p><p class="stat-value" id="i-stat-contributed">$0</p></div>
+          <div class="stat green"><p class="stat-label">Investment growth</p><p class="stat-value" id="i-stat-gain">$0</p></div>
+        </div>
+        <h3>IRA growth</h3>
+        <div class="legend" id="i-growth-legend"></div>
+        <div class="chart-wrap"><canvas id="i-growth-chart" role="img" aria-label="IRA growth over time"></canvas></div>
+        <p class="footnote" id="i-footnote"></p>
+        <details class="why"><summary>Where do these numbers come from?</summary><div id="i-why-body"></div></details>
+      </section>
+    </div>
+  </div>
+
   <footer class="page-foot">
     <button class="link-btn" id="reset-btn" type="button">Reset all inputs to defaults</button>
   </footer>
@@ -611,18 +735,18 @@ function shared() {
 function deflator(inflRate, y) { return Math.pow(1 + inflRate / 100, -y); }
 
 /* ---------------- tabs ---------------- */
+const TABS = ['personal', '401k', 'ira'];
 function switchTab(tab) {
   currentTab = tab;
-  $('panel-personal').classList.toggle('active', tab === 'personal');
-  $('panel-401k').classList.toggle('active', tab === '401k');
-  $('tab-personal-btn').setAttribute('aria-selected', String(tab === 'personal'));
-  $('tab-401k-btn').setAttribute('aria-selected', String(tab === '401k'));
+  TABS.forEach((t) => {
+    $('panel-' + t).classList.toggle('active', t === tab);
+    $('tab-' + t + '-btn').setAttribute('aria-selected', String(t === tab));
+  });
   saveState();
   // Charts sized while hidden can be stale; nudge them once the panel is visible.
-  [pGrowthChart, pDivChart, kGrowthChart].forEach((c) => c && c.resize());
+  [pGrowthChart, pDivChart, kGrowthChart, iGrowthChart].forEach((c) => c && c.resize());
 }
-$('tab-personal-btn').addEventListener('click', () => switchTab('personal'));
-$('tab-401k-btn').addEventListener('click', () => switchTab('401k'));
+TABS.forEach((t) => $('tab-' + t + '-btn').addEventListener('click', () => switchTab(t)));
 
 /* ---------------- allocation ---------------- */
 function normalizeAlloc(alloc, key, rawValue) {
@@ -672,7 +796,7 @@ FUNDS.forEach((f) => {
       recomputeAll();
     });
   });
-  document.querySelector('[data-yield="' + f + '"]').textContent = RATES[f].div + '% dividend';
+  document.querySelectorAll('[data-yield="' + f + '"]').forEach((el) => { el.textContent = RATES[f].div + '% dividend'; });
 });
 
 document.querySelectorAll('#p-strategies .strat-btn').forEach((btn) => {
@@ -701,6 +825,7 @@ function renderToggles() {
   $('p-alloc-sliders').hidden = !pCustomOpen;
   $('p-custom-btn').setAttribute('aria-expanded', String(pCustomOpen));
   $('p-custom-btn').textContent = pCustomOpen ? 'Hide custom percentages' : 'Customize percentages';
+  renderIraToggles();
 }
 $('p-view-growth-btn').addEventListener('click', () => { pView = 'growth'; renderToggles(); saveState(); });
 $('p-view-div-btn').addEventListener('click', () => { pView = 'div'; renderToggles(); saveState(); });
@@ -717,12 +842,86 @@ $('s-infl-switch').addEventListener('click', () => { inflOn = !inflOn; renderTog
 ].forEach((id) => $(id).addEventListener('input', recomputeAll));
 $('k-limit').addEventListener('change', recomputeAll);
 
+
+/* ---------------- IRA inputs ---------------- */
+let iAlloc = { voo: 50, qqq: 25, schd: 25 };
+let iAllocEdited = false;
+let iCustomOpen = false;
+function iraAlloc() { return $('i-alloc-mode').value === 'custom' ? iAlloc : pAlloc; }
+function iraPerYear() { return $('i-freq').value === 'monthly' ? 12 : 26; }
+function matchesIraPreset() {
+  return Array.from(document.querySelectorAll('#i-strategies .strat-btn')).some((b) => FUNDS.every((f) => Number(b.dataset[f]) === iAlloc[f]));
+}
+function syncIraAlloc() {
+  FUNDS.forEach((f) => {
+    $('i-' + f + '-range').value = iAlloc[f];
+    $('i-' + f + '-num').value = iAlloc[f];
+  });
+  const bar = $('i-alloc-bar');
+  bar.innerHTML = '';
+  FUNDS.forEach((f) => {
+    const seg = document.createElement('span');
+    seg.style.width = iAlloc[f] + '%';
+    seg.style.background = RATES[f].color;
+    seg.textContent = iAlloc[f] >= 30 ? RATES[f].label + ' ' + iAlloc[f] + '%' : iAlloc[f] >= 8 ? iAlloc[f] + '%' : '';
+    seg.title = RATES[f].label + ' ' + iAlloc[f] + '%';
+    bar.appendChild(seg);
+  });
+  document.querySelectorAll('#i-strategies .strat-btn').forEach((b) => {
+    b.classList.toggle('active', FUNDS.every((f) => Number(b.dataset[f]) === iAlloc[f]));
+  });
+}
+function allocText(a) { return FUNDS.filter((f) => a[f] > 0).map((f) => RATES[f].label + ' ' + a[f] + '%').join(' · '); }
+function renderIraToggles() {
+  const custom = $('i-alloc-mode').value === 'custom';
+  $('i-alloc-custom').hidden = !custom;
+  $('i-alloc-same').hidden = custom;
+  $('i-alloc-same').textContent = 'Uses your Personal mix: ' + allocText(pAlloc) + '.';
+  $('i-alloc-sliders').hidden = !iCustomOpen;
+  $('i-custom-btn').setAttribute('aria-expanded', String(iCustomOpen));
+  $('i-custom-btn').textContent = iCustomOpen ? 'Hide custom percentages' : 'Customize percentages';
+  $('i-amount-lbl').textContent = iraPerYear() === 26 ? 'Per paycheck' : 'Per month';
+  $('i-type-hint').textContent = $('i-type').value === 'roth'
+    ? "Roth: withdrawals in retirement are tax-free, but eligibility phases out at higher incomes (2026: starting at $153,000 single or $242,000 married filing jointly). Taxes aren't modeled here."
+    : "Traditional: contributions may be tax-deductible and withdrawals are taxed. Deductibility depends on your income and workplace plan. Taxes aren't modeled here.";
+}
+FUNDS.forEach((f) => {
+  ['range', 'num'].forEach((kind) => {
+    $('i-' + f + '-' + kind).addEventListener('input', (e) => {
+      iAlloc = normalizeAlloc(iAlloc, f, e.target.value);
+      iAllocEdited = true;
+      syncIraAlloc();
+      recomputeAll();
+    });
+  });
+});
+document.querySelectorAll('#i-strategies .strat-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    iAlloc = { voo: Number(btn.dataset.voo), qqq: Number(btn.dataset.qqq), schd: Number(btn.dataset.schd) };
+    iAllocEdited = true;
+    syncIraAlloc();
+    recomputeAll();
+  });
+});
+$('i-alloc-mode').addEventListener('change', () => {
+  // first time on Custom, start from the Personal mix so there is something sensible to tweak
+  if ($('i-alloc-mode').value === 'custom' && !iAllocEdited) { iAlloc = Object.assign({}, pAlloc); if (!matchesIraPreset()) iCustomOpen = true; }
+  syncIraAlloc();
+  renderIraToggles();
+  recomputeAll();
+});
+$('i-custom-btn').addEventListener('click', () => { iCustomOpen = !iCustomOpen; renderIraToggles(); saveState(); });
+$('i-freq').addEventListener('change', () => { renderIraToggles(); recomputeAll(); });
+$('i-type').addEventListener('change', () => { renderIraToggles(); recomputeAll(); });
+$('i-limit').addEventListener('change', recomputeAll);
+['i-starting', 'i-amount'].forEach((id) => $(id).addEventListener('input', recomputeAll));
+
 /* ---------------- persistence ---------------- */
 function saveState() {
   try {
     const inputs = {};
     document.querySelectorAll('input[type=number], select').forEach((el) => { inputs[el.id] = el.value; });
-    localStorage.setItem(STORE_KEY, JSON.stringify({ inputs, pAlloc, pMode, pReinvest, inflOn, pCustomOpen, pView, tab: currentTab }));
+    localStorage.setItem(STORE_KEY, JSON.stringify({ inputs, pAlloc, iAlloc, iAllocEdited, iCustomOpen, pMode, pReinvest, inflOn, pCustomOpen, pView, tab: currentTab }));
   } catch (e) { /* storage unavailable: the calculator still works, it just won't remember */ }
 }
 
@@ -739,12 +938,16 @@ function loadState() {
     });
     if (d.pAlloc && FUNDS.every((f) => typeof d.pAlloc[f] === 'number') &&
         FUNDS.reduce((s, f) => s + d.pAlloc[f], 0) === 100) pAlloc = d.pAlloc;
+    if (d.iAlloc && FUNDS.every((f) => typeof d.iAlloc[f] === 'number') &&
+        FUNDS.reduce((s, f) => s + d.iAlloc[f], 0) === 100) iAlloc = d.iAlloc;
+    if (typeof d.iAllocEdited === 'boolean') iAllocEdited = d.iAllocEdited;
+    if (typeof d.iCustomOpen === 'boolean') iCustomOpen = d.iCustomOpen;
     if (d.pMode === 'dollar' || d.pMode === 'percent') pMode = d.pMode;
     if (typeof d.pReinvest === 'boolean') pReinvest = d.pReinvest;
     if (SHOW_INFLATION_UI && typeof d.inflOn === 'boolean') inflOn = d.inflOn;
     if (typeof d.pCustomOpen === 'boolean') pCustomOpen = d.pCustomOpen;
     if (d.pView === 'growth' || d.pView === 'div') pView = d.pView;
-    if (d.tab === 'personal' || d.tab === '401k') currentTab = d.tab;
+    if (TABS.includes(d.tab)) currentTab = d.tab;
     if (!d.inputs || !('p-freq' in d.inputs)) $('p-freq').value = 'monthly';
   } catch (e) { /* ignore a corrupt or unavailable store */ }
 }
@@ -755,7 +958,7 @@ $('reset-btn').addEventListener('click', () => {
 });
 
 /* ---------------- charts ---------------- */
-let pGrowthChart, pDivChart, kGrowthChart;
+let pGrowthChart, pDivChart, kGrowthChart, iGrowthChart;
 
 function themeVals() {
   const cs = getComputedStyle(document.documentElement);
@@ -922,8 +1125,8 @@ function buildLegend(containerId, chart, items, hint) {
 
 function initCharts() {
   if (typeof Chart === 'undefined') {
-    ['p-growth-chart', 'p-div-chart', 'k-growth-chart'].forEach(showChartFallback);
-    ['p-growth-legend', 'p-div-legend', 'k-growth-legend'].forEach((id) => buildLegend(id, null, []));
+    ['p-growth-chart', 'p-div-chart', 'k-growth-chart', 'i-growth-chart'].forEach(showChartFallback);
+    ['p-growth-legend', 'p-div-legend', 'k-growth-legend', 'i-growth-legend'].forEach((id) => buildLegend(id, null, []));
     return;
   }
   const t = themeVals();
@@ -1004,11 +1207,38 @@ function initCharts() {
     kGrowthChart = undefined;
     buildLegend('k-growth-legend', null, []);
   }
+
+  try {
+    iGrowthChart = new Chart($('i-growth-chart').getContext('2d'), {
+      type: 'line',
+      plugins: [endLabels],
+      data: {
+        labels: [],
+        datasets: [
+          { label: 'IRA value', endLabel: 'IRA', swColor: '#f1f5f9', data: [], borderColor: t.total, backgroundColor: t.totalFill, borderWidth: 2, pointRadius: 0, fill: true, tension: 0.15 },
+          { label: 'Your contributions', endLabel: 'Yours', data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, fill: false, tension: 0 },
+          { label: 'Low case', endLabel: 'Low', swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: withAlpha(t.muted, 0.16), borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, fill: 3, tension: 0.15 },
+          { label: 'High case', endLabel: 'High', swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, fill: false, tension: 0.15 },
+        ],
+      },
+      options: baseOptions(t, false, false, true, true),
+    });
+    buildLegend('i-growth-legend', iGrowthChart, [
+      { label: 'Your contributions', color: CONTRIB_COLOR, idx: [1] },
+      { label: 'IRA value', color: t.total, idx: [0] },
+      { label: 'Low / high range', color: t.muted, dash: 'dotted', idx: [2, 3] },
+    ], 'Tap a label to show or hide it.');
+  } catch (e) {
+    console.error('IRA chart init failed', e);
+    showChartFallback('i-growth-chart');
+    iGrowthChart = undefined;
+    buildLegend('i-growth-legend', null, []);
+  }
 }
 
 function rebuildCharts() {
-  [pGrowthChart, pDivChart, kGrowthChart].forEach((c) => c && c.destroy());
-  pGrowthChart = pDivChart = kGrowthChart = undefined;
+  [pGrowthChart, pDivChart, kGrowthChart, iGrowthChart].forEach((c) => c && c.destroy());
+  pGrowthChart = pDivChart = kGrowthChart = iGrowthChart = undefined;
   initCharts();
   recomputeAll();
 }
@@ -1203,11 +1433,63 @@ function computeK401(s) {
   return { final: finalValue, series: Array.from({ length: N + 1 }, (_, y) => base.bal[y] * d(y)), capped: t.capped, limit: p.limit };
 }
 
+/* ---------------- IRA ---------------- */
+// Same fund-by-fund compounding as Personal (dividends always reinvested inside an IRA),
+// with contributions capped at the annual limit.
+function computeIRA(s) {
+  const perYear = iraPerYear();
+  const limit = Number($('i-limit').value) || 7500;
+  const wanted = num('i-amount') * perYear;
+  const annual = Math.min(wanted, limit);
+  const capped = wanted > limit;
+  const monthly = annual / 12;
+  const start = num('i-starting');
+  const p = { start, monthly, perYear, growth: 0, years: s.years, alloc: iraAlloc(), reinvest: true, inflRate: s.inflRate };
+  const base = simPersonal(p, 0);
+  const low = simPersonal(p, LOW_DELTA);
+  const high = simPersonal(p, HIGH_DELTA);
+  const N = s.years;
+  const d = (y) => deflator(s.inflRate, y);
+  const finalValue = base.invested[N] * d(N);
+  const contributed = base.realContrib[N];
+
+  $('i-effective').textContent = wanted <= 0
+    ? 'Enter an amount to start modeling an IRA. Until then it is left out of your combined total.'
+    : (perYear === 26
+        ? '= about ' + fmt(annual / 12) + ' / month on average (26 paychecks a year), ' + fmt(annual) + ' a year.'
+        : '= ' + fmt(annual) + ' a year.');
+  $('i-warn').style.display = capped ? 'block' : 'none';
+  $('i-warn').textContent = 'That is more than the ' + fmt(limit) + ' annual limit, so contributions are capped at ' + fmt(limit) + ' a year (' + fmt(limit / 12) + ' a month).';
+  $('i-alloc-same').textContent = 'Uses your Personal mix: ' + allocText(pAlloc) + '.';
+  $('i-stat-final').textContent = fmt(finalValue);
+  $('i-stat-starting').textContent = fmt(start);
+  $('i-stat-contributed').textContent = fmt(contributed);
+  $('i-stat-gain').textContent = fmt(finalValue - start - contributed);
+
+  if (iGrowthChart) {
+    const idx = Array.from({ length: N + 1 }, (_, y) => y);
+    iGrowthChart.data.labels = idx.map((y) => 'Yr ' + y);
+    iGrowthChart.data.datasets[0].data = idx.map((y) => Math.round(base.invested[y] * d(y)));
+    iGrowthChart.data.datasets[1].data = idx.map((y) => Math.round(start + base.realContrib[y]));
+    iGrowthChart.data.datasets[2].data = idx.map((y) => Math.round(low.invested[y] * d(y)));
+    iGrowthChart.data.datasets[3].data = idx.map((y) => Math.round(high.invested[y] * d(y)));
+    iGrowthChart.update();
+  }
+  $('i-footnote').textContent =
+    'Uses the same return and dividend assumptions as the Personal tab, with dividends reinvested. The limit is held at its 2026 level for the whole projection and is shared across all your IRAs. ' +
+    (start > 0 ? 'The contribution line includes your starting balance. ' : '') +
+    'The low and high cases shift every fund\'s return by ' + LOW_DELTA + ' and +' + HIGH_DELTA + ' points a year to show sensitivity; they are not a forecast range.' +
+    (inflOn ? " Figures are in today's dollars at " + num('s-infl-rate') + '% annual inflation.' : '');
+
+  return { final: finalValue, series: Array.from({ length: N + 1 }, (_, y) => base.invested[y] * d(y)), capped, limit, active: start > 0 || monthly > 0 };
+}
+
 /* ---------------- goal ---------------- */
-function updateGoal(s, P, K) {
+function updateGoal(s, P, K, I) {
   const goal = num('s-goal');
   const el = $('s-goal-result');
-  const total = P.final + K.final;
+  const total = P.final + K.final + I.final;
+  const names = 'Personal + 401(k)' + (I.active ? ' + IRA' : '');
   const pct = goal > 0 ? total / goal * 100 : 0;
   $('ss-goal-head').hidden = goal <= 0;
   $('ss-prog').hidden = goal <= 0;
@@ -1217,21 +1499,21 @@ function updateGoal(s, P, K) {
   if (goal <= 0) { el.className = 'goal-result'; el.textContent = "Add a goal to see the year you'd reach it."; return; }
   const N = s.years;
   let hit = -1;
-  for (let y = 0; y <= N; y++) { if (P.series[y] + K.series[y] >= goal) { hit = y; break; } }
+  for (let y = 0; y <= N; y++) { if (P.series[y] + K.series[y] + I.series[y] >= goal) { hit = y; break; } }
   if (hit >= 0) {
     el.className = 'goal-result ok';
     el.textContent = hit === 0
       ? 'You already have ' + short(goal) + ' at the start.'
-      : 'Personal + 401(k) together reach ' + short(goal) + ' in year ' + hit + ' (' + (new Date().getFullYear() + hit) + ').';
+      : names + ' together reach ' + short(goal) + ' in year ' + hit + ' (' + (new Date().getFullYear() + hit) + ').';
     return;
   }
-  const gap = goal - (P.final + K.final);
+  const gap = goal - total;
   const unit = simPersonal(Object.assign({}, P.p, { start: 0, monthly: 1, growth: 0 }), 0);
   const perDollar = (unit.invested[N] + unit.cash[N]) * deflator(s.inflRate, N);
   const perYear = P.p.perYear || 12;
   const extra = perDollar > 0 ? Math.ceil(((gap / perDollar) * 12) / perYear / 5) * 5 : 0;
   el.className = 'goal-result';
-  el.textContent = 'Personal + 401(k) together land about ' + fmt(gap) + ' short of ' + short(goal) + ' after ' + N + ' years.' +
+  el.textContent = names + ' together land about ' + fmt(gap) + ' short of ' + short(goal) + ' after ' + N + ' years.' +
     (extra > 0 ? ' Adding about ' + fmt(extra) + (perYear === 26 ? ' per paycheck' : ' a month') + ' to your personal account would close the gap.' : '');
 }
 
@@ -1251,6 +1533,12 @@ function renderWhy() {
     '<p><b>SCHD, ' + RATES.schd.total + '% a year.</b> This comes from a long-run study of dividend-growing stocks, not the fund\'s short history. SCHD itself returned about 13.4% a year since 2011, a strong stretch for stocks, and yields about 3.1% to 3.2% (' +
       link('https://www.fool.com/investing/2026/08/23/where-will-schd-be-in-2035/', 'Motley Fool') + ').</p>' +
     '<p>Checked October 2026. Yields and returns change over time.</p>';
+  $('i-why-body').innerHTML =
+    '<p><b>Contribution limit.</b> For 2026 the IRA limit is $7,500, plus a $1,100 catch-up if you are 50 or older, and Roth eligibility phases out starting at $153,000 (single) or $242,000 (married filing jointly) (' +
+      link('https://www.cpapracticeadvisor.com/2025/11/13/irs-bumps-up-401k-ira-contribution-limits-for-2026/173130/', 'CPA Practice Advisor') + '). Puerto Rico IRAs follow the same limit starting in 2025 (' +
+      link('https://www.mcvpr.com/newsroom/publications/PR-IRA', 'McConnell Valdés') + ').</p>' +
+    '<p><b>Returns.</b> Same fund assumptions as the Personal tab. Dividends are reinvested because an IRA does not pay tax on them each year.</p>' +
+    '<p><b>Taxes.</b> Not modeled. Traditional and Roth accounts are taxed differently when you contribute and when you withdraw, so the balance shown is before any tax on withdrawal.</p>';
   $('k-why-body').innerHTML =
     '<p><b>7% a year.</b> Diversified 401(k) plans have historically returned around 5% to 8%. This is a rule of thumb, not tied to the funds in your plan.</p>' +
     '<p><b>Contribution limits.</b> For 2026 the Puerto Rico Treasury allows $15,000 in employee deferrals for plans qualified only under Section 1081.01(a) of the PR Code, and $22,500 for dual-qualified plans that adopted the higher limit. The U.S. limit is $24,500 (' +
@@ -1264,21 +1552,29 @@ function recomputeAll() {
   const s = shared();
   const P = computePersonal(s);
   const K = computeK401(s);
+  const I = computeIRA(s);
   const personal = P.final;
   const k401 = K.final;
-  $('s-total').textContent = fmt(personal + k401);
+  const ira = I.final;
+  $('s-total').textContent = fmt(personal + k401 + ira);
   $('s-personal').textContent = fmt(personal);
   $('s-k401').textContent = fmt(k401);
+  $('s-ira').textContent = fmt(ira);
+  $('s-ira-part').hidden = !I.active;
+  $('s-parts').classList.toggle('three', I.active);
   $('s-cap').hidden = !K.capped;
   $('s-cap').textContent = 'at ' + fmt(K.limit) + ' limit';
-  const tot = personal + k401;
+  const tot = personal + k401 + ira;
   $('ss-total').textContent = fmt(tot);
   $('ss-personal').textContent = fmt(personal);
   $('ss-k401').textContent = fmt(k401);
-  $('ss-bp').style.width = (tot > 0 ? personal / tot * 100 : 50) + '%';
-  $('ss-bk').style.width = (tot > 0 ? k401 / tot * 100 : 50) + '%';
+  $('ss-ira').textContent = fmt(ira);
+  $('ss-ira-part').hidden = !I.active;
+  $('ss-bp').style.width = (tot > 0 ? personal / tot * 100 : (I.active ? 33 : 50)) + '%';
+  $('ss-bk').style.width = (tot > 0 ? k401 / tot * 100 : (I.active ? 33 : 50)) + '%';
+  $('ss-bi').style.width = (tot > 0 ? ira / tot * 100 : (I.active ? 34 : 0)) + '%';
   $('ss-label').textContent = 'After ' + s.years + (s.years === 1 ? ' year' : ' years') + (inflOn ? " · today's dollars" : '');
-  updateGoal(s, P, K);
+  updateGoal(s, P, K, I);
   $('s-label').textContent = 'Combined after ' + s.years + (s.years === 1 ? ' year' : ' years') + (inflOn ? " · today's dollars" : '');
   saveState();
 }
@@ -1287,7 +1583,9 @@ renderWhy();
 $('s-infl-field').hidden = !SHOW_INFLATION_UI;
 loadState();
 if (!matchesPreset()) pCustomOpen = true;
+if (!matchesIraPreset() && iAllocEdited) iCustomOpen = true;
 syncAllocInputs();
+syncIraAlloc();
 renderToggles();
 switchTab(currentTab);
 initCharts();
