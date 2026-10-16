@@ -4,7 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="light dark">
-<title>Investment Growth Calculator</title>
+<title>Investment Growth Calculator: Personal, 401(k) and IRA</title>
+<meta name="description" content="Estimate how your personal investments, workplace 401(k) and IRA could grow over 15+ years. Free, private, and works on your phone.">
+<meta name="theme-color" content="#f3f4f6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e1116" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232a78d6'/%3E%3Cpath d='M12 46 L26 32 L36 40 L52 18' fill='none' stroke='white' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M42 18 H52 V28' fill='none' stroke='white' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="canonical" href="https://rafapps.github.io/investment-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Investment Growth Calculator">
+<meta property="og:title" content="Investment Growth Calculator: Personal, 401(k) and IRA">
+<meta property="og:description" content="Estimate how your personal investments, workplace 401(k) and IRA could grow over 15+ years. Free, private, and works on your phone.">
+<meta property="og:url" content="https://rafapps.github.io/investment-calculator/">
+<meta property="og:image" content="https://rafapps.github.io/investment-calculator/og.png">
+<meta property="og:image:width" content="2400">
+<meta property="og:image:height" content="1260">
+<meta property="og:image:alt" content="Investment growth calculator showing a projected balance and a growth chart">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Investment Growth Calculator: Personal, 401(k) and IRA">
+<meta name="twitter:description" content="Estimate how your personal investments, workplace 401(k) and IRA could grow over 15+ years. Free, private, and works on your phone.">
+<meta name="twitter:image" content="https://rafapps.github.io/investment-calculator/og.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
   :root {
@@ -123,7 +141,8 @@
   .shared-inputs { min-width: 0; }
   .shared-inputs .box { width: 132px; }
   .shared-inputs .box .num, .shared-inputs .box .num.wide { flex: 1; width: auto; min-width: 0; }
-  .page-foot { margin-top: 24px; text-align: center; }
+  .page-foot { margin: 24px auto 0; max-width: 640px; text-align: center; }
+  .disclaimer { margin: 0 0 6px; font-size: 12px; line-height: 1.5; color: var(--text-2); }
   .shared-summary {
     min-width: 0; display: flex; flex-direction: column; gap: 12px; padding: 14px 16px;
     background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px;
@@ -666,6 +685,7 @@
   </div>
 
   <footer class="page-foot">
+    <p class="disclaimer">For education and estimates only, not financial, tax or legal advice. Results come from the assumed returns shown and are not guarantees; real markets rise and fall from year to year. Figures are in future dollars (not adjusted for inflation) and don't include taxes or fund fees. Your inputs are saved only in this browser and are never sent anywhere.</p>
     <button class="link-btn" id="reset-btn" type="button">Reset all inputs to defaults</button>
   </footer>
 </main>
