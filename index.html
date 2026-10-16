@@ -470,9 +470,9 @@
 
       <section class="card results-col" aria-label="Personal investing results">
         <div class="stats">
-          <div class="stat hero"><p class="stat-label">Total portfolio value</p><p class="stat-value" id="p-stat-total">$0</p></div>
+          <div class="stat hero"><p class="stat-label">Portfolio value</p><p class="stat-value" id="p-stat-total">$0</p></div>
           <div class="stat"><p class="stat-label">Starting balance</p><p class="stat-value" id="p-stat-starting">$0</p></div>
-          <div class="stat"><p class="stat-label">You contributed</p><p class="stat-value" id="p-stat-contributed">$0</p></div>
+          <div class="stat"><p class="stat-label">Your contributions</p><p class="stat-value" id="p-stat-contributed">$0</p></div>
           <div class="stat green"><p class="stat-label">Investment growth</p><p class="stat-value" id="p-stat-gain">$0</p></div>
           <div class="stat"><p class="stat-label">Invested value</p><p class="stat-value" id="p-stat-invested">$0</p></div>
           <div class="stat"><p class="stat-label">Cash (not reinvested)</p><p class="stat-value" id="p-stat-cash">$0</p></div>
@@ -551,11 +551,11 @@
 
       <section class="card results-col" aria-label="401(k) results">
         <div class="stats">
-          <div class="stat hero"><p class="stat-label">Total 401(k) value</p><p class="stat-value" id="k-stat-final">$0</p></div>
+          <div class="stat hero"><p class="stat-label">Portfolio value</p><p class="stat-value" id="k-stat-final">$0</p></div>
           <div class="stat"><p class="stat-label">Starting balance</p><p class="stat-value" id="k-stat-starting">$0</p></div>
           <div class="stat"><p class="stat-label">Your contributions</p><p class="stat-value" id="k-stat-employee">$0</p></div>
           <div class="stat green"><p class="stat-label">Employer match</p><p class="stat-value" id="k-stat-employer">$0</p></div>
-          <div class="stat"><p class="stat-label">Combined contributed</p><p class="stat-value" id="k-stat-combined">$0</p></div>
+          <div class="stat"><p class="stat-label">Total contributions</p><p class="stat-value" id="k-stat-combined">$0</p></div>
           <div class="stat green"><p class="stat-label">Investment growth</p><p class="stat-value" id="k-stat-gain">$0</p></div>
         </div>
 
@@ -670,9 +670,9 @@
 
       <section class="card results-col" aria-label="IRA results">
         <div class="stats">
-          <div class="stat hero"><p class="stat-label">Total IRA value</p><p class="stat-value" id="i-stat-final">$0</p></div>
+          <div class="stat hero"><p class="stat-label">Portfolio value</p><p class="stat-value" id="i-stat-final">$0</p></div>
           <div class="stat"><p class="stat-label">Starting balance</p><p class="stat-value" id="i-stat-starting">$0</p></div>
-          <div class="stat"><p class="stat-label">You contributed</p><p class="stat-value" id="i-stat-contributed">$0</p></div>
+          <div class="stat"><p class="stat-label">Your contributions</p><p class="stat-value" id="i-stat-contributed">$0</p></div>
           <div class="stat green"><p class="stat-label">Investment growth</p><p class="stat-value" id="i-stat-gain">$0</p></div>
         </div>
         <h3>IRA growth</h3>
@@ -1065,7 +1065,7 @@ function baseOptions(t, yStacked, xStacked, lines, labels) {
           footer: (items) => {
             // when dividends aren't reinvested, the first two rows stack into the portfolio total
             const stacked = items.filter((i) => i.dataset.stackTotal);
-            return stacked.length > 1 ? 'Total: ' + fmt(stacked.reduce((a, i) => a + i.raw, 0)) : '';
+            return stacked.length > 1 ? 'Portfolio value: ' + fmt(stacked.reduce((a, i) => a + i.raw, 0)) : '';
           },
         },
       },
@@ -1123,8 +1123,9 @@ function buildLegend(containerId, chart, items, hint) {
     if (it.box) sw.style.background = it.color;
     else { sw.style.borderTopColor = it.color; sw.style.borderTopStyle = it.dash || 'solid'; }
     b.appendChild(sw);
-    b.appendChild(document.createTextNode(it.label));
-    const st = { it, btn: b, on: true };
+    const txt = document.createTextNode(typeof it.label === 'function' ? it.label() : it.label);
+    b.appendChild(txt);
+    const st = { it, btn: b, on: true, txt };
     b.addEventListener('click', () => { st.on = !st.on; refresh(); chart.update(); });
     groups.get(g).pills.appendChild(b);
     state.push(st);
@@ -1133,6 +1134,7 @@ function buildLegend(containerId, chart, items, hint) {
   function refresh() {
     state.forEach((st) => {
       const avail = st.it.avail ? st.it.avail() : true;
+      if (typeof st.it.label === 'function') st.txt.nodeValue = st.it.label();
       st.btn.hidden = !avail;
       st.btn.setAttribute('aria-pressed', String(st.on));
       st.it.idx.forEach((i) => chart.setDatasetVisibility(i, avail && st.on));
@@ -1157,9 +1159,9 @@ function initCharts() {
       data: {
         labels: [],
         datasets: [
-          { label: 'Invested value', endLabel: 'Invested', swColor: '#f1f5f9', stackTotal: true, data: [], borderColor: t.total, backgroundColor: t.totalFill, borderWidth: 2, pointRadius: 0, fill: true, stack: 'g', tension: 0.15 },
+          { label: 'Portfolio value', endLabel: 'Portfolio', swColor: '#f1f5f9', stackTotal: true, data: [], borderColor: t.total, backgroundColor: t.totalFill, borderWidth: 2, pointRadius: 0, fill: true, stack: 'g', tension: 0.15 },
           { label: 'Dividend cash', endLabel: 'Cash', endColor: CASH_COLOR, swColor: CASH_COLOR, stackTotal: true, data: [], borderColor: t.total, backgroundColor: 'rgba(201,133,0,0.22)', borderWidth: 2, pointRadius: 0, fill: '-1', stack: 'g', tension: 0.15 },
-          { label: 'Contributed', endLabel: 'Contributed', data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, stack: 'c', fill: false, tension: 0 },
+          { label: 'Your contributions', endLabel: 'Contributed', data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, stack: 'c', fill: false, tension: 0 },
           { label: 'VOO', endLabel: 'VOO', swDash: 'dashed', data: [], borderColor: RATES.voo.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 3], pointRadius: 0, stack: 'v', fill: false, tension: 0.15 },
           { label: 'QQQM', endLabel: 'QQQM', swDash: 'dashed', data: [], borderColor: RATES.qqq.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 3], pointRadius: 0, stack: 'q', fill: false, tension: 0.15 },
           { label: 'SCHD', endLabel: 'SCHD', swDash: 'dashed', data: [], borderColor: RATES.schd.color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 3], pointRadius: 0, stack: 's', fill: false, tension: 0.15 },
@@ -1172,8 +1174,8 @@ function initCharts() {
     });
     const fundOn = (f) => () => pAlloc[f] > 0;
     buildLegend('p-growth-legend', pGrowthChart, [
-      { group: 'Portfolio', label: 'Contributed', color: CONTRIB_COLOR, idx: [2] },
-      { group: 'Portfolio', label: 'Invested value', color: t.total, idx: [0] },
+      { group: 'Portfolio', label: 'Your contributions', color: CONTRIB_COLOR, idx: [2] },
+      { group: 'Portfolio', label: () => (pReinvest ? 'Portfolio value' : 'Invested value'), color: t.total, idx: [0] },
       { group: 'Portfolio', label: 'Dividend cash', color: CASH_COLOR, idx: [1], avail: () => !pReinvest },
       { group: 'Portfolio', label: 'Low / high range', color: t.muted, dash: 'dotted', idx: [6, 7] },
       { group: 'By fund', label: 'VOO', color: RATES.voo.color, dash: 'dashed', idx: [3], avail: fundOn('voo') },
@@ -1208,7 +1210,7 @@ function initCharts() {
         datasets: [
           { label: 'Portfolio value', endLabel: 'Portfolio', swColor: '#f1f5f9', data: [], borderColor: t.total, backgroundColor: t.totalFill, borderWidth: 2, pointRadius: 0, fill: true, tension: 0.15 },
           { label: 'Employer match', endLabel: 'Match', swDash: 'dashed', data: [], borderColor: MATCH_COLOR, backgroundColor: 'transparent', borderWidth: 2, borderDash: [4, 3], pointRadius: 0, fill: false, tension: 0 },
-          { label: 'Your contributions', endLabel: 'Yours', data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, fill: false, tension: 0 },
+          { label: 'Your contributions', endLabel: 'Contributed', data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, fill: false, tension: 0 },
           { label: 'Low case', endLabel: 'Low', swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: withAlpha(t.muted, 0.16), borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, fill: 4, tension: 0.15 },
           { label: 'High case', endLabel: 'High', swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, fill: false, tension: 0.15 },
         ],
@@ -1235,8 +1237,8 @@ function initCharts() {
       data: {
         labels: [],
         datasets: [
-          { label: 'IRA value', endLabel: 'IRA', swColor: '#f1f5f9', data: [], borderColor: t.total, backgroundColor: t.totalFill, borderWidth: 2, pointRadius: 0, fill: true, tension: 0.15 },
-          { label: 'Your contributions', endLabel: 'Yours', data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, fill: false, tension: 0 },
+          { label: 'Portfolio value', endLabel: 'Portfolio', swColor: '#f1f5f9', data: [], borderColor: t.total, backgroundColor: t.totalFill, borderWidth: 2, pointRadius: 0, fill: true, tension: 0.15 },
+          { label: 'Your contributions', endLabel: 'Contributed', data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, fill: false, tension: 0 },
           { label: 'Low case', endLabel: 'Low', swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: withAlpha(t.muted, 0.16), borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, fill: 3, tension: 0.15 },
           { label: 'High case', endLabel: 'High', swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, fill: false, tension: 0.15 },
         ],
@@ -1245,7 +1247,7 @@ function initCharts() {
     });
     buildLegend('i-growth-legend', iGrowthChart, [
       { label: 'Your contributions', color: CONTRIB_COLOR, idx: [1] },
-      { label: 'IRA value', color: t.total, idx: [0] },
+      { label: 'Portfolio value', color: t.total, idx: [0] },
       { label: 'Low / high range', color: t.muted, dash: 'dotted', idx: [2, 3] },
     ], 'Tap a label to show or hide it.');
   } catch (e) {
@@ -1349,6 +1351,8 @@ function computePersonal(s) {
     const idx = Array.from({ length: N + 1 }, (_, y) => y);
     const series = (arr) => idx.map((y) => Math.round(arr[y] * d(y)));
     pGrowthChart.data.labels = idx.map((y) => 'Yr ' + y);
+    pGrowthChart.data.datasets[0].label = pReinvest ? 'Portfolio value' : 'Invested value';
+    pGrowthChart.data.datasets[0].endLabel = pReinvest ? 'Portfolio' : 'Invested';
     pGrowthChart.data.datasets[0].data = series(base.invested);
     pGrowthChart.data.datasets[1].data = series(base.cash);
     pGrowthChart.data.datasets[2].data = idx.map((y) => Math.round(start + base.realContrib[y]));
@@ -1373,7 +1377,7 @@ function computePersonal(s) {
     'Rates are assumptions based on long-run history, not guarantees. Dividend yields (' + FUNDS.map((f) => RATES[f].div + '%').join(' / ') +
     ") are held at today's levels for the whole period. The low and high cases shift every fund's return by " + LOW_DELTA + ' and +' + HIGH_DELTA +
     ' points a year to show sensitivity; they are not a forecast range.' +
-    (start > 0 ? ' The Contributed line includes your starting balance.' : '') +
+    (start > 0 ? ' The contributions line includes your starting balance.' : '') +
     (pMode === 'percent' ? ' Monthly contributions grow each year with your annual raise.' : '') +
     (pMode === 'dollar' && payPerYear() === 26 ? ' Bi-weekly contributions are modeled as 26 paychecks a year, spread evenly across the months.' : '') +
     (inflOn ? " Figures are in today's dollars at " + num('s-infl-rate') + '% annual inflation.' : '');
