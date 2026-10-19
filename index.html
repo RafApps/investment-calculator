@@ -476,7 +476,7 @@
   <details class="card assump" id="assump">
     <summary>Funds and returns <span class="badge" id="assump-badge" hidden>Customized</span></summary>
     <div class="assump-body">
-      <p class="hint">Pick up to three funds for the Personal and IRA tabs, or choose Custom to enter your own numbers. Total return includes dividends. The numbers are long-run historical averages, so changing them shows a what-if, not a forecast. The 401(k) tab has its own expected return.</p>
+      <p class="hint">Pick up to three funds for the Personal and IRA tabs, or choose Custom to enter your own numbers. Total return includes dividends and is before the fund's yearly fee, which is subtracted for you. The numbers are long-run historical averages, so changing them shows a what-if, not a forecast. The 401(k) tab has its own expected return.</p>
       <div class="a-slots">
         <div class="a-slot">
           <div class="a-top">
@@ -487,6 +487,7 @@
           <div class="a-vals">
             <label class="a-val"><span>Total return</span><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.1" value="10.5" id="a-voo-total" class="num"><span class="unit">%</span></span></label>
             <label class="a-val"><span>Dividend</span><span class="box"><input type="number" inputmode="decimal" min="0" max="15" step="0.1" value="1.1" id="a-voo-div" class="num"><span class="unit">%</span></span></label>
+            <label class="a-val"><span>Yearly fee</span><span class="box"><input type="number" inputmode="decimal" min="0" max="5" step="0.01" value="0.03" id="a-voo-fee" class="num"><span class="unit">%</span></span></label>
           </div>
           <p class="a-desc" id="a-voo-desc"></p>
         </div>
@@ -499,6 +500,7 @@
           <div class="a-vals">
             <label class="a-val"><span>Total return</span><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.1" value="12" id="a-qqq-total" class="num"><span class="unit">%</span></span></label>
             <label class="a-val"><span>Dividend</span><span class="box"><input type="number" inputmode="decimal" min="0" max="15" step="0.1" value="0.4" id="a-qqq-div" class="num"><span class="unit">%</span></span></label>
+            <label class="a-val"><span>Yearly fee</span><span class="box"><input type="number" inputmode="decimal" min="0" max="5" step="0.01" value="0.15" id="a-qqq-fee" class="num"><span class="unit">%</span></span></label>
           </div>
           <p class="a-desc" id="a-qqq-desc"></p>
         </div>
@@ -511,6 +513,7 @@
           <div class="a-vals">
             <label class="a-val"><span>Total return</span><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.1" value="10.07" id="a-schd-total" class="num"><span class="unit">%</span></span></label>
             <label class="a-val"><span>Dividend</span><span class="box"><input type="number" inputmode="decimal" min="0" max="15" step="0.1" value="3.2" id="a-schd-div" class="num"><span class="unit">%</span></span></label>
+            <label class="a-val"><span>Yearly fee</span><span class="box"><input type="number" inputmode="decimal" min="0" max="5" step="0.01" value="0.06" id="a-schd-fee" class="num"><span class="unit">%</span></span></label>
           </div>
           <p class="a-desc" id="a-schd-desc"></p>
         </div>
@@ -826,7 +829,7 @@
   </div>
 
   <footer class="page-foot">
-    <p class="disclaimer">For education and estimates only, not financial, tax or legal advice. Results come from the assumed returns shown and are not guarantees; real markets rise and fall from year to year. Figures are in future dollars (not adjusted for inflation) and don't include taxes or fund fees. Your inputs are saved only in this browser and are never sent anywhere.</p>
+    <p class="disclaimer">For education and estimates only, not financial, tax or legal advice. Results come from the assumed returns shown and are not guarantees; real markets rise and fall from year to year. Figures are in future dollars (not adjusted for inflation) and don't include taxes. Fund fees are subtracted for the Personal and IRA funds, not from the 401(k) expected return. Your inputs are saved only in this browser and are never sent anywhere.</p>
     <button class="link-btn" id="reset-btn" type="button">Reset all inputs to defaults</button>
   </footer>
 </main>
@@ -838,7 +841,7 @@
 // the fund shown in each slot is chosen from CATALOG, or set to CUSTOM with the person's own numbers.
 const FUNDS = ['voo', 'qqq', 'schd'];
 const DEFAULT_FUND = { voo: 'VOO', qqq: 'QQQM', schd: 'SCHD' };
-// total = assumed long-run annual return with dividends reinvested, div = dividend yield, fee = expense ratio (all %), since = launch year
+// total = assumed long-run annual return with dividends reinvested, before the fund's fee; div = dividend yield; fee = yearly expense ratio, subtracted from the return (all %); since = launch year
 const CATALOG = {
   VOO:  { name: 'S&P 500',                      group: 'Core U.S. stocks',   total: 10.5,  div: 1.1, fee: 0.03, since: 2010 },
   VTI:  { name: 'Total U.S. stock market',      group: 'Core U.S. stocks',   total: 10,    div: 1,   fee: 0.03, since: 2001 },
@@ -854,12 +857,12 @@ const CATALOG = {
 };
 const FUND_GROUPS = ['Core U.S. stocks', 'Growth', 'Dividend stocks', 'Smaller companies', 'International', 'Real estate', 'Bonds'];
 const RATES = {
-  voo:  { total: CATALOG.VOO.total,  div: CATALOG.VOO.div,  label: 'VOO',  color: '#2a78d6' },
-  qqq:  { total: CATALOG.QQQM.total, div: CATALOG.QQQM.div, label: 'QQQM', color: '#eb6834' },
-  schd: { total: CATALOG.SCHD.total, div: CATALOG.SCHD.div, label: 'SCHD', color: '#1baf7a' },
+  voo:  { total: CATALOG.VOO.total,  div: CATALOG.VOO.div,  fee: CATALOG.VOO.fee,  label: 'VOO',  color: '#2a78d6' },
+  qqq:  { total: CATALOG.QQQM.total, div: CATALOG.QQQM.div, fee: CATALOG.QQQM.fee, label: 'QQQM', color: '#eb6834' },
+  schd: { total: CATALOG.SCHD.total, div: CATALOG.SCHD.div, fee: CATALOG.SCHD.fee, label: 'SCHD', color: '#1baf7a' },
 };
 const DEFAULT_RATES = {};
-FUNDS.forEach((f) => { DEFAULT_RATES[f] = { total: RATES[f].total, div: RATES[f].div }; });
+FUNDS.forEach((f) => { DEFAULT_RATES[f] = { total: RATES[f].total, div: RATES[f].div, fee: RATES[f].fee }; });
 const CASH_COLOR = '#c98500';
 const CONTRIB_COLOR = '#94a3b8';
 const MATCH_COLOR = '#1baf7a';
@@ -875,6 +878,10 @@ FUNDS.forEach((f) => document.documentElement.style.setProperty('--c-' + f, RATE
 let LANG = /^es\b/i.test(navigator.language || '') ? 'es' : 'en';
 // Spanish table, keyed by the English text.
 const ES = {
+  "Yearly fee": "Comisión anual",
+  "{0} · launched {1}": "{0} · lanzado en {1}",
+  "Returns above are before each fund's yearly fee, which the calculator subtracts. Where a fund's historical return was already after its fee, the difference is under 0.15 points, smaller than the rounding.": "Los rendimientos de arriba son antes de la comisión anual de cada fondo, que la calculadora resta. Cuando el rendimiento histórico de un fondo ya era después de su comisión, la diferencia es menor de 0.15 puntos, menos que el redondeo.",
+  "fee": "comisión",
   "Save summary as PDF": "Guardar resumen en PDF",
   "Investment growth summary": "Resumen de crecimiento de inversiones",
   "Prepared {0}": "Preparado el {0}",
@@ -912,7 +919,7 @@ const ES = {
   "Made with the Investment Growth Calculator: rafapps.github.io/investment-calculator": "Hecho con la Calculadora de crecimiento de inversiones: rafapps.github.io/investment-calculator",
   "Investment summary": "Resumen de inversiones",
   "Funds and returns": "Fondos y rendimientos",
-  "Pick up to three funds for the Personal and IRA tabs, or choose Custom to enter your own numbers. Total return includes dividends. The numbers are long-run historical averages, so changing them shows a what-if, not a forecast. The 401(k) tab has its own expected return.": "Elige hasta tres fondos para las pestañas Personal e IRA, o elige Personalizado para escribir tus propias cifras. El rendimiento total incluye los dividendos. Las cifras son promedios históricos a largo plazo, así que cambiarlas muestra un \"qué pasaría si\", no un pronóstico. La pestaña 401(k) tiene su propio rendimiento esperado.",
+  "Pick up to three funds for the Personal and IRA tabs, or choose Custom to enter your own numbers. Total return includes dividends and is before the fund's yearly fee, which is subtracted for you. The numbers are long-run historical averages, so changing them shows a what-if, not a forecast. The 401(k) tab has its own expected return.": "Elige hasta tres fondos para las pestañas Personal e IRA, o elige Personalizado para escribir tus propias cifras. El rendimiento total incluye los dividendos y es antes de la comisión anual del fondo, que se resta por ti. Las cifras son promedios históricos a largo plazo, así que cambiarlas muestra un \"qué pasaría si\", no un pronóstico. La pestaña 401(k) tiene su propio rendimiento esperado.",
   "Restore default funds and rates": "Restaurar fondos y tasas por defecto",
   "Name": "Nombre",
   "Fund 1": "Fondo 1",
@@ -1128,7 +1135,7 @@ const ES = {
   "The Puerto Rico Treasury allows an extra $1,500 in any plan not sponsored by the federal government, which covers PR-only plans and, by its wording, dual-qualified ones ({0}, {1}). The circular's $8,000 catch-up is for federal government employees only. The U.S. limit option follows IRS rules instead: an extra $8,000, or $11,250 at ages 60 to 63 ({2}). Ask your plan administrator which limit your plan allows.": "La Tesorería de Puerto Rico permite $1,500 adicionales en cualquier plan que no esté patrocinado por el gobierno federal, lo que cubre los planes solo de Puerto Rico y, por su redacción, los de doble calificación ({0}, {1}). La aportación adicional de $8,000 de la circular es solo para empleados del gobierno federal. La opción de límite de EE. UU. sigue las reglas del IRS: $8,000 adicionales, o $11,250 de los 60 a los 63 años ({2}). Pregunta al administrador de tu plan qué límite permite.",
   "Employer match.": "Aportación del patrono.",
   "Assumes the full match is yours immediately. Your plan may have a vesting schedule.": "Supone que la aportación completa del patrono es tuya de inmediato. Tu plan puede tener un calendario de adquisición de derechos (vesting).",
-  "For education and estimates only, not financial, tax or legal advice. Results come from the assumed returns shown and are not guarantees; real markets rise and fall from year to year. Figures are in future dollars (not adjusted for inflation) and don't include taxes or fund fees. Your inputs are saved only in this browser and are never sent anywhere.": "Solo con fines educativos y de estimación; no es asesoría financiera, contributiva ni legal. Los resultados provienen de los rendimientos supuestos que se muestran y no son garantías; los mercados reales suben y bajan de un año a otro. Las cifras están en dólares futuros (sin ajustar por inflación) y no incluyen impuestos ni costos de los fondos. Tus datos se guardan solo en este navegador y nunca se envían a ningún sitio.",
+  "For education and estimates only, not financial, tax or legal advice. Results come from the assumed returns shown and are not guarantees; real markets rise and fall from year to year. Figures are in future dollars (not adjusted for inflation) and don't include taxes. Fund fees are subtracted for the Personal and IRA funds, not from the 401(k) expected return. Your inputs are saved only in this browser and are never sent anywhere.": "Solo con fines educativos y de estimación; no es asesoría financiera, contributiva ni legal. Los resultados provienen de los rendimientos supuestos que se muestran y no son garantías; los mercados reales suben y bajan de un año a otro. Las cifras están en dólares futuros (sin ajustar por inflación) y no incluyen impuestos. Las comisiones de los fondos se restan en los fondos de las pestañas Personal e IRA, no en el rendimiento esperado del 401(k). Tus datos se guardan solo en este navegador y nunca se envían a ningún sitio.",
   "Reset all inputs to defaults": "Restablecer todos los datos a los valores por defecto",
   "Language": "Idioma",
   "Inflation rate per year": "Tasa de inflación por año",
@@ -1321,15 +1328,17 @@ function syncRates() {
     $('a-' + f + '-name').hidden = !isCustom;
     const total = num('a-' + f + '-total');
     const div = Math.min(num('a-' + f + '-div'), total);
+    const fee = num('a-' + f + '-fee');
     RATES[f].total = total;
     RATES[f].div = div;
+    RATES[f].fee = fee;
     RATES[f].label = fundLabel(f);
     const ref = isCustom ? null : CATALOG[code];
-    const wasEdited = !!ref && (total !== ref.total || div !== ref.div);
+    const wasEdited = !!ref && (total !== ref.total || div !== ref.div || fee !== ref.fee);
     if (wasEdited) edited.push(RATES[f].label);
     if (code !== DEFAULT_FUND[f] || wasEdited) customized = true;
     $('a-' + f + '-desc').textContent = ref
-      ? tr('{0} \u00b7 {1}% fee \u00b7 launched {2}', tr(ref.name), ref.fee, ref.since)
+      ? tr('{0} \u00b7 launched {1}', tr(ref.name), ref.since)
       : tr('Your own numbers. A long-run average works better than a recent year.');
     document.querySelectorAll('[data-yield="' + f + '"]').forEach((el) => { el.textContent = tr('{0}% dividend', div); });
   });
@@ -1450,7 +1459,7 @@ $('s-infl-switch').addEventListener('click', () => { inflOn = !inflOn; renderTog
 
 [
   's-age', 's-years', 's-salary', 's-raise', 's-infl-rate', 's-goal', 's-wd',
-  'a-voo-total', 'a-voo-div', 'a-qqq-total', 'a-qqq-div', 'a-schd-total', 'a-schd-div',
+  'a-voo-total', 'a-voo-div', 'a-voo-fee', 'a-qqq-total', 'a-qqq-div', 'a-qqq-fee', 'a-schd-total', 'a-schd-div', 'a-schd-fee',
   'p-starting', 'p-monthly', 'p-salary-pct',
   'k-return', 'k-starting', 'k-contrib-pct', 'k-match-rate', 'k-match-cap',
 ].forEach((id) => $(id).addEventListener('input', recomputeAll));
@@ -1533,6 +1542,7 @@ $('rates-reset').addEventListener('click', () => {
     $('a-' + f + '-name').value = '';
     $('a-' + f + '-total').value = DEFAULT_RATES[f].total;
     $('a-' + f + '-div').value = DEFAULT_RATES[f].div;
+    $('a-' + f + '-fee').value = DEFAULT_RATES[f].fee;
   });
   refreshFundOptions();
   recomputeAll();
@@ -1543,6 +1553,7 @@ FUNDS.forEach((f) => {
     if (code !== 'CUSTOM') {
       $('a-' + f + '-total').value = CATALOG[code].total;
       $('a-' + f + '-div').value = CATALOG[code].div;
+      $('a-' + f + '-fee').value = CATALOG[code].fee;
     } else {
       $('a-' + f + '-name').value = '';
     }
@@ -1662,7 +1673,7 @@ function buildReport() {
     ', ' + esc(tr('{0}% expected return', kp.rate)) + (K.capped ? ', ' + esc(tr('capped at the {0} annual limit', fmt(K.limit))) : '')]);
   if (I.active) dl.push([tr('IRA'), esc($('i-type').selectedOptions[0].textContent) + ', ' + esc(tr('{0} a year', fmt(I.annual))) + (I.capped ? ' (' + esc(tr('capped at the annual limit')) + ')' : '') + ', ' + fundLine(iraAlloc())]);
   const used = FUNDS.filter((f) => pAlloc[f] > 0 || (I.active && iraAlloc()[f] > 0));
-  dl.push([tr('Fund returns'), used.map((f) => esc(RATES[f].label) + ' ' + RATES[f].total + '% ' + esc(tr('total')) + ' / ' + RATES[f].div + '% ' + esc(tr('dividend'))).join(' · ')]);
+  dl.push([tr('Fund returns'), used.map((f) => esc(RATES[f].label) + ' ' + RATES[f].total + '% ' + esc(tr('total')) + ' / ' + RATES[f].div + '% ' + esc(tr('dividend')) + ' / ' + RATES[f].fee + '% ' + esc(tr('fee'))).join(' · ')]);
   h += '<div class="r-h">' + esc(tr('What this assumes')) + '</div><dl class="r-dl">' +
        dl.map(([k, v]) => '<dt>' + esc(k) + '</dt><dd>' + (/<|&/.test(v) ? v : esc(v)) + '</dd>').join('') + '</dl>';
 
@@ -2107,7 +2118,7 @@ if (window.matchMedia) {
 function simPersonal(p, delta) {
   const mRate = {};
   FUNDS.forEach((f) => {
-    const rate = (p.reinvest ? RATES[f].total : RATES[f].total - RATES[f].div) + delta;
+    const rate = (p.reinvest ? RATES[f].total : RATES[f].total - RATES[f].div) - RATES[f].fee + delta;
     mRate[f] = Math.pow(1 + rate / 100, 1 / 12) - 1;
   });
   const bal = {};
@@ -2452,6 +2463,7 @@ function renderWhy(edited) {
   $('p-why-body').innerHTML =
     (edited.length ? '<p><b>' + tr('You changed the numbers for {0}. The notes below describe the standard figures.', edited.join(', ')) + '</b></p>' : '') +
     notes.join('') +
+    '<p>' + tr("Returns above are before each fund's yearly fee, which the calculator subtracts. Where a fund's historical return was already after its fee, the difference is under 0.15 points, smaller than the rounding.") + '</p>' +
     '<p>' + tr('Checked October 2026. Yields and returns change over time.') + '</p>';
   $('i-why-body').innerHTML =
     para(tr('Contribution limit.'),
