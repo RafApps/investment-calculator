@@ -440,6 +440,27 @@
         <label for="s-promo-year">Promotion year</label>
         <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="2" max="80" step="1" value="5" id="s-promo-year" class="num"></span><span class="unit">year</span></div>
       </div>
+      <div id="s-promo2-row" hidden>
+        <div class="field">
+          <label for="s-promo2-pct">Promotion 2 raise</label>
+          <div class="ctl"><span class="box"><input type="number" inputmode="decimal" min="0" max="100" step="0.5" value="0" id="s-promo2-pct" class="num"></span><span class="unit">%</span></div>
+        </div>
+        <div class="field">
+          <label for="s-promo2-year">Promotion 2 year</label>
+          <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="2" max="80" step="1" value="10" id="s-promo2-year" class="num"></span><span class="unit">year</span></div>
+        </div>
+      </div>
+      <div id="s-promo3-row" hidden>
+        <div class="field">
+          <label for="s-promo3-pct">Promotion 3 raise</label>
+          <div class="ctl"><span class="box"><input type="number" inputmode="decimal" min="0" max="100" step="0.5" value="0" id="s-promo3-pct" class="num"></span><span class="unit">%</span></div>
+        </div>
+        <div class="field">
+          <label for="s-promo3-year">Promotion 3 year</label>
+          <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="2" max="80" step="1" value="15" id="s-promo3-year" class="num"></span><span class="unit">year</span></div>
+        </div>
+      </div>
+      <button class="link-btn alloc-toggle" id="promo-add" type="button">Add another promotion</button>
       <p class="hint" id="s-promo-note"></p>
       <div class="field" id="s-infl-field" hidden>
         <span class="lbl" id="s-infl-lbl">Today's dollars</span>
@@ -1008,6 +1029,12 @@ const ES = {
   "Years to invest": "Años para invertir",
   "Annual salary": "Salario anual",
   "Annual raise": "Aumento anual",
+  "Promotion 2 raise": "Segundo aumento por ascenso",
+  "Promotion 2 year": "Año del segundo ascenso",
+  "Promotion 3 raise": "Tercer aumento por ascenso",
+  "Promotion 3 year": "Año del tercer ascenso",
+  "Add another promotion": "Agregar otro ascenso",
+  "Promotion {0}: ": "Ascenso {0}: ",
   "Promotion raise": "Aumento por ascenso",
   "year": "año",
   "Promotion year": "Año del ascenso",
@@ -1310,6 +1337,8 @@ function matchesPreset() {
   return Array.from(document.querySelectorAll('#p-strategies .strat-btn')).some((b) => FUNDS.every((f) => Number(b.dataset[f]) === pAlloc[f]));
 }
 
+const PROMO_IDS = [['s-promo-pct', 's-promo-year'], ['s-promo2-pct', 's-promo2-year'], ['s-promo3-pct', 's-promo3-year']];
+let promoShown = 1;
 function shared() {
   const years = Math.min(MAX_YEARS, Math.max(1, Math.round(num('s-years')) || 1));
   return {
@@ -1317,8 +1346,7 @@ function shared() {
     age: Math.round(num('s-age')),
     salary: num('s-salary'),
     raise: num('s-raise'),
-    promoPct: num('s-promo-pct'),
-    promoYear: Math.round(num('s-promo-year')),
+    promos: PROMO_IDS.map((ids) => ({ pct: num(ids[0]), year: Math.round(num(ids[1])) })),
     wd: num('s-wd'),
     inflRate: inflOn ? num('s-infl-rate') : 0,
   };
@@ -1486,12 +1514,13 @@ function renderAdv() {
   $('adv-btn').setAttribute('aria-expanded', String(open));
   $('adv-btn').textContent = open ? tr('Hide advanced') : tr('Advanced: edit returns, yields and expense ratios');
 }
+$('promo-add').addEventListener('click', () => { promoShown = Math.min(3, Math.max(promoShown, 1) + 1); renderPromoRows(); recomputeAll(); });
 $('adv-btn').addEventListener('click', () => { $('a-slots').classList.toggle('adv'); renderAdv(); });
 $('p-custom-btn').addEventListener('click', () => { pCustomOpen = !pCustomOpen; renderToggles(); saveState(); });
 $('s-infl-switch').addEventListener('click', () => { inflOn = !inflOn; renderToggles(); recomputeAll(); });
 
 [
-  's-age', 's-years', 's-salary', 's-raise', 's-promo-pct', 's-promo-year', 's-infl-rate', 's-goal', 's-wd',
+  's-age', 's-years', 's-salary', 's-raise', 's-promo-pct', 's-promo-year', 's-promo2-pct', 's-promo2-year', 's-promo3-pct', 's-promo3-year', 's-infl-rate', 's-goal', 's-wd',
   'a-voo-total', 'a-voo-div', 'a-voo-fee', 'a-qqq-total', 'a-qqq-div', 'a-qqq-fee', 'a-schd-total', 'a-schd-div', 'a-schd-fee',
   'p-starting', 'p-monthly', 'p-salary-pct',
   'k-return', 'k-starting', 'k-contrib-pct', 'k-match-rate', 'k-match-cap',
@@ -1699,7 +1728,7 @@ function buildReport() {
     : tr('{0}% of salary', num('p-salary-pct'));
   const dl = [];
   dl.push([tr('You'), tr('Age {0}. Salary {1} growing {2}% a year. Projection runs {3}.', s.age, fmt(s.salary), s.raise, yearsText(N)) +
-    (s.promoPct > 0 && s.promoYear >= 2 && s.promoYear <= N ? ' ' + tr('A {0}% promotion raise in year {1}.', s.promoPct, s.promoYear) : '') +
+    activePromos(s).map((q) => ' ' + tr('A {0}% promotion raise in year {1}.', q.pct, q.year)).join('') +
     (inflOn ? ' ' + tr("Figures are in today's dollars at {0}% annual inflation.", num('s-infl-rate')) : '')]);
   dl.push([tr('Personal'), esc(pAmt) + (num('p-starting') > 0 ? ', ' + esc(tr('starting with {0}', fmt(num('p-starting')))) : '') + ', ' + esc(reinvest) + '. ' + fundLine(pAlloc)]);
   const kp = K.p;
@@ -2148,17 +2177,32 @@ if (window.matchMedia) {
 
 /* ---------------- salary path ---------------- */
 // Salary in projection year y relative to year 1 (your salary today). The annual raise compounds every year,
-// and a one-time promotion raise applies from its year onward. Year 1 is the year you start, so a promotion needs year 2 or later.
+// and each one-time promotion raise (up to three) applies from its year onward. Year 1 is the year you start, so a promotion needs year 2 or later.
 function salaryFactor(s, y) {
-  const promo = s.promoPct > 0 && s.promoYear >= 2 && y >= s.promoYear ? 1 + s.promoPct / 100 : 1;
-  return Math.pow(1 + s.raise / 100, y - 1) * promo;
+  let f = Math.pow(1 + s.raise / 100, y - 1);
+  s.promos.forEach((q) => { if (q.pct > 0 && q.year >= 2 && y >= q.year) f *= 1 + q.pct / 100; });
+  return f;
+}
+function activePromos(s) { return s.promos.filter((q) => q.pct > 0 && q.year >= 2 && q.year <= s.years); }
+function renderPromoRows() {
+  let last = 0;
+  PROMO_IDS.forEach((ids, i) => { if (num(ids[0]) > 0) last = i + 1; });
+  const shown = Math.max(promoShown, last);
+  $('s-promo2-row').hidden = shown < 2;
+  $('s-promo3-row').hidden = shown < 3;
+  $('promo-add').hidden = shown >= 3;
 }
 function updatePromoNote(s) {
   const el = $('s-promo-note');
-  if (!(s.promoPct > 0)) { el.textContent = tr('Optional. A one-time raise on top of your annual raise, starting in the year you choose (year 1 is this year).'); return; }
-  if (s.promoYear < 2) { el.textContent = tr('Choose year 2 or later. Year 1 is this year, and your salary above is already what you earn now.'); return; }
-  if (s.promoYear > s.years) { el.textContent = tr('That year is after the end of your projection, so it has no effect.'); return; }
-  el.textContent = tr('In year {0} ({1}) your salary is about {2}, including this raise.', s.promoYear, new Date().getFullYear() + s.promoYear - 1, fmt(s.salary * salaryFactor(s, s.promoYear)));
+  const used = s.promos.map((q, i) => ({ q, i })).filter((x) => x.q.pct > 0);
+  if (!used.length) { el.textContent = tr('Optional. A one-time raise on top of your annual raise, starting in the year you choose (year 1 is this year).'); return; }
+  const multi = used.length > 1;
+  el.textContent = used.map(({ q, i }) => {
+    const pre = multi ? tr('Promotion {0}: ', i + 1) : '';
+    if (q.year < 2) return pre + tr('Choose year 2 or later. Year 1 is this year, and your salary above is already what you earn now.');
+    if (q.year > s.years) return pre + tr('That year is after the end of your projection, so it has no effect.');
+    return pre + tr('In year {0} ({1}) your salary is about {2}, including this raise.', q.year, new Date().getFullYear() + q.year - 1, fmt(s.salary * salaryFactor(s, q.year)));
+  }).join(' ');
 }
 
 /* ---------------- Personal simulation ---------------- */
@@ -2271,7 +2315,7 @@ function computePersonal(s) {
     tr("Dividend yields ({0}) are held at today's levels for the whole period.", FUNDS.map((f) => RATES[f].div + '%').join(' / ')) + ' ' +
     tr("The low and high cases shift every fund's return by {0} and +{1} points a year to show sensitivity; they are not a forecast range.", LOW_DELTA, HIGH_DELTA) +
     (start > 0 ? ' ' + tr('The contributions line includes your starting balance.') : '') +
-    (pMode === 'percent' ? ' ' + (s.promoPct > 0 && s.promoYear >= 2 && s.promoYear <= s.years ? tr('Monthly contributions grow each year with your annual raise and your promotion raise.') : tr('Monthly contributions grow each year with your annual raise.')) : '') +
+    (pMode === 'percent' ? ' ' + (activePromos(s).length ? tr('Monthly contributions grow each year with your annual raise and your promotion raise.') : tr('Monthly contributions grow each year with your annual raise.')) : '') +
     (pMode === 'dollar' && payPerYear() === 26 ? ' ' + tr('Bi-weekly contributions are modeled as 26 paychecks a year, spread evenly across the months.') : '') +
     (inflOn ? ' ' + tr("Figures are in today's dollars at {0}% annual inflation.", num('s-infl-rate')) : '');
 
@@ -2311,7 +2355,7 @@ function simK401(p, delta) {
 
 function computeK401(s) {
   const p = {
-    rate: num('k-return'), start: num('k-starting'), salary: s.salary, raise: s.raise, promoPct: s.promoPct, promoYear: s.promoYear,
+    rate: num('k-return'), start: num('k-starting'), salary: s.salary, raise: s.raise, promos: s.promos,
     contribPct: num('k-contrib-pct'), matchRate: num('k-match-rate'), matchCap: num('k-match-cap'),
     years: s.years, inflRate: s.inflRate, limit: kLimit(), age: s.age,
   };
@@ -2551,6 +2595,7 @@ function recomputeAll() {
   lastFundKey = fundKey();
   renderWhy(edited);
   const s = shared();
+  renderPromoRows();
   updatePromoNote(s);
   const P = computePersonal(s);
   const K = computeK401(s);
