@@ -231,7 +231,6 @@
   .alloc-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .alloc-head label { font-size: 14px; display: flex; align-items: center; gap: 8px; }
   .alloc-head .muted { color: var(--text-2); font-size: 12px; }
-  .alloc input[type=range] { width: 100%; height: 32px; margin: 0; accent-color: var(--accent); }
   .dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; flex-shrink: 0; }
   .alloc-bar { display: flex; height: 26px; border-radius: 6px; overflow: hidden; background: var(--surface-2); margin: 4px 0 8px; }
   .alloc-bar span { display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; transition: width .15s; }
@@ -346,11 +345,9 @@
   .a-slot.is-custom .a-vals, .a-slot.vals-open .a-vals { display: flex; }
   .a-slot.is-custom .a-edit { display: none; }
   .a-edit { padding: 6px 0; }
-  .a-share { display: flex; align-items: center; gap: 10px; }
-  .a-share input[type=range] { flex: 1; min-width: 0; height: 32px; margin: 0; accent-color: var(--accent); }
+  .a-share { display: flex; align-items: center; gap: 4px; flex: none; }
   .a-share .box .num { width: 56px; }
-  .a-fixed { font-size: 14px; font-weight: 600; }
-  .a-fixed .muted { font-weight: 400; font-size: 12px; color: var(--text-2); }
+  .a-slot.is-single .a-share { display: none; }
   .a-slot + .a-slot { border-top: 1px solid var(--border); padding-top: 12px; }
   .a-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
   .a-top .a-select { flex: 1 1 0; min-width: 0; width: 0; max-width: none; }
@@ -581,12 +578,24 @@
 
         <div class="section">
           <h3>Fund</h3>
+          <div id="fund-single">
+        <div class="a-slot is-single" id="slot-voo">
           <div class="a-top">
             <span class="dot" style="background:var(--c-voo)"></span>
-            <select id="a-voo-fund" class="num sel a-select" aria-label="Fund"></select>
-            <input type="text" id="a-voo-name" class="num a-name" maxlength="8" placeholder="Name" aria-label="Custom fund name" autocomplete="off" hidden>
+            <select id="a-voo-fund" class="num sel a-select" aria-label="Fund 1"></select>
+            <input type="text" id="a-voo-name" class="num a-name" maxlength="8" placeholder="Name" aria-label="Custom fund 1 name" autocomplete="off" hidden>
+            <span class="a-share"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="100" id="p-voo-num" class="num"></span><span class="unit">%</span></span>
+          </div>
+          <button class="link-btn a-edit" type="button" data-slot="voo" aria-expanded="false">Edit return and yield</button>
+          <div class="a-vals">
+            <label class="a-val"><span>Total return</span><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.1" value="10.5" id="a-voo-total" class="num"><span class="unit">%</span></span></label>
+            <label class="a-val"><span>Dividend yield</span><span class="box"><input type="number" inputmode="decimal" min="0" max="15" step="0.1" value="1.1" id="a-voo-div" class="num"><span class="unit">%</span></span></label>
           </div>
           <p class="a-desc" id="a-voo-desc"></p>
+        </div>
+          </div>
+          <p class="hint" id="fund-mixnote" hidden></p>
+          <button class="link-btn" id="fund-mix-link" type="button">Mix several funds instead</button>
         </div>
 
         <details class="adv" id="adv-personal">
@@ -594,37 +603,27 @@
           <div class="adv-body">
         <div class="section">
           <h3>Funds</h3>
-          <p class="hint">Everything goes into the fund you picked above. To split your money, pick up to two more funds and set how much goes into each. The three always add up to 100%.</p>
-          <div class="strategies" id="p-strategies">
-            <button class="strat-btn" type="button" data-voo="100" data-qqq="0" data-schd="0">One fund</button>
-            <button class="strat-btn" type="button" data-voo="60" data-qqq="25" data-schd="15">Growth-tilted</button>
-            <button class="strat-btn" type="button" data-voo="50" data-qqq="25" data-schd="25">Balanced</button>
-            <button class="strat-btn" type="button" data-voo="50" data-qqq="15" data-schd="35">Income-leaning</button>
-            <button class="strat-btn" type="button" data-voo="60" data-qqq="40" data-schd="0">Simplified 2-fund</button>
+          <div class="field">
+            <span class="lbl" id="p-mix-lbl">Mix several funds</span>
+            <div class="ctl"><button class="switch" id="p-mix-switch" type="button" role="switch" aria-checked="false" aria-labelledby="p-mix-lbl"></button></div>
           </div>
-          <div class="alloc-bar" id="p-alloc-bar" aria-hidden="true"></div>
-        <div class="a-slots">
-        <div class="a-slot" id="slot-voo">
-          <div class="a-top"><span class="dot" style="background:var(--c-voo)"></span><span class="a-fixed"><span data-fname="voo"></span> <span class="muted">main fund, chosen above</span></span></div>
-          <div class="a-share">
-            <input type="range" min="0" max="100" step="1" value="100" id="p-voo-range">
-            <span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="100" id="p-voo-num" class="num" aria-label="Percent in this fund"></span><span class="unit">%</span>
-          </div>
-          <button class="link-btn a-edit" type="button" data-slot="voo" aria-expanded="false">Edit return and yield</button>
-          <div class="a-vals">
-            <label class="a-val"><span>Total return</span><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.1" value="10.5" id="a-voo-total" class="num"><span class="unit">%</span></span></label>
-            <label class="a-val"><span>Dividend yield</span><span class="box"><input type="number" inputmode="decimal" min="0" max="15" step="0.1" value="1.1" id="a-voo-div" class="num"><span class="unit">%</span></span></label>
-          </div>
-        </div>
+          <p class="hint" id="p-mix-hint"></p>
+          <div id="p-mix" hidden>
+            <div class="strategies" id="p-strategies">
+              <button class="strat-btn" type="button" data-preset="growth">Growth-tilted</button>
+              <button class="strat-btn" type="button" data-preset="balanced">Balanced</button>
+              <button class="strat-btn" type="button" data-preset="income">Income-leaning</button>
+              <button class="strat-btn" type="button" data-preset="international">International</button>
+            </div>
+            <p class="hint" id="p-preset-note"></p>
+            <div class="alloc-bar" id="p-alloc-bar" aria-hidden="true"></div>
+            <div class="a-slots" id="mix-slots">
         <div class="a-slot" id="slot-qqq">
           <div class="a-top">
             <span class="dot" style="background:var(--c-qqq)"></span>
             <select id="a-qqq-fund" class="num sel a-select" aria-label="Fund 2"></select>
             <input type="text" id="a-qqq-name" class="num a-name" maxlength="8" placeholder="Name" aria-label="Custom fund 2 name" autocomplete="off" hidden>
-          </div>
-          <div class="a-share">
-            <input type="range" min="0" max="100" step="1" value="0" id="p-qqq-range">
-            <span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="0" id="p-qqq-num" class="num" aria-label="Percent in this fund"></span><span class="unit">%</span>
+            <span class="a-share"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="0" id="p-qqq-num" class="num"></span><span class="unit">%</span></span>
           </div>
           <button class="link-btn a-edit" type="button" data-slot="qqq" aria-expanded="false">Edit return and yield</button>
           <div class="a-vals">
@@ -638,10 +637,7 @@
             <span class="dot" style="background:var(--c-schd)"></span>
             <select id="a-schd-fund" class="num sel a-select" aria-label="Fund 3"></select>
             <input type="text" id="a-schd-name" class="num a-name" maxlength="8" placeholder="Name" aria-label="Custom fund 3 name" autocomplete="off" hidden>
-          </div>
-          <div class="a-share">
-            <input type="range" min="0" max="100" step="1" value="0" id="p-schd-range">
-            <span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="0" id="p-schd-num" class="num" aria-label="Percent in this fund"></span><span class="unit">%</span>
+            <span class="a-share"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="0" id="p-schd-num" class="num"></span><span class="unit">%</span></span>
           </div>
           <button class="link-btn a-edit" type="button" data-slot="schd" aria-expanded="false">Edit return and yield</button>
           <div class="a-vals">
@@ -650,9 +646,10 @@
           </div>
           <p class="a-desc" id="a-schd-desc"></p>
         </div>
-        </div>
-          <p class="hint">Total return includes dividends and is after the fund's expense ratio, which published fund returns already include. The numbers are long-run historical averages, so changing them shows a what-if, not a forecast. The 401(k) tab has its own expected return.</p>
-          <button class="link-btn" id="rates-reset" type="button">Restore default funds and rates</button>
+            </div>
+            <p class="hint">Total return includes dividends and is after the fund's expense ratio, which published fund returns already include. The numbers are long-run historical averages, so changing them shows a what-if, not a forecast. The 401(k) tab has its own expected return.</p>
+            <button class="link-btn" id="rates-reset" type="button">Restore default funds and rates</button>
+          </div>
         </div>
 
         <div class="section">
@@ -833,39 +830,26 @@
           </div>
           <p class="hint" id="i-alloc-same"></p>
           <div id="i-alloc-custom" hidden>
-          <div class="strategies" id="i-strategies">
-            <button class="strat-btn" type="button" data-voo="100" data-qqq="0" data-schd="0">One fund</button>
-            <button class="strat-btn" type="button" data-voo="60" data-qqq="25" data-schd="15">Growth-tilted</button>
-            <button class="strat-btn" type="button" data-voo="50" data-qqq="25" data-schd="25">Balanced</button>
-            <button class="strat-btn" type="button" data-voo="50" data-qqq="15" data-schd="35">Income-leaning</button>
-            <button class="strat-btn" type="button" data-voo="60" data-qqq="40" data-schd="0">Simplified 2-fund</button>
-          </div>
           <div class="alloc-bar" id="i-alloc-bar" aria-hidden="true"></div>
-          <button class="link-btn alloc-toggle" id="i-custom-btn" type="button" aria-expanded="false" aria-controls="i-alloc-sliders">Customize percentages</button>
-          <div id="i-alloc-sliders" hidden>
           <div class="alloc">
             <div class="alloc-head">
               <label for="i-voo-num"><span class="dot" style="background:var(--c-voo)"></span><span data-fname="voo"></span> <span class="muted" data-yield="voo"></span></label>
               <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="100" id="i-voo-num" class="num"></span><span class="unit">%</span></div>
             </div>
-            <input type="range" min="0" max="100" step="1" value="100" id="i-voo-range">
           </div>
           <div class="alloc">
             <div class="alloc-head">
               <label for="i-qqq-num"><span class="dot" style="background:var(--c-qqq)"></span><span data-fname="qqq"></span> <span class="muted" data-yield="qqq"></span></label>
               <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="0" id="i-qqq-num" class="num"></span><span class="unit">%</span></div>
             </div>
-            <input type="range" min="0" max="100" step="1" value="0" id="i-qqq-range">
           </div>
           <div class="alloc">
             <div class="alloc-head">
               <label for="i-schd-num"><span class="dot" style="background:var(--c-schd)"></span><span data-fname="schd"></span> <span class="muted" data-yield="schd"></span></label>
               <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="0" id="i-schd-num" class="num"></span><span class="unit">%</span></div>
             </div>
-            <input type="range" min="0" max="100" step="1" value="0" id="i-schd-range">
           </div>
-          <p class="hint">The three always add up to 100%. Changing one rebalances the others.</p>
-          </div>
+          <p class="hint" id="i-mix-hint"></p>
           </div>
         </div>
           </div>
@@ -1055,13 +1039,22 @@ const ES = {
   "Years to invest": "Años para invertir",
   "Annual salary": "Salario anual",
   "Annual raise": "Aumento anual",
+  "Mix several funds": "Combinar varios fondos",
+  "Mix several funds instead": "Combinar varios fondos",
+  "Edit mix": "Editar mezcla",
+  "Mixing several funds: {0}.": "Combinando varios fondos: {0}.",
+  "Off: all of your money goes into the fund you picked above.": "Desactivado: todo tu dinero va al fondo que elegiste arriba.",
+  "Pick a ready-made mix, or choose your own funds and percentages. The three always add up to 100%.": "Elige una mezcla lista o escoge tus propios fondos y porcentajes. Los tres siempre suman 100%.",
+  "Large U.S. companies plus the Nasdaq-100 for extra growth.": "Grandes empresas de EE. UU. más el Nasdaq-100 para crecer más.",
+  "About 60% stocks and 40% bonds, with some international stocks.": "Cerca de 60% en acciones y 40% en bonos, con algo de acciones internacionales.",
+  "Leans on dividend-paying stocks for more cash payouts.": "Se apoya en acciones que pagan dividendos para recibir más efectivo.",
+  "U.S. stocks plus a 40% share of companies outside the U.S.": "Acciones de EE. UU. más 40% en empresas fuera de EE. UU.",
+  "Uses the funds from your Personal mix. The three always add up to 100%.": "Usa los fondos de tu mezcla de Personal. Los tres siempre suman 100%.",
+  "To use other funds, turn on \"Mix several funds\" under Advanced on the Personal tab. The three always add up to 100%.": "Para usar otros fondos, activa \"Combinar varios fondos\" en Avanzado, en la pestaña Personal. Los tres siempre suman 100%.",
   "Fund": "Fondo",
   "Custom fund name": "Nombre del fondo personalizado",
-  "Percent in this fund": "Porcentaje en este fondo",
-  "main fund, chosen above": "fondo principal, elegido arriba",
   "Edit return and yield": "Editar rendimiento y dividendos",
   "Hide return and yield": "Ocultar rendimiento y dividendos",
-  "Everything goes into the fund you picked above. To split your money, pick up to two more funds and set how much goes into each. The three always add up to 100%.": "Todo va al fondo que elegiste arriba. Para repartir tu dinero, elige hasta dos fondos más y define cuánto va a cada uno. Los tres siempre suman 100%.",
   "Total return includes dividends and is after the fund's expense ratio, which published fund returns already include. The numbers are long-run historical averages, so changing them shows a what-if, not a forecast. The 401(k) tab has its own expected return.": "El rendimiento total incluye los dividendos y es después de la razón de gastos del fondo, que los rendimientos publicados de los fondos ya incluyen. Las cifras son promedios históricos a largo plazo, así que cambiarlas muestra un \"qué pasaría si\", no un pronóstico. La pestaña 401(k) tiene su propio rendimiento esperado.",
   "Fixed $": "$ fijo",
   "Advanced: funds and dividends": "Avanzado: fondos y dividendos",
@@ -1070,7 +1063,6 @@ const ES = {
   "A one-time raise on top of your annual raise, starting in the year you choose (year 1 is this year). Set it to 0% to ignore it.": "Un aumento único además de tu aumento anual, a partir del año que elijas (el año 1 es este año). Ponlo en 0% para ignorarlo.",
   "{0} in today's dollars, at {1}% average yearly inflation": "{0} en dólares de hoy, con {1}% de inflación anual promedio",
   "These are typical starting numbers for a U.S. worker. Replace them with your own.": "Estas son cifras iniciales típicas de un trabajador en EE. UU. Reemplázalas con las tuyas.",
-  "One fund": "Un solo fondo",
   "Advanced: plan limit and expected return": "Avanzado: límite del plan y rendimiento esperado",
   "Advanced: account type, frequency and funds": "Avanzado: tipo de cuenta, frecuencia y fondos",
   "You're leaving about {0} a year of free employer match unused. Raising your contribution from {1}% to {2}% would add about {3} to your balance by age {4}, including your own extra savings.": "Estás dejando sin usar unos {0} al año de aportación gratuita de tu patrono. Subir tu aportación de {1}% a {2}% sumaría unos {3} a tu balance a los {4} años, incluyendo tus ahorros adicionales.",
@@ -1115,8 +1107,6 @@ const ES = {
   "Growth-tilted": "Enfocada en crecimiento",
   "Balanced": "Balanceada",
   "Income-leaning": "Enfocada en ingresos",
-  "Simplified 2-fund": "Simplificada de 2 fondos",
-  "The three always add up to 100%. Changing one rebalances the others.": "Los tres siempre suman 100%. Al cambiar uno, se ajustan los demás.",
   "Dividends": "Dividendos",
   "Reinvest dividends": "Reinvertir dividendos",
   "Investment growth": "Crecimiento de la inversión",
@@ -1130,8 +1120,6 @@ const ES = {
   "The same plan with returns {0} and +{1} points a year from the base case. A sensitivity check, not a forecast.": "El mismo plan con rendimientos {0} y +{1} puntos al año respecto al caso base. Una prueba de sensibilidad, no un pronóstico.",
   "Dividends are reinvested to buy more shares (DRIP).": "Los dividendos se reinvierten para comprar más acciones (DRIP).",
   "Dividends are paid out as cash and not reinvested.": "Los dividendos se pagan en efectivo y no se reinvierten.",
-  "Hide custom percentages": "Ocultar porcentajes personalizados",
-  "Customize percentages": "Personalizar porcentajes",
   "= about {0} / month on average (26 paychecks a year). Stays fixed each year.": "= unos {0} / mes en promedio (26 cheques al año). Se mantiene fijo cada año.",
   "= {0} / month. Stays fixed each year.": "= {0} / mes. Se mantiene fijo cada año.",
   "= {0} / month now (about {1} per bi-weekly paycheck), from a {2} salary growing {3}% a year": "= {0} / mes ahora (unos {1} por cheque cada dos semanas), de un salario de {2} que crece {3}% al año",
@@ -1293,6 +1281,16 @@ function applyI18n() {
 }
 
 // Fills the three fund drop-downs (re-run when the language changes) and greys out funds already used in another slot.
+// Mixing is off by default: everything goes into the one fund picked in the main section. When it is on, mixAlloc holds the split.
+let pMix = false;
+let mixAlloc = { voo: 100, qqq: 0, schd: 0 };
+// Ready-made mixes. Each one sets real funds and percentages, in slot order.
+const MIX_PRESETS = {
+  growth:        { name: 'Growth-tilted',  funds: ['VOO', 'QQQM'],         pct: [60, 40],     desc: 'Large U.S. companies plus the Nasdaq-100 for extra growth.' },
+  balanced:      { name: 'Balanced',       funds: ['VOO', 'VXUS', 'BND'],  pct: [45, 15, 40], desc: 'About 60% stocks and 40% bonds, with some international stocks.' },
+  income:        { name: 'Income-leaning', funds: ['VOO', 'SCHD', 'VYM'],  pct: [50, 30, 20], desc: 'Leans on dividend-paying stocks for more cash payouts.' },
+  international: { name: 'International',  funds: ['VTI', 'VXUS'],         pct: [60, 40],     desc: 'U.S. stocks plus a 40% share of companies outside the U.S.' },
+};
 function buildFundSelects() {
   FUNDS.forEach((f) => {
     const sel = $('a-' + f + '-fund');
@@ -1310,7 +1308,8 @@ function buildFundSelects() {
   refreshFundOptions();
 }
 function refreshFundOptions() {
-  const used = FUNDS.map((f) => $('a-' + f + '-fund').value);
+  // one fund can only fill one slot, but with mixing off only the first slot is in play
+  const used = FUNDS.map((f, i) => (pMix || i === 0 ? $('a-' + f + '-fund').value : null));
   FUNDS.forEach((f, i) => {
     Array.from($('a-' + f + '-fund').options).forEach((o) => { o.disabled = o.value !== 'CUSTOM' && used.some((u, j) => j !== i && u === o.value); });
   });
@@ -1370,10 +1369,6 @@ function payPerYear() { return $('p-freq').value === 'monthly' ? 12 : 26; }
 
 function kLimit() { return Number($('k-limit').value) || 15000; }
 
-function matchesPreset() {
-  return Array.from(document.querySelectorAll('#p-strategies .strat-btn')).some((b) => FUNDS.every((f) => Number(b.dataset[f]) === pAlloc[f]));
-}
-
 const PROMO_IDS = [['s-promo-pct', 's-promo-year'], ['s-promo2-pct', 's-promo2-year'], ['s-promo3-pct', 's-promo3-year']];
 let promoShown = 0;
 function shared() {
@@ -1410,7 +1405,6 @@ function fundLabel(f) {
 }
 // Reads the three slots into RATES. Returns the slots whose numbers were edited away from the catalog, and whether anything differs from the page defaults.
 function syncRates() {
-  let customized = false;
   const edited = [];
   FUNDS.forEach((f) => {
     const code = $('a-' + f + '-fund').value;
@@ -1425,14 +1419,13 @@ function syncRates() {
     const ref = isCustom ? null : CATALOG[code];
     const wasEdited = !!ref && (total !== ref.total || div !== ref.div);
     if (wasEdited) edited.push(RATES[f].label);
-    if (code !== DEFAULT_FUND[f] || wasEdited) customized = true;
     $('a-' + f + '-desc').textContent = ref
       ? tr('{0} \u00b7 {1}% expense ratio \u00b7 launched {2}', tr(ref.name), ref.fee, ref.since)
       : tr('Your own numbers. A long-run average works better than a recent year.');
     document.querySelectorAll('[data-yield="' + f + '"]').forEach((el) => { el.textContent = tr('{0}% dividend', div); });
   });
   renderFundNames();
-  $('assump-badge').hidden = !(customized || !allocIsDefault(pAlloc) || !pReinvest);
+  $('assump-badge').hidden = !(pMix || !pReinvest);
   return edited;
 }
 function renderEditBtns() {
@@ -1445,8 +1438,8 @@ function renderEditBtns() {
 function renderFundNames() {
   document.querySelectorAll('[data-fname]').forEach((el) => { el.textContent = RATES[el.dataset.fname].label; });
   FUNDS.forEach((f) => {
-    $('p-' + f + '-range').setAttribute('aria-label', tr('{0} allocation', RATES[f].label));
-    $('i-' + f + '-range').setAttribute('aria-label', tr('IRA {0} allocation', RATES[f].label));
+    $('p-' + f + '-num').setAttribute('aria-label', tr('{0} allocation', RATES[f].label));
+    $('i-' + f + '-num').setAttribute('aria-label', tr('IRA {0} allocation', RATES[f].label));
   });
 }
 const fundKey = () => FUNDS.map((f) => RATES[f].label).join('|');
@@ -1486,11 +1479,12 @@ function normalizeAlloc(alloc, key, rawValue) {
   return next;
 }
 
+function presetActive(key) {
+  const pr = MIX_PRESETS[key];
+  return FUNDS.every((f, i) => (i < pr.funds.length ? $('a-' + f + '-fund').value === pr.funds[i] && pAlloc[f] === pr.pct[i] : pAlloc[f] === 0));
+}
 function syncAllocInputs() {
-  FUNDS.forEach((f) => {
-    $('p-' + f + '-range').value = pAlloc[f];
-    $('p-' + f + '-num').value = pAlloc[f];
-  });
+  FUNDS.forEach((f) => { $('p-' + f + '-num').value = pAlloc[f]; });
   const bar = $('p-alloc-bar');
   bar.innerHTML = '';
   FUNDS.forEach((f) => {
@@ -1501,31 +1495,72 @@ function syncAllocInputs() {
     seg.title = RATES[f].label + ' ' + pAlloc[f] + '%';
     bar.appendChild(seg);
   });
+  let active = null;
   document.querySelectorAll('#p-strategies .strat-btn').forEach((b) => {
-    const match = FUNDS.every((f) => Number(b.dataset[f]) === pAlloc[f]);
-    b.classList.toggle('active', match);
+    const on = presetActive(b.dataset.preset);
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-pressed', String(on));
+    if (on) active = b.dataset.preset;
   });
+  $('p-preset-note').textContent = (active ? tr(MIX_PRESETS[active].name) : tr('Custom mix')) + ': ' + allocText(pAlloc) + '.' + (active ? ' ' + tr(MIX_PRESETS[active].desc) : '');
+  $('fund-mixnote').textContent = tr('Mixing several funds: {0}.', allocText(pAlloc));
 }
 
-FUNDS.forEach((f) => {
-  ['range', 'num'].forEach((kind) => {
-    $('p-' + f + '-' + kind).addEventListener('input', (e) => {
-      pAlloc = normalizeAlloc(pAlloc, f, e.target.value);
-      syncAllocInputs();
-      recomputeAll();
-    });
+// Point a slot at a catalog fund (or Custom) and load that fund's numbers.
+function setSlotFund(f, code) {
+  $('a-' + f + '-fund').value = code;
+  $('a-' + f + '-name').value = '';
+  if (code !== 'CUSTOM') {
+    $('a-' + f + '-total').value = CATALOG[code].total;
+    $('a-' + f + '-div').value = CATALOG[code].div;
+  }
+}
+// If a later slot repeats a fund that an earlier slot already holds, move it to one nobody is using.
+function dedupeSlots() {
+  FUNDS.forEach((f, i) => {
+    const code = $('a-' + f + '-fund').value;
+    if (code === 'CUSTOM') return;
+    const taken = FUNDS.map((g) => $('a-' + g + '-fund').value);
+    if (!taken.slice(0, i).includes(code)) return;
+    const pick = taken.includes(DEFAULT_FUND[f]) ? Object.keys(CATALOG).find((t) => !taken.includes(t)) : DEFAULT_FUND[f];
+    setSlotFund(f, pick);
   });
-});
-
-document.querySelectorAll('#p-strategies .strat-btn').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    pAlloc = { voo: Number(btn.dataset.voo), qqq: Number(btn.dataset.qqq), schd: Number(btn.dataset.schd) };
+}
+function setMix(on) {
+  if (on === pMix) return;
+  pMix = on;
+  if (on) { pAlloc = Object.assign({}, mixAlloc); dedupeSlots(); }
+  else { mixAlloc = Object.assign({}, pAlloc); pAlloc = { voo: 100, qqq: 0, schd: 0 }; }
+  refreshFundOptions();
+  syncRates();
+  syncAllocInputs();
+  renderToggles();
+  recomputeAll();
+}
+function applyPreset(key) {
+  const pr = MIX_PRESETS[key];
+  FUNDS.forEach((f, i) => { if (i < pr.funds.length) setSlotFund(f, pr.funds[i]); });
+  dedupeSlots();
+  mixAlloc = { voo: pr.pct[0] || 0, qqq: pr.pct[1] || 0, schd: pr.pct[2] || 0 };
+  pAlloc = Object.assign({}, mixAlloc);
+  refreshFundOptions();
+  syncRates();
+  syncAllocInputs();
+  recomputeAll();
+}
+$('p-mix-switch').addEventListener('click', () => setMix(!pMix));
+$('fund-mix-link').addEventListener('click', () => { setMix(true); $('adv-personal').open = true; $('p-mix-switch').scrollIntoView({ block: 'center' }); });
+document.querySelectorAll('#p-strategies .strat-btn').forEach((btn) => btn.addEventListener('click', () => applyPreset(btn.dataset.preset)));
+FUNDS.forEach((f) => {
+  $('p-' + f + '-num').addEventListener('input', (e) => {
+    if (!pMix) return;
+    pAlloc = normalizeAlloc(pAlloc, f, e.target.value);
+    mixAlloc = Object.assign({}, pAlloc);
     syncAllocInputs();
     recomputeAll();
   });
 });
 
-/* ---------------- toggles ---------------- */
 function renderToggles() {
   $('p-mode').value = pMode;
   $('p-view-growth').hidden = pView !== 'growth';
@@ -1537,10 +1572,23 @@ function renderToggles() {
   $('p-amount-lbl').textContent = payPerYear() === 26 ? tr('Per paycheck') : tr('Per month');
   $('p-percent-fields').style.display = pMode === 'percent' ? 'block' : 'none';
   $('p-freq-row').style.display = pMode === 'dollar' ? 'block' : 'none';
+  $('p-mix-switch').setAttribute('aria-checked', String(pMix));
+  $('p-mix').hidden = !pMix;
+  $('p-mix-hint').textContent = pMix
+    ? tr('Pick a ready-made mix, or choose your own funds and percentages. The three always add up to 100%.')
+    : tr('Off: all of your money goes into the fund you picked above.');
+  const slot1 = $('slot-voo');
+  const host = pMix ? $('mix-slots') : $('fund-single');
+  if (slot1.parentNode !== host) { if (pMix) host.insertBefore(slot1, host.firstChild); else host.appendChild(slot1); }
+  slot1.classList.toggle('is-single', !pMix);
+  $('fund-single').hidden = pMix;
+  $('fund-mixnote').hidden = !pMix;
+  $('fund-mix-link').textContent = pMix ? tr('Edit mix') : tr('Mix several funds instead');
   $('p-reinvest-switch').setAttribute('aria-checked', String(pReinvest));
   $('p-reinvest-label').textContent = pReinvest ? tr('Dividends are reinvested to buy more shares (DRIP).') : tr('Dividends are paid out as cash and not reinvested.');
   renderEditBtns();
   renderIraToggles();
+  syncAllocInputs();
 }
 $('p-view-growth-btn').addEventListener('click', () => { pView = 'growth'; renderToggles(); saveState(); });
 $('p-view-div-btn').addEventListener('click', () => { pView = 'div'; renderToggles(); saveState(); });
@@ -1566,15 +1614,10 @@ $('k-limit').addEventListener('change', recomputeAll);
 /* ---------------- IRA inputs ---------------- */
 let iAlloc = { voo: 100, qqq: 0, schd: 0 };
 let iAllocEdited = false;
-let iCustomOpen = false;
 function iraAlloc() { return $('i-alloc-mode').value === 'custom' ? iAlloc : pAlloc; }
 function iraPerYear() { return $('i-freq').value === 'monthly' ? 12 : 26; }
-function matchesIraPreset() {
-  return Array.from(document.querySelectorAll('#i-strategies .strat-btn')).some((b) => FUNDS.every((f) => Number(b.dataset[f]) === iAlloc[f]));
-}
 function syncIraAlloc() {
   FUNDS.forEach((f) => {
-    $('i-' + f + '-range').value = iAlloc[f];
     $('i-' + f + '-num').value = iAlloc[f];
   });
   const bar = $('i-alloc-bar');
@@ -1587,9 +1630,6 @@ function syncIraAlloc() {
     seg.title = RATES[f].label + ' ' + iAlloc[f] + '%';
     bar.appendChild(seg);
   });
-  document.querySelectorAll('#i-strategies .strat-btn').forEach((b) => {
-    b.classList.toggle('active', FUNDS.every((f) => Number(b.dataset[f]) === iAlloc[f]));
-  });
 }
 function allocText(a) { return FUNDS.filter((f) => a[f] > 0).map((f) => RATES[f].label + ' ' + a[f] + '%').join(' · '); }
 function renderIraToggles() {
@@ -1597,27 +1637,17 @@ function renderIraToggles() {
   $('i-alloc-custom').hidden = !custom;
   $('i-alloc-same').hidden = custom;
   $('i-alloc-same').textContent = tr('Uses your Personal mix: {0}.', allocText(pAlloc));
-  $('i-alloc-sliders').hidden = !iCustomOpen;
-  $('i-custom-btn').setAttribute('aria-expanded', String(iCustomOpen));
-  $('i-custom-btn').textContent = iCustomOpen ? tr('Hide custom percentages') : tr('Customize percentages');
+  $('i-mix-hint').textContent = pMix
+    ? tr('Uses the funds from your Personal mix. The three always add up to 100%.')
+    : tr('To use other funds, turn on "Mix several funds" under Advanced on the Personal tab. The three always add up to 100%.');
   $('i-amount-lbl').textContent = iraPerYear() === 26 ? tr('Per paycheck') : tr('Per month');
   $('i-type-hint').textContent = $('i-type').value === 'roth'
     ? tr("Roth: withdrawals in retirement are tax-free, but eligibility phases out at higher incomes (2026: starting at $153,000 single or $242,000 married filing jointly). Taxes aren't modeled here.")
     : tr("Traditional: contributions may be tax-deductible and withdrawals are taxed. Deductibility depends on your income and workplace plan. Taxes aren't modeled here.");
 }
 FUNDS.forEach((f) => {
-  ['range', 'num'].forEach((kind) => {
-    $('i-' + f + '-' + kind).addEventListener('input', (e) => {
-      iAlloc = normalizeAlloc(iAlloc, f, e.target.value);
-      iAllocEdited = true;
-      syncIraAlloc();
-      recomputeAll();
-    });
-  });
-});
-document.querySelectorAll('#i-strategies .strat-btn').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    iAlloc = { voo: Number(btn.dataset.voo), qqq: Number(btn.dataset.qqq), schd: Number(btn.dataset.schd) };
+  $('i-' + f + '-num').addEventListener('input', (e) => {
+    iAlloc = normalizeAlloc(iAlloc, f, e.target.value);
     iAllocEdited = true;
     syncIraAlloc();
     recomputeAll();
@@ -1625,36 +1655,29 @@ document.querySelectorAll('#i-strategies .strat-btn').forEach((btn) => {
 });
 $('i-alloc-mode').addEventListener('change', () => {
   // first time on Custom, start from the Personal mix so there is something sensible to tweak
-  if ($('i-alloc-mode').value === 'custom' && !iAllocEdited) { iAlloc = Object.assign({}, pAlloc); if (!matchesIraPreset()) iCustomOpen = true; }
+  if ($('i-alloc-mode').value === 'custom' && !iAllocEdited) { iAlloc = Object.assign({}, pAlloc); }
   syncIraAlloc();
   renderIraToggles();
   recomputeAll();
 });
-$('i-custom-btn').addEventListener('click', () => { iCustomOpen = !iCustomOpen; renderIraToggles(); saveState(); });
 $('i-freq').addEventListener('change', () => { renderIraToggles(); recomputeAll(); });
 $('i-type').addEventListener('change', () => { renderIraToggles(); recomputeAll(); });
 $('rates-reset').addEventListener('click', () => {
   FUNDS.forEach((f) => {
-    $('a-' + f + '-fund').value = DEFAULT_FUND[f];
-    $('a-' + f + '-name').value = '';
-    $('a-' + f + '-total').value = DEFAULT_RATES[f].total;
-    $('a-' + f + '-div').value = DEFAULT_RATES[f].div;
+    setSlotFund(f, DEFAULT_FUND[f]);
+    $('slot-' + f).classList.remove('vals-open');
   });
   refreshFundOptions();
+  renderEditBtns();
   recomputeAll();
 });
 FUNDS.forEach((f) => {
   $('a-' + f + '-fund').addEventListener('change', () => {
     const code = $('a-' + f + '-fund').value;
-    if (code !== 'CUSTOM') {
-      $('a-' + f + '-total').value = CATALOG[code].total;
-      $('a-' + f + '-div').value = CATALOG[code].div;
-    } else {
-      $('a-' + f + '-name').value = '';
-    }
+    setSlotFund(f, code);
     refreshFundOptions();
     recomputeAll();
-    if (code === 'CUSTOM') { $('adv-personal').open = true; $('a-' + f + '-name').focus(); }
+    if (code === 'CUSTOM') $('a-' + f + '-name').focus();
   });
   $('a-' + f + '-name').addEventListener('change', recomputeAll);
 });
@@ -1790,7 +1813,7 @@ $('pdf-btn').addEventListener('click', () => { buildReport(); window.print(); })
 function collectState() {
   const inputs = {};
   document.querySelectorAll('input[type=number], input[type=text], select').forEach((el) => { inputs[el.id] = el.hasAttribute('data-money') ? el.value.replace(/,/g, '') : el.value; });
-  return { v: 2, inputs, pAlloc, iAlloc, iAllocEdited, iCustomOpen, pMode, pReinvest, pView, tab: currentTab, lang: LANG };
+  return { v: 2, inputs, pAlloc, iAlloc, iAllocEdited, pMix, mixAlloc, pMode, pReinvest, pView, tab: currentTab, lang: LANG };
 }
 
 function saveState() {
@@ -1810,7 +1833,10 @@ function applyState(d) {
   if (d.iAlloc && FUNDS.every((f) => typeof d.iAlloc[f] === 'number') &&
       FUNDS.reduce((s, f) => s + d.iAlloc[f], 0) === 100) iAlloc = d.iAlloc;
   if (typeof d.iAllocEdited === 'boolean') iAllocEdited = d.iAllocEdited;
-  if (typeof d.iCustomOpen === 'boolean') iCustomOpen = d.iCustomOpen;
+  // saves made before mixing was a switch have no pMix: a split meant mixing was in use
+  pMix = typeof d.pMix === 'boolean' ? d.pMix : !allocIsDefault(pAlloc);
+  mixAlloc = d.mixAlloc && FUNDS.every((f) => typeof d.mixAlloc[f] === 'number') && FUNDS.reduce((t, f) => t + d.mixAlloc[f], 0) === 100 ? d.mixAlloc : Object.assign({}, pAlloc);
+  if (!pMix) pAlloc = { voo: 100, qqq: 0, schd: 0 };
   if (d.pMode === 'dollar' || d.pMode === 'percent') pMode = d.pMode;
   if (typeof d.pReinvest === 'boolean') pReinvest = d.pReinvest;
   if (d.pView === 'growth' || d.pView === 'div') pView = d.pView;
@@ -1854,7 +1880,7 @@ function readShare() {
 function idsDiffer(ids) { return ids.some((id) => $(id) && $(id).value !== DEFAULT_INPUTS[id]); }
 function slotEdited(f) {
   const code = $('a-' + f + '-fund').value;
-  if (code === 'CUSTOM') return true;
+  if (code === 'CUSTOM') return false;
   const edited = num('a-' + f + '-total') !== CATALOG[code].total || num('a-' + f + '-div') !== CATALOG[code].div;
   if (edited) $('slot-' + f).classList.add('vals-open');
   return edited;
@@ -1863,7 +1889,7 @@ function allocIsDefault(a) { return a.voo === 100 && a.qqq === 0 && a.schd === 0
 // A saved or shared scenario may use settings that live under Advanced; open those sections so nothing is hidden.
 function autoOpenAdvanced() {
   const need = {
-    'adv-personal': () => FUNDS.map(slotEdited).includes(true) || !pReinvest || !allocIsDefault(pAlloc) || ['qqq', 'schd'].some((f) => $('a-' + f + '-fund').value !== DEFAULT_FUND[f]),
+    'adv-personal': () => { FUNDS.forEach(slotEdited); return pMix || !pReinvest; },
     'adv-401k': () => idsDiffer(['k-limit', 'k-return']),
     'adv-ira': () => idsDiffer(['i-type', 'i-freq', 'i-alloc-mode']),
   };
@@ -2713,7 +2739,6 @@ function recomputeAll() {
 loadState();
 formatAllMoney();
 $('share-note').hidden = !sharedLoaded;
-if (!matchesIraPreset() && iAllocEdited) iCustomOpen = true;
 syncRates();
 syncAllocInputs();
 syncIraAlloc();
