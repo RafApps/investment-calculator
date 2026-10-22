@@ -584,6 +584,26 @@
 
         <div class="section">
           <h3>Contributions</h3>
+          <div class="field">
+            <label for="p-mode">Contribute</label>
+            <div class="ctl">
+              <select id="p-mode" class="num sel">
+                <option value="dollar" selected>Fixed $</option>
+                <option value="percent">% of salary</option>
+              </select>
+            </div>
+          </div>
+          <div id="p-freq-row">
+            <div class="field">
+              <label for="p-freq">How often</label>
+              <div class="ctl">
+                <select id="p-freq" class="num sel">
+                  <option value="biweekly">Bi-weekly</option>
+                  <option value="monthly" selected>Monthly</option>
+                </select>
+              </div>
+            </div>
+          </div>
           <div id="p-monthly-row">
             <div class="field">
               <label for="p-monthly" id="p-amount-lbl">Per month</label>
@@ -600,28 +620,8 @@
         </div>
 
         <details class="adv" id="adv-personal">
-          <summary>Advanced: contribution type, funds and dividends</summary>
+          <summary>Advanced: funds and dividends</summary>
           <div class="adv-body">
-          <div class="field">
-            <label for="p-mode">Contribute</label>
-            <div class="ctl">
-              <select id="p-mode" class="num sel">
-                <option value="dollar" selected>A fixed $ amount</option>
-                <option value="percent">A % of salary</option>
-              </select>
-            </div>
-          </div>
-          <div id="p-freq-row">
-            <div class="field">
-              <label for="p-freq">How often</label>
-              <div class="ctl">
-                <select id="p-freq" class="num sel">
-                  <option value="biweekly">Bi-weekly</option>
-                  <option value="monthly" selected>Monthly</option>
-                </select>
-              </div>
-            </div>
-          </div>
         <div class="section">
           <h3>Allocation</h3>
           <div class="strategies" id="p-strategies">
@@ -1061,6 +1061,8 @@ const ES = {
   "Years to invest": "Años para invertir",
   "Annual salary": "Salario anual",
   "Annual raise": "Aumento anual",
+  "Fixed $": "$ fijo",
+  "Advanced: funds and dividends": "Avanzado: fondos y dividendos",
   "Add promotion raise": "Agregar aumento por ascenso",
   "Add another promotion raise": "Agregar otro aumento por ascenso",
   "A one-time raise on top of your annual raise, starting in the year you choose (year 1 is this year). Set it to 0% to ignore it.": "Un aumento único además de tu aumento anual, a partir del año que elijas (el año 1 es este año). Ponlo en 0% para ignorarlo.",
@@ -1069,7 +1071,6 @@ const ES = {
   "Advanced: funds and returns": "Avanzado: fondos y rendimientos",
   "By default everything goes into the first fund (VOO, the S&P 500). Pick a preset to spread it out, or customize the percentages.": "Por defecto todo va al primer fondo (VOO, el S&P 500). Elige un ajuste preestablecido para repartirlo, o personaliza los porcentajes.",
   "One fund": "Un solo fondo",
-  "Advanced: contribution type, funds and dividends": "Avanzado: tipo de aportación, fondos y dividendos",
   "Advanced: plan limit and expected return": "Avanzado: límite del plan y rendimiento esperado",
   "Advanced: account type, frequency and funds": "Avanzado: tipo de cuenta, frecuencia y fondos",
   "You're leaving about {0} a year of free employer match unused. Raising your contribution from {1}% to {2}% would add about {3} to your balance by age {4}, including your own extra savings.": "Estás dejando sin usar unos {0} al año de aportación gratuita de tu patrono. Subir tu aportación de {1}% a {2}% sumaría unos {3} a tu balance a los {4} años, incluyendo tus ahorros adicionales.",
@@ -1106,8 +1107,6 @@ const ES = {
   "Starting balance": "Balance inicial",
   "Contributions": "Aportaciones",
   "Contribute": "Aportar",
-  "A fixed $ amount": "Una cantidad fija en $",
-  "A % of salary": "Un % del salario",
   "How often": "Con qué frecuencia",
   "Bi-weekly": "Cada dos semanas",
   "Monthly": "Mensual",
@@ -1850,7 +1849,7 @@ function allocIsDefault(a) { return a.voo === 100 && a.qqq === 0 && a.schd === 0
 // A saved or shared scenario may use settings that live under Advanced; open those sections so nothing is hidden.
 function autoOpenAdvanced() {
   const need = {
-    'adv-personal': () => pMode !== 'dollar' || !pReinvest || !allocIsDefault(pAlloc) || idsDiffer(['p-freq']),
+    'adv-personal': () => !pReinvest || !allocIsDefault(pAlloc),
     'adv-401k': () => idsDiffer(['k-limit', 'k-return']),
     'adv-ira': () => idsDiffer(['i-type', 'i-freq', 'i-alloc-mode']),
   };
