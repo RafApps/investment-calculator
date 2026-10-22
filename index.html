@@ -323,6 +323,21 @@
   .ss-income .goal-result { margin-top: 4px; }
   .ss-income .hint { margin: 6px 0 0; color: var(--text-3); }
   details.assump { margin-top: 16px; padding: 0 18px; }
+  details.adv { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 2px; }
+  details.adv > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--accent-ink); list-style: none; }
+  details.adv > summary::-webkit-details-marker { display: none; }
+  details.adv > summary::before { content: '\25B8'; font-size: 12px; transition: transform .15s; }
+  details.adv[open] > summary::before { transform: rotate(90deg); }
+  .adv-body { padding-bottom: 4px; }
+  .adv-body > .section:first-child { border-top: none; margin-top: 0; padding-top: 4px; }
+  .nudge { background: var(--green-bg); border: 1px solid var(--border); color: var(--green-ink); border-radius: 8px; padding: 10px 12px; font-size: 13px; line-height: 1.45; margin: 0 0 10px; }
+  .ss-range { margin: 2px 0 0; font-size: 12px; color: var(--text-2); }
+  .ss-range:empty, .ss-lead:empty, .ss-alt:empty { display: none; }
+  .ss-lead { margin: 8px 0 0; font-size: 14px; line-height: 1.45; color: var(--text); }
+  .ss-alt { margin: 4px 0 8px; font-size: 12px; color: var(--text-2); }
+  .about { margin: 8px 0 4px; text-align: left; }
+  .about > summary { justify-content: center; }
+  #s-example-note { margin: 0 0 12px; }
   details.assump summary { cursor: pointer; min-height: 48px; display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; }
   .assump-body { padding: 0 0 12px; }
   .a-slots { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; max-width: 460px; margin-bottom: 8px; }
@@ -332,7 +347,6 @@
   .a-top .a-select { flex: 1 1 0; min-width: 0; width: 0; max-width: none; }
   .a-top .a-name { width: 104px; flex: none; text-align: left; }
   .a-top .a-name[hidden] { display: none; }
-  .a-slots:not(.adv) .a-slot:not(.is-custom) .a-vals { display: none; }
   .a-vals { display: flex; flex-wrap: wrap; gap: 8px 18px; }
   .a-val { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-2); }
   .a-val .box .num { width: 60px; }
@@ -414,24 +428,28 @@
       <h2 id="shared-h">Applies to all accounts</h2>
       <div class="card-actions"><span class="share-status" id="share-status" role="status"></span><button class="link-btn" id="pdf-btn" type="button">Save summary as PDF</button><button class="link-btn" id="share-btn" type="button">Copy share link</button></div>
     </div>
+    <p class="hint" id="s-example-note">These are typical starting numbers for a U.S. worker. Replace them with your own.</p>
     <div class="shared-grid">
      <div class="shared-inputs">
       <div class="field">
         <label for="s-age">Your age</label>
-        <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="16" max="90" value="30" id="s-age" class="num"></span><span class="unit">yrs</span></div>
+        <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="16" max="90" value="35" id="s-age" class="num"></span><span class="unit">yrs</span></div>
       </div>
       <div class="field">
         <label for="s-years">Years to invest</label>
-        <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="1" max="80" value="25" id="s-years" class="num"></span><span class="unit">yrs</span></div>
+        <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="1" max="80" value="30" id="s-years" class="num"></span><span class="unit">yrs</span></div>
       </div>
       <div class="field">
         <label for="s-salary">Annual salary</label>
-        <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="2000000" value="70000" id="s-salary" class="num wide"></span><span class="unit">/ yr</span></div>
+        <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="2000000" value="64000" id="s-salary" class="num wide"></span><span class="unit">/ yr</span></div>
       </div>
       <div class="field">
         <label for="s-raise">Annual raise</label>
         <div class="ctl"><span class="box"><input type="number" inputmode="decimal" min="0" max="50" step="0.5" value="3" id="s-raise" class="num"></span><span class="unit">%</span></div>
       </div>
+      <details class="adv" id="adv-shared">
+        <summary>Advanced options</summary>
+        <div class="adv-body">
       <div class="field">
         <label for="s-promo-pct">Promotion raise</label>
         <div class="ctl"><span class="box"><input type="number" inputmode="decimal" min="0" max="100" step="0.5" value="0" id="s-promo-pct" class="num"></span><span class="unit">%</span></div>
@@ -462,13 +480,14 @@
       </div>
       <button class="link-btn alloc-toggle" id="promo-add" type="button">Add another promotion</button>
       <p class="hint" id="s-promo-note"></p>
-      <div class="field" id="s-infl-field" hidden>
+      <div class="field" id="s-infl-field">
         <span class="lbl" id="s-infl-lbl">Today's dollars</span>
         <div class="ctl nowrap">
           <span class="box"><input type="number" inputmode="decimal" min="0" max="20" step="0.5" value="2.5" id="s-infl-rate" class="num" aria-label="Inflation rate per year"></span><span class="unit">% / yr</span>
-          <button class="switch" id="s-infl-switch" type="button" role="switch" aria-checked="false" aria-labelledby="s-infl-lbl"></button>
+          <button class="switch" id="s-infl-switch" type="button" role="switch" aria-checked="true" aria-labelledby="s-infl-lbl"></button>
         </div>
       </div>
+      <p class="hint">Shows results in today's buying power, using this yearly inflation rate. Turn it off to see future dollars.</p>
       <div class="field">
         <label for="s-goal">Combined goal</label>
         <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" placeholder="optional" id="s-goal" class="num wide"></span><span class="unit"></span></div>
@@ -477,11 +496,16 @@
         <label for="s-wd">Withdrawal rate</label>
         <div class="ctl"><span class="box"><input type="number" inputmode="decimal" min="1" max="10" step="0.5" value="4" id="s-wd" class="num"></span><span class="unit">% / yr</span></div>
       </div>
+        </div>
+      </details>
      </div>
      <aside class="shared-summary" aria-label="Summary" aria-live="polite">
       <div>
         <span class="ss-label" id="ss-label">After 25 years</span>
         <span class="ss-total" id="ss-total">$0</span>
+        <p class="ss-range" id="ss-range"></p>
+        <p class="ss-lead" id="ss-lead"></p>
+        <p class="ss-alt" id="ss-alt"></p>
         <div class="ss-bar" aria-hidden="true"><i class="b-p" id="ss-bp"></i><i class="b-k" id="ss-bk"></i><i class="b-i" id="ss-bi"></i></div>
         <div class="ss-parts">
           <span class="ss-part"><span class="ss-dot" style="background:var(--accent)"></span>Personal <b id="ss-personal">$0</b></span>
@@ -505,10 +529,10 @@
   </section>
 
   <details class="card assump" id="assump">
-    <summary>Funds and returns <span class="badge" id="assump-badge" hidden>Customized</span></summary>
+    <summary>Advanced: funds and returns <span class="badge" id="assump-badge" hidden>Customized</span></summary>
     <div class="assump-body">
-      <p class="hint">Pick up to three funds for the Personal and IRA tabs, or choose Custom to enter your own numbers. Total return includes dividends and is after the fund's expense ratio, which published fund returns already include. The numbers are long-run historical averages, so changing them shows a what-if, not a forecast. The 401(k) tab has its own expected return.</p>
-      <div class="a-slots" id="a-slots">
+      <p class="hint">Everything is invested in one fund by default: VOO, the S&amp;P 500 index. To spread money across more funds, pick them here, then set the percentages under Advanced on the Personal tab. Choose Custom to enter your own numbers. Total return includes dividends and is after the fund's expense ratio, which published fund returns already include. The numbers are long-run historical averages, so changing them shows a what-if, not a forecast. The 401(k) tab has its own expected return.</p>
+      <div class="a-slots">
         <div class="a-slot">
           <div class="a-top">
             <span class="dot" style="background:var(--c-voo)"></span>
@@ -546,7 +570,6 @@
           <p class="a-desc" id="a-schd-desc"></p>
         </div>
       </div>
-      <button class="link-btn alloc-toggle" id="adv-btn" type="button" aria-expanded="false" aria-controls="a-slots">Advanced: edit returns and dividend yields</button>
       <button class="link-btn" id="rates-reset" type="button">Restore default funds and rates</button>
     </div>
   </details>
@@ -571,6 +594,24 @@
 
         <div class="section">
           <h3>Contributions</h3>
+          <div id="p-monthly-row">
+            <div class="field">
+              <label for="p-monthly" id="p-amount-lbl">Per month</label>
+              <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="50000" value="200" id="p-monthly" class="num wide"></span></div>
+            </div>
+          </div>
+          <div id="p-percent-fields" style="display:none;">
+            <div class="field">
+              <label for="p-salary-pct">Share of salary</label>
+              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" step="1" value="5" id="p-salary-pct" class="num"></span><span class="unit">%</span></div>
+            </div>
+          </div>
+          <p class="hint" id="p-effective-monthly"></p>
+        </div>
+
+        <details class="adv" id="adv-personal">
+          <summary>Advanced: contribution type, funds and dividends</summary>
+          <div class="adv-body">
           <div class="field">
             <label for="p-mode">Contribute</label>
             <div class="ctl">
@@ -580,61 +621,50 @@
               </select>
             </div>
           </div>
-          <div id="p-monthly-row">
+          <div id="p-freq-row">
             <div class="field">
               <label for="p-freq">How often</label>
               <div class="ctl">
                 <select id="p-freq" class="num sel">
-                  <option value="biweekly" selected>Bi-weekly</option>
-                  <option value="monthly">Monthly</option>
+                  <option value="biweekly">Bi-weekly</option>
+                  <option value="monthly" selected>Monthly</option>
                 </select>
               </div>
             </div>
-            <div class="field">
-              <label for="p-monthly" id="p-amount-lbl">Per paycheck</label>
-              <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="50000" value="250" id="p-monthly" class="num wide"></span></div>
-            </div>
           </div>
-          <div id="p-percent-fields" style="display:none;">
-            <div class="field">
-              <label for="p-salary-pct">Share of salary</label>
-              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" step="1" value="10" id="p-salary-pct" class="num"></span><span class="unit">%</span></div>
-            </div>
-          </div>
-          <p class="hint" id="p-effective-monthly"></p>
-        </div>
-
         <div class="section">
           <h3>Allocation</h3>
           <div class="strategies" id="p-strategies">
+            <button class="strat-btn" type="button" data-voo="100" data-qqq="0" data-schd="0">One fund</button>
             <button class="strat-btn" type="button" data-voo="60" data-qqq="25" data-schd="15">Growth-tilted</button>
             <button class="strat-btn" type="button" data-voo="50" data-qqq="25" data-schd="25">Balanced</button>
             <button class="strat-btn" type="button" data-voo="50" data-qqq="15" data-schd="35">Income-leaning</button>
             <button class="strat-btn" type="button" data-voo="60" data-qqq="40" data-schd="0">Simplified 2-fund</button>
           </div>
+          <p class="hint">By default everything goes into the first fund (VOO, the S&amp;P 500). Pick a preset to spread it out, or customize the percentages.</p>
           <div class="alloc-bar" id="p-alloc-bar" aria-hidden="true"></div>
           <button class="link-btn alloc-toggle" id="p-custom-btn" type="button" aria-expanded="false" aria-controls="p-alloc-sliders">Customize percentages</button>
           <div id="p-alloc-sliders" hidden>
           <div class="alloc">
             <div class="alloc-head">
               <label for="p-voo-num"><span class="dot" style="background:var(--c-voo)"></span><span data-fname="voo"></span> <span class="muted" data-yield="voo"></span></label>
-              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="50" id="p-voo-num" class="num"></span><span class="unit">%</span></div>
+              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="100" id="p-voo-num" class="num"></span><span class="unit">%</span></div>
             </div>
-            <input type="range" min="0" max="100" step="1" value="50" id="p-voo-range">
+            <input type="range" min="0" max="100" step="1" value="100" id="p-voo-range">
           </div>
           <div class="alloc">
             <div class="alloc-head">
               <label for="p-qqq-num"><span class="dot" style="background:var(--c-qqq)"></span><span data-fname="qqq"></span> <span class="muted" data-yield="qqq"></span></label>
-              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="25" id="p-qqq-num" class="num"></span><span class="unit">%</span></div>
+              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="0" id="p-qqq-num" class="num"></span><span class="unit">%</span></div>
             </div>
-            <input type="range" min="0" max="100" step="1" value="25" id="p-qqq-range">
+            <input type="range" min="0" max="100" step="1" value="0" id="p-qqq-range">
           </div>
           <div class="alloc">
             <div class="alloc-head">
               <label for="p-schd-num"><span class="dot" style="background:var(--c-schd)"></span><span data-fname="schd"></span> <span class="muted" data-yield="schd"></span></label>
-              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="25" id="p-schd-num" class="num"></span><span class="unit">%</span></div>
+              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="0" id="p-schd-num" class="num"></span><span class="unit">%</span></div>
             </div>
-            <input type="range" min="0" max="100" step="1" value="25" id="p-schd-range">
+            <input type="range" min="0" max="100" step="1" value="0" id="p-schd-range">
           </div>
           <p class="hint">The three always add up to 100%. Changing one rebalances the others.</p>
           </div>
@@ -650,6 +680,9 @@
           </div>
           <p class="hint" id="p-reinvest-label"></p>
         </div>
+          </div>
+        </details>
+
       </section>
 
       <section class="card results-col" aria-label="Personal investing results">
@@ -689,7 +722,7 @@
           <h3>Starting point</h3>
           <div class="field">
             <label for="k-starting">Starting balance</label>
-            <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="5000000" value="0" id="k-starting" class="num wide"></span></div>
+            <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="5000000" value="40000" id="k-starting" class="num wide"></span></div>
           </div>
         </div>
 
@@ -697,7 +730,7 @@
           <h3>Contributions</h3>
           <div class="field">
             <label for="k-contrib-pct">Your contribution</label>
-            <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" step="1" value="10" id="k-contrib-pct" class="num"></span><span class="unit">% of salary</span></div>
+            <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" step="1" value="6" id="k-contrib-pct" class="num"></span><span class="unit">% of salary</span></div>
           </div>
           <div class="field">
             <label for="k-match-rate">Employer match</label>
@@ -708,28 +741,34 @@
             <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" step="1" value="6" id="k-match-cap" class="num"></span><span class="unit">% of salary</span></div>
           </div>
           <p class="hint" id="k-match-hint"></p>
+          <div class="nudge" id="k-nudge" hidden></div>
+          <div class="warn" id="k-warn" style="display:none;"></div>
+        </div>
+
+        <details class="adv" id="adv-401k">
+          <summary>Advanced: plan limit and expected return</summary>
+          <div class="adv-body">
           <div class="field">
             <span class="lbl-wrap"><label for="k-limit">Annual limit</label><button type="button" class="info-btn" data-info="k-limit-hint" aria-label="More info" aria-expanded="false">i</button></span>
             <div class="ctl">
               <select id="k-limit" class="num sel">
-                <option value="15000" selected>PR · $15,000</option>
+                <option value="15000">PR · $15,000</option>
                 <option value="22500">PR dual · $22,500</option>
-                <option value="24500">U.S. · $24,500</option>
+                <option value="24500" selected>U.S. · $24,500</option>
               </select>
             </div>
           </div>
           <p class="hint" id="k-limit-hint" hidden>Most Puerto Rico plans cap your contributions at $15,000 a year. "PR dual" means a dual-qualified plan with a higher limit, which drops to $22,500 if you also contribute to an IRA. Ask HR which one yours is. From age 50 a catch-up is added on top.</p>
-          <div class="warn" id="k-warn" style="display:none;"></div>
-        </div>
-
-        <div class="section">
-          <h3>Growth assumptions</h3>
+          <div>
           <div class="field">
             <span class="lbl-wrap"><label for="k-return">Expected return</label><button type="button" class="info-btn" data-info="k-return-hint" aria-label="More info" aria-expanded="false">i</button></span>
             <div class="ctl"><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.5" value="7" id="k-return" class="num"></span><span class="unit">% / yr</span></div>
           </div>
           <p class="hint" id="k-return-hint" hidden>Diversified 401(k) plans have historically returned around 5-8% a year; 7% is a commonly cited long-run average.</p>
         </div>
+          </div>
+        </details>
+
       </section>
 
       <section class="card results-col" aria-label="401(k) results">
@@ -766,6 +805,18 @@
         <div class="section">
           <h3>Contributions</h3>
           <div class="field">
+            <label for="i-amount" id="i-amount-lbl">Per month</label>
+            <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="50000" value="0" id="i-amount" class="num wide"></span></div>
+          </div>
+          <p class="hint" id="i-effective"></p>
+          <p class="hint" id="i-limit-hint"></p>
+          <div class="warn" id="i-warn" style="display:none;"></div>
+        </div>
+
+        <details class="adv" id="adv-ira">
+          <summary>Advanced: account type, frequency and funds</summary>
+          <div class="adv-body">
+          <div class="field">
             <span class="lbl-wrap"><label for="i-type">Account type</label><button type="button" class="info-btn" data-info="i-type-hint" aria-label="More info" aria-expanded="false">i</button></span>
             <div class="ctl">
               <select id="i-type" class="num sel">
@@ -784,15 +835,6 @@
               </select>
             </div>
           </div>
-          <div class="field">
-            <label for="i-amount" id="i-amount-lbl">Per month</label>
-            <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="50000" value="0" id="i-amount" class="num wide"></span></div>
-          </div>
-          <p class="hint" id="i-effective"></p>
-          <p class="hint" id="i-limit-hint"></p>
-          <div class="warn" id="i-warn" style="display:none;"></div>
-        </div>
-
         <div class="section">
           <h3>Allocation</h3>
           <div class="field">
@@ -807,6 +849,7 @@
           <p class="hint" id="i-alloc-same"></p>
           <div id="i-alloc-custom" hidden>
           <div class="strategies" id="i-strategies">
+            <button class="strat-btn" type="button" data-voo="100" data-qqq="0" data-schd="0">One fund</button>
             <button class="strat-btn" type="button" data-voo="60" data-qqq="25" data-schd="15">Growth-tilted</button>
             <button class="strat-btn" type="button" data-voo="50" data-qqq="25" data-schd="25">Balanced</button>
             <button class="strat-btn" type="button" data-voo="50" data-qqq="15" data-schd="35">Income-leaning</button>
@@ -818,28 +861,31 @@
           <div class="alloc">
             <div class="alloc-head">
               <label for="i-voo-num"><span class="dot" style="background:var(--c-voo)"></span><span data-fname="voo"></span> <span class="muted" data-yield="voo"></span></label>
-              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="50" id="i-voo-num" class="num"></span><span class="unit">%</span></div>
+              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="100" id="i-voo-num" class="num"></span><span class="unit">%</span></div>
             </div>
-            <input type="range" min="0" max="100" step="1" value="50" id="i-voo-range">
+            <input type="range" min="0" max="100" step="1" value="100" id="i-voo-range">
           </div>
           <div class="alloc">
             <div class="alloc-head">
               <label for="i-qqq-num"><span class="dot" style="background:var(--c-qqq)"></span><span data-fname="qqq"></span> <span class="muted" data-yield="qqq"></span></label>
-              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="25" id="i-qqq-num" class="num"></span><span class="unit">%</span></div>
+              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="0" id="i-qqq-num" class="num"></span><span class="unit">%</span></div>
             </div>
-            <input type="range" min="0" max="100" step="1" value="25" id="i-qqq-range">
+            <input type="range" min="0" max="100" step="1" value="0" id="i-qqq-range">
           </div>
           <div class="alloc">
             <div class="alloc-head">
               <label for="i-schd-num"><span class="dot" style="background:var(--c-schd)"></span><span data-fname="schd"></span> <span class="muted" data-yield="schd"></span></label>
-              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="25" id="i-schd-num" class="num"></span><span class="unit">%</span></div>
+              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="0" id="i-schd-num" class="num"></span><span class="unit">%</span></div>
             </div>
-            <input type="range" min="0" max="100" step="1" value="25" id="i-schd-range">
+            <input type="range" min="0" max="100" step="1" value="0" id="i-schd-range">
           </div>
           <p class="hint">The three always add up to 100%. Changing one rebalances the others.</p>
           </div>
           </div>
         </div>
+          </div>
+        </details>
+
       </section>
 
       <section class="card results-col" aria-label="IRA results">
@@ -858,7 +904,8 @@
   </div>
 
   <footer class="page-foot">
-    <p class="disclaimer">For education and estimates only, not financial, tax or legal advice. Results come from the assumed returns shown and are not guarantees; real markets rise and fall from year to year. Figures are in future dollars (not adjusted for inflation) and don't include taxes. Fund returns are already after each fund's expense ratio; other account or advisory fees aren't included. Your inputs are saved only in this browser and are never sent anywhere.</p>
+    <p class="disclaimer">For education and estimates only, not financial, tax or legal advice. Results come from the assumed returns shown and are not guarantees; real markets rise and fall from year to year. Figures are adjusted to today's dollars unless you turn that off under Advanced options, and they don't include taxes. Fund returns are already after each fund's expense ratio; other account or advisory fees aren't included. Your inputs are saved only in this browser and are never sent anywhere.</p>
+    <details class="why about" id="about-defaults"><summary>About the starting numbers</summary><p class="footnote" id="about-body"></p></details>
     <button class="link-btn" id="reset-btn" type="button">Reset all inputs to defaults</button>
   </footer>
 </main>
@@ -899,7 +946,7 @@ const LOW_DELTA = -3;   // low case: returns 3 points lower every year
 const HIGH_DELTA = 2;   // high case: returns 2 points higher every year
 const STORE_KEY = 'investcalc.v1';
 const MAX_YEARS = 80;
-const SHOW_INFLATION_UI = false; // flip to true to bring back the today's-dollars switch
+const SHOW_INFLATION_UI = true; // the today's-dollars switch lives under Advanced options
 
 FUNDS.forEach((f) => document.documentElement.style.setProperty('--c-' + f, RATES[f].color));
 
@@ -912,8 +959,6 @@ const ES = {
   "expense ratio": "razón de gastos",
   "dividend yield": "rendimiento por dividendos",
   "Dividend yield": "Rendimiento por dividendos",
-  "Advanced: edit returns and dividend yields": "Avanzado: editar rendimientos y dividendos",
-  "Hide advanced": "Ocultar avanzado",
   "Save summary as PDF": "Guardar resumen en PDF",
   "Investment growth summary": "Resumen de crecimiento de inversiones",
   "Prepared {0}": "Preparado el {0}",
@@ -951,7 +996,7 @@ const ES = {
   "Made with the Investment Growth Calculator: rafapps.github.io/investment-calculator": "Hecho con la Calculadora de crecimiento de inversiones: rafapps.github.io/investment-calculator",
   "Investment summary": "Resumen de inversiones",
   "Funds and returns": "Fondos y rendimientos",
-  "Pick up to three funds for the Personal and IRA tabs, or choose Custom to enter your own numbers. Total return includes dividends and is after the fund's expense ratio, which published fund returns already include. The numbers are long-run historical averages, so changing them shows a what-if, not a forecast. The 401(k) tab has its own expected return.": "Elige hasta tres fondos para las pestañas Personal e IRA, o elige Personalizado para escribir tus propias cifras. El rendimiento total incluye los dividendos y es después de la razón de gastos del fondo, que los rendimientos publicados de los fondos ya incluyen. Las cifras son promedios históricos a largo plazo, así que cambiarlas muestra un \"qué pasaría si\", no un pronóstico. La pestaña 401(k) tiene su propio rendimiento esperado.",
+  "Everything is invested in one fund by default: VOO, the S&P 500 index. To spread money across more funds, pick them here, then set the percentages under Advanced on the Personal tab. Choose Custom to enter your own numbers. Total return includes dividends and is after the fund's expense ratio, which published fund returns already include. The numbers are long-run historical averages, so changing them shows a what-if, not a forecast. The 401(k) tab has its own expected return.": "Todo se invierte en un solo fondo por defecto: VOO, el índice S&P 500. Para repartir el dinero entre más fondos, elígelos aquí y luego define los porcentajes en Avanzado en la pestaña Personal. Elige Personalizado para escribir tus propias cifras. El rendimiento total incluye los dividendos y es después de la razón de gastos del fondo, que los rendimientos publicados de los fondos ya incluyen. Las cifras son promedios históricos a largo plazo, así que cambiarlas muestra un \"qué pasaría si\", no un pronóstico. La pestaña 401(k) tiene su propio rendimiento esperado.",
   "Restore default funds and rates": "Restaurar fondos y tasas por defecto",
   "Name": "Nombre",
   "Fund 1": "Fondo 1",
@@ -1025,6 +1070,23 @@ const ES = {
   "Years to invest": "Años para invertir",
   "Annual salary": "Salario anual",
   "Annual raise": "Aumento anual",
+  "These are typical starting numbers for a U.S. worker. Replace them with your own.": "Estas son cifras iniciales típicas de un trabajador en EE. UU. Reemplázalas con las tuyas.",
+  "Advanced options": "Opciones avanzadas",
+  "Shows results in today's buying power, using this yearly inflation rate. Turn it off to see future dollars.": "Muestra los resultados en poder adquisitivo de hoy, con esta tasa de inflación anual. Apágalo para ver dólares futuros.",
+  "Advanced: funds and returns": "Avanzado: fondos y rendimientos",
+  "By default everything goes into the first fund (VOO, the S&P 500). Pick a preset to spread it out, or customize the percentages.": "Por defecto todo va al primer fondo (VOO, el S&P 500). Elige un ajuste preestablecido para repartirlo, o personaliza los porcentajes.",
+  "One fund": "Un solo fondo",
+  "Advanced: contribution type, funds and dividends": "Avanzado: tipo de aportación, fondos y dividendos",
+  "Advanced: plan limit and expected return": "Avanzado: límite del plan y rendimiento esperado",
+  "Advanced: account type, frequency and funds": "Avanzado: tipo de cuenta, frecuencia y fondos",
+  "Range: {0} to {1} if returns run {2} points lower or {3} points higher.": "Rango: {0} a {1} si los rendimientos son {2} puntos menores o {3} puntos mayores.",
+  "By age {0}, your savings could grow to about {1} in today's dollars, enough for about {2} a month in retirement.": "A los {0} años, tus ahorros podrían crecer a unos {1} en dólares de hoy, suficiente para unos {2} al mes en el retiro.",
+  "By age {0}, your savings could grow to about {1} in future dollars, enough for about {2} a month in retirement.": "A los {0} años, tus ahorros podrían crecer a unos {1} en dólares futuros, suficiente para unos {2} al mes en el retiro.",
+  "That's about {0} in {1} dollars, before inflation.": "Eso es unos {0} en dólares de {1}, antes de la inflación.",
+  "That's about {0} in today's dollars at {1}% yearly inflation.": "Eso es unos {0} en dólares de hoy con {1}% de inflación anual.",
+  "You're leaving about {0} a year of free employer match unused. Raising your contribution from {1}% to {2}% would add about {3} to your balance by age {4}, including your own extra savings.": "Estás dejando sin usar unos {0} al año de aportación gratuita de tu patrono. Subir tu aportación de {1}% a {2}% sumaría unos {3} a tu balance a los {4} años, incluyendo tus ahorros adicionales.",
+  "About the starting numbers": "Sobre las cifras iniciales",
+  "Salary: the median full-time U.S. worker earned $1,232 a week in the third quarter of 2026, about $64,000 a year ({0}). 401(k): Vanguard's How America Saves 2026 reports a median employee contribution of 6.6% of pay, a most-common match of 50 cents per dollar on the first 6% of pay, and a median balance of $44,115 across all ages; the $40,000 starting balance is rounded down for a saver in their mid-30s ({1}). A 3% raise, 2.5% inflation, a 4% withdrawal rate and a 7% 401(k) return are common planning assumptions. They are only examples, so replace them with your own numbers.": "Salario: el trabajador a tiempo completo mediano en EE. UU. ganó $1,232 a la semana en el tercer trimestre de 2026, unos $64,000 al año ({0}). 401(k): el informe How America Saves 2026 de Vanguard indica una aportación mediana del empleado de 6.6% del salario, una aportación equivalente del patrono, la más común, de 50 centavos por dólar sobre el primer 6% del salario, y un balance mediano de $44,115 entre todas las edades; el balance inicial de $40,000 está redondeado hacia abajo para alguien de unos 35 años ({1}). Un aumento de 3%, inflación de 2.5%, una tasa de retiro de 4% y un rendimiento de 7% en el 401(k) son supuestos comunes de planificación. Son solo ejemplos, así que reemplázalos con tus propias cifras.",
   "Promotion 2 raise": "Segundo aumento por ascenso",
   "Promotion 2 year": "Año del segundo ascenso",
   "Promotion 3 raise": "Tercer aumento por ascenso",
@@ -1148,7 +1210,7 @@ const ES = {
   "Invested value": "Valor invertido",
   "Invested": "Invertido",
   "The chart library couldn't load (it needs an internet connection the first time). The numbers still work.": "No se pudo cargar la biblioteca de gráficas (necesita conexión a internet la primera vez). Los números siguen funcionando.",
-  "Add a goal to see the year you'd reach it.": "Agrega una meta para ver el año en que la alcanzarías.",
+  "Set a goal under Advanced options to see the year you'd reach it.": "Define una meta en Opciones avanzadas para ver el año en que la alcanzarías.",
   "You already have {0} at the start.": "Ya tienes {0} al comienzo.",
   "{0} together reach {1} in year {2} ({3}).": "{0} juntos alcanzan {1} en el año {2} ({3}).",
   "{0} together land about {1} short of {2} after {3}.": "{0} juntos quedan unos {1} por debajo de {2} después de {3}.",
@@ -1181,7 +1243,7 @@ const ES = {
   "The Puerto Rico Treasury allows an extra $1,500 in any plan not sponsored by the federal government, which covers PR-only plans and, by its wording, dual-qualified ones ({0}, {1}). The circular's $8,000 catch-up is for federal government employees only. The U.S. limit option follows IRS rules instead: an extra $8,000, or $11,250 at ages 60 to 63 ({2}). Ask your plan administrator which limit your plan allows.": "La Tesorería de Puerto Rico permite $1,500 adicionales en cualquier plan que no esté patrocinado por el gobierno federal, lo que cubre los planes solo de Puerto Rico y, por su redacción, los de doble calificación ({0}, {1}). La aportación adicional de $8,000 de la circular es solo para empleados del gobierno federal. La opción de límite de EE. UU. sigue las reglas del IRS: $8,000 adicionales, o $11,250 de los 60 a los 63 años ({2}). Pregunta al administrador de tu plan qué límite permite.",
   "Employer match.": "Aportación del patrono.",
   "Assumes the full match is yours immediately. Your plan may have a vesting schedule.": "Supone que la aportación completa del patrono es tuya de inmediato. Tu plan puede tener un calendario de adquisición de derechos (vesting).",
-  "For education and estimates only, not financial, tax or legal advice. Results come from the assumed returns shown and are not guarantees; real markets rise and fall from year to year. Figures are in future dollars (not adjusted for inflation) and don't include taxes. Fund returns are already after each fund's expense ratio; other account or advisory fees aren't included. Your inputs are saved only in this browser and are never sent anywhere.": "Solo con fines educativos y de estimación; no es asesoría financiera, contributiva ni legal. Los resultados provienen de los rendimientos supuestos que se muestran y no son garantías; los mercados reales suben y bajan de un año a otro. Las cifras están en dólares futuros (sin ajustar por inflación) y no incluyen impuestos. Los rendimientos de los fondos ya son después de la razón de gastos de cada fondo; no se incluyen otras comisiones de cuenta o de asesoría. Tus datos se guardan solo en este navegador y nunca se envían a ningún sitio.",
+  "For education and estimates only, not financial, tax or legal advice. Results come from the assumed returns shown and are not guarantees; real markets rise and fall from year to year. Figures are adjusted to today's dollars unless you turn that off under Advanced options, and they don't include taxes. Fund returns are already after each fund's expense ratio; other account or advisory fees aren't included. Your inputs are saved only in this browser and are never sent anywhere.": "Solo con fines educativos y de estimación; no es asesoría financiera, contributiva ni legal. Los resultados provienen de los rendimientos supuestos que se muestran y no son garantías; los mercados reales suben y bajan de un año a otro. Las cifras están ajustadas a dólares de hoy, a menos que lo apagues en Opciones avanzadas, y no incluyen impuestos. Los rendimientos de los fondos ya son después de la razón de gastos de cada fondo; no se incluyen otras comisiones de cuenta o de asesoría. Tus datos se guardan solo en este navegador y nunca se envían a ningún sitio.",
   "Reset all inputs to defaults": "Restablecer todos los datos a los valores por defecto",
   "Language": "Idioma",
   "Inflation rate per year": "Tasa de inflación por año",
@@ -1318,10 +1380,10 @@ function short(v) {
 
 /* ---------------- shared state ---------------- */
 let currentTab = 'personal';
-let pAlloc = { voo: 50, qqq: 25, schd: 25 };
+let pAlloc = { voo: 100, qqq: 0, schd: 0 };
 let pMode = 'dollar';
 let pReinvest = true;
-let inflOn = false;
+let inflOn = true;
 let pCustomOpen = false;
 let pView = 'growth';
 
@@ -1488,12 +1550,12 @@ function renderToggles() {
   $('p-monthly-row').style.display = pMode === 'dollar' ? 'block' : 'none';
   $('p-amount-lbl').textContent = payPerYear() === 26 ? tr('Per paycheck') : tr('Per month');
   $('p-percent-fields').style.display = pMode === 'percent' ? 'block' : 'none';
+  $('p-freq-row').style.display = pMode === 'dollar' ? 'block' : 'none';
   $('p-reinvest-switch').setAttribute('aria-checked', String(pReinvest));
   $('p-reinvest-label').textContent = pReinvest ? tr('Dividends are reinvested to buy more shares (DRIP).') : tr('Dividends are paid out as cash and not reinvested.');
   $('s-infl-switch').setAttribute('aria-checked', String(inflOn));
   $('s-infl-rate').style.opacity = inflOn ? '1' : '0.5';
   $('p-alloc-sliders').hidden = !pCustomOpen;
-  renderAdv();
   $('p-custom-btn').setAttribute('aria-expanded', String(pCustomOpen));
   $('p-custom-btn').textContent = pCustomOpen ? tr('Hide custom percentages') : tr('Customize percentages');
   renderIraToggles();
@@ -1503,13 +1565,7 @@ $('p-view-div-btn').addEventListener('click', () => { pView = 'div'; renderToggl
 $('p-freq').addEventListener('change', () => { renderToggles(); recomputeAll(); });
 $('p-mode').addEventListener('change', (e) => { pMode = e.target.value === 'percent' ? 'percent' : 'dollar'; renderToggles(); recomputeAll(); });
 $('p-reinvest-switch').addEventListener('click', () => { pReinvest = !pReinvest; renderToggles(); recomputeAll(); });
-function renderAdv() {
-  const open = $('a-slots').classList.contains('adv');
-  $('adv-btn').setAttribute('aria-expanded', String(open));
-  $('adv-btn').textContent = open ? tr('Hide advanced') : tr('Advanced: edit returns and dividend yields');
-}
 $('promo-add').addEventListener('click', () => { promoShown = Math.min(3, Math.max(promoShown, 1) + 1); renderPromoRows(); recomputeAll(); });
-$('adv-btn').addEventListener('click', () => { $('a-slots').classList.toggle('adv'); renderAdv(); });
 $('p-custom-btn').addEventListener('click', () => { pCustomOpen = !pCustomOpen; renderToggles(); saveState(); });
 $('s-infl-switch').addEventListener('click', () => { inflOn = !inflOn; renderToggles(); recomputeAll(); });
 
@@ -1523,7 +1579,7 @@ $('k-limit').addEventListener('change', recomputeAll);
 
 
 /* ---------------- IRA inputs ---------------- */
-let iAlloc = { voo: 50, qqq: 25, schd: 25 };
+let iAlloc = { voo: 100, qqq: 0, schd: 0 };
 let iAllocEdited = false;
 let iCustomOpen = false;
 function iraAlloc() { return $('i-alloc-mode').value === 'custom' ? iAlloc : pAlloc; }
@@ -1749,7 +1805,7 @@ $('pdf-btn').addEventListener('click', () => { buildReport(); window.print(); })
 function collectState() {
   const inputs = {};
   document.querySelectorAll('input[type=number], input[type=text], select').forEach((el) => { inputs[el.id] = el.hasAttribute('data-money') ? el.value.replace(/,/g, '') : el.value; });
-  return { inputs, pAlloc, iAlloc, iAllocEdited, iCustomOpen, pMode, pReinvest, inflOn, pCustomOpen, pView, tab: currentTab, lang: LANG };
+  return { v: 2, inputs, pAlloc, iAlloc, iAllocEdited, iCustomOpen, pMode, pReinvest, inflOn, pCustomOpen, pView, tab: currentTab, lang: LANG };
 }
 
 function saveState() {
@@ -1799,15 +1855,30 @@ function shareUrl() {
   st.inputs = diff;
   return location.origin + location.pathname + location.search + '#s=' + b64url(JSON.stringify(st));
 }
+const LEGACY_DEFAULTS = { 's-age': '30', 's-years': '25', 's-salary': '70000', 'p-monthly': '250', 'p-freq': 'biweekly', 'p-salary-pct': '10', 'k-starting': '0', 'k-contrib-pct': '10', 'k-limit': '15000' };
 function readShare() {
   const m = /^#s=([A-Za-z0-9_-]+)$/.exec(location.hash);
   if (!m) return null;
   try {
     const d = JSON.parse(unb64url(m[1]));
     if (!d || typeof d !== 'object') return null;
-    d.inputs = Object.assign({}, DEFAULT_INPUTS, d.inputs && typeof d.inputs === 'object' ? d.inputs : {});
+    // links made before the defaults changed (no version) leave out values that matched the old defaults, so restore those
+    d.inputs = Object.assign({}, DEFAULT_INPUTS, d.v ? {} : LEGACY_DEFAULTS, d.inputs && typeof d.inputs === 'object' ? d.inputs : {});
     return d;
   } catch (e) { return null; }
+}
+
+function idsDiffer(ids) { return ids.some((id) => $(id) && $(id).value !== DEFAULT_INPUTS[id]); }
+function allocIsDefault(a) { return a.voo === 100 && a.qqq === 0 && a.schd === 0; }
+// A saved or shared scenario may use settings that live under Advanced; open those sections so nothing is hidden.
+function autoOpenAdvanced() {
+  const need = {
+    'adv-shared': () => !inflOn || num('s-goal') > 0 || idsDiffer(['s-promo-pct', 's-promo-year', 's-promo2-pct', 's-promo2-year', 's-promo3-pct', 's-promo3-year', 's-infl-rate', 's-wd']),
+    'adv-personal': () => pMode !== 'dollar' || !pReinvest || !allocIsDefault(pAlloc) || idsDiffer(['p-freq']),
+    'adv-401k': () => idsDiffer(['k-limit', 'k-return']),
+    'adv-ira': () => idsDiffer(['i-type', 'i-freq', 'i-alloc-mode']),
+  };
+  Object.keys(need).forEach((id) => { if (need[id]()) $(id).open = true; });
 }
 
 let sharedLoaded = false;
@@ -2362,6 +2433,14 @@ function computeK401(s) {
   $('k-match-hint').textContent = p.matchRate > 0 && p.matchCap > 0
     ? tr('Your employer adds {0} cents for every $1 you contribute, up to {1}% of your salary.', p.matchRate, p.matchCap)
     : tr('No employer match.');
+  const nudge = $('k-nudge');
+  if (p.matchRate > 0 && p.matchCap > 0 && p.contribPct < p.matchCap) {
+    const missed = p.salary * ((p.matchCap - p.contribPct) / 100) * (p.matchRate / 100);
+    const alt = simK401(Object.assign({}, p, { contribPct: p.matchCap }), 0);
+    const more = alt.bal[N] * d(N) - finalValue;
+    nudge.hidden = false;
+    nudge.textContent = tr("You're leaving about {0} a year of free employer match unused. Raising your contribution from {1}% to {2}% would add about {3} to your balance by age {4}, including your own extra savings.", fmt(missed), p.contribPct, p.matchCap, fmt(more), p.age + N);
+  } else nudge.hidden = true;
   $('k-warn').style.display = t.capped ? 'block' : 'none';
   $('k-warn').textContent = tr("Your contribution reaches your plan's {0} annual limit in at least one year of this projection, so it's capped there from then on.", fmt(p.limit));
   $('k-stat-final').textContent = fmt(finalValue);
@@ -2469,7 +2548,7 @@ function updateGoal(s, P, K, I) {
   $('ss-prog').classList.toggle('done', pct >= 100);
   $('ss-prog-bar').style.width = Math.min(100, pct) + '%';
   $('ss-goal-pct').textContent = tr('{0}% of {1}', Math.floor(pct), short(goal));
-  if (goal <= 0) { el.className = 'goal-result'; el.textContent = tr("Add a goal to see the year you'd reach it."); return; }
+  if (goal <= 0) { el.className = 'goal-result'; el.textContent = tr("Set a goal under Advanced options to see the year you'd reach it."); return; }
   const N = s.years;
   let hit = -1;
   for (let y = 0; y <= N; y++) { if (P.series[y] + K.series[y] + I.series[y] >= goal) { hit = y; break; } }
@@ -2493,6 +2572,30 @@ function updateGoal(s, P, K, I) {
 }
 
 /* ---------------- retirement income ---------------- */
+function updateHeadline(s, P, K, I) {
+  const N = s.years;
+  const tot = P.final + K.final + I.final;
+  const rng = $('ss-range'), lead = $('ss-lead'), alt = $('ss-alt');
+  if (!(tot > 0)) { rng.textContent = ''; lead.textContent = ''; alt.textContent = ''; return; }
+  const lo = P.low + K.low + I.low, hi = P.high + K.high + I.high;
+  rng.textContent = tr('Range: {0} to {1} if returns run {2} points lower or {3} points higher.', fmt(lo), fmt(hi), Math.abs(LOW_DELTA), HIGH_DELTA);
+  const monthly = (tot * (s.wd / 100)) / 12;
+  lead.textContent = inflOn
+    ? tr("By age {0}, your savings could grow to about {1} in today's dollars, enough for about {2} a month in retirement.", s.age + N, fmt(tot), fmt(monthly))
+    : tr('By age {0}, your savings could grow to about {1} in future dollars, enough for about {2} a month in retirement.', s.age + N, fmt(tot), fmt(monthly));
+  const infl = num('s-infl-rate');
+  const dN = deflator(infl, N);
+  alt.textContent = infl > 0
+    ? (inflOn ? tr("That's about {0} in {1} dollars, before inflation.", fmt(tot / dN), new Date().getFullYear() + N)
+              : tr("That's about {0} in today's dollars at {1}% yearly inflation.", fmt(tot * dN), infl))
+    : '';
+}
+function renderAbout() {
+  $('about-body').innerHTML = tr("Salary: the median full-time U.S. worker earned $1,232 a week in the third quarter of 2026, about $64,000 a year ({0}). 401(k): Vanguard's How America Saves 2026 reports a median employee contribution of 6.6% of pay, a most-common match of 50 cents per dollar on the first 6% of pay, and a median balance of $44,115 across all ages; the $40,000 starting balance is rounded down for a saver in their mid-30s ({1}). A 3% raise, 2.5% inflation, a 4% withdrawal rate and a 7% 401(k) return are common planning assumptions. They are only examples, so replace them with your own numbers.",
+    link('https://www.bls.gov/news.release/wkyeng.nr0.htm', 'BLS'),
+    link('https://workplace.vanguard.com/content/dam/inst/iig-transformation/has/2026/pdf/HowAmericaSaves2026.pdf', 'Vanguard'));
+}
+
 function updateIncome(s, P, K, I) {
   const rate = s.wd / 100;
   const monthly = (v) => (v * rate) / 12;
@@ -2541,7 +2644,8 @@ function fundNote(code, label) {
 }
 function renderWhy(edited) {
   const para = (head, body) => '<p><b>' + head + '</b> ' + body + '</p>';
-  const notes = FUNDS.map((f) => {
+  const inUse = FUNDS.filter((f) => pAlloc[f] > 0 || iraAlloc()[f] > 0);
+  const notes = inUse.map((f) => {
     const code = $('a-' + f + '-fund').value;
     if (code === 'CUSTOM') return para(tr('{0}, {1}% a year.', RATES[f].label, RATES[f].total), tr('Your own numbers for a fund that is not in the list.'));
     return fundNote(code, RATES[f].label);
@@ -2616,6 +2720,8 @@ function recomputeAll() {
   $('ss-label').textContent = tr('After {0}', yearsText(s.years)) + (inflOn ? tr(" · today's dollars") : '');
   updateGoal(s, P, K, I);
   updateIncome(s, P, K, I);
+  updateHeadline(s, P, K, I);
+  renderAbout();
   $('s-label').textContent = tr('Combined after {0}', yearsText(s.years)) + (inflOn ? tr(" · today's dollars") : '');
   saveState();
 }
@@ -2631,6 +2737,7 @@ syncAllocInputs();
 syncIraAlloc();
 renderToggles();
 switchTab(currentTab);
+autoOpenAdvanced();
 initCharts();
 recomputeAll();
 applyI18n();
