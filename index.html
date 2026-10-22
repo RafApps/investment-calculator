@@ -332,6 +332,11 @@
   .adv-body > .section:first-child { border-top: none; margin-top: 0; padding-top: 4px; }
   .nudge { background: var(--green-bg); border: 1px solid var(--border); color: var(--green-ink); border-radius: 8px; padding: 10px 12px; font-size: 13px; line-height: 1.45; margin: 0 0 10px; }
   .ss-alt:empty { display: none; }
+  .ss-field { min-height: 40px; }
+  .ss-income .ss-field { margin-top: 6px; }
+  .shared-summary .box { width: 120px; }
+  .shared-summary .box .num, .shared-summary .box .num.wide { flex: 1; width: auto; min-width: 0; }
+  .goal-result:empty { display: none; }
   .ss-alt { margin: 2px 0 0; font-size: 13px; color: var(--text-2); }
   .about { margin: 8px 0 4px; text-align: left; }
   .about > summary { justify-content: center; }
@@ -445,9 +450,7 @@
         <label for="s-raise">Annual raise</label>
         <div class="ctl"><span class="box"><input type="number" inputmode="decimal" min="0" max="50" step="0.5" value="3" id="s-raise" class="num"></span><span class="unit">%</span></div>
       </div>
-      <details class="adv" id="adv-shared">
-        <summary>Advanced options</summary>
-        <div class="adv-body">
+      <div id="s-promo1-row" hidden>
       <div class="field">
         <label for="s-promo-pct">Promotion raise</label>
         <div class="ctl"><span class="box"><input type="number" inputmode="decimal" min="0" max="100" step="0.5" value="0" id="s-promo-pct" class="num"></span><span class="unit">%</span></div>
@@ -455,6 +458,7 @@
       <div class="field">
         <label for="s-promo-year">Promotion year</label>
         <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="2" max="80" step="1" value="5" id="s-promo-year" class="num"></span><span class="unit">year</span></div>
+      </div>
       </div>
       <div id="s-promo2-row" hidden>
         <div class="field">
@@ -476,26 +480,8 @@
           <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="2" max="80" step="1" value="15" id="s-promo3-year" class="num"></span><span class="unit">year</span></div>
         </div>
       </div>
-      <button class="link-btn alloc-toggle" id="promo-add" type="button">Add another promotion</button>
-      <p class="hint" id="s-promo-note"></p>
-      <div class="field" id="s-infl-field">
-        <span class="lbl" id="s-infl-lbl">Today's dollars</span>
-        <div class="ctl nowrap">
-          <span class="box"><input type="number" inputmode="decimal" min="0" max="20" step="0.5" value="2.5" id="s-infl-rate" class="num" aria-label="Inflation rate per year"></span><span class="unit">% / yr</span>
-          <button class="switch" id="s-infl-switch" type="button" role="switch" aria-checked="false" aria-labelledby="s-infl-lbl"></button>
-        </div>
-      </div>
-      <p class="hint">Switch every figure to today's buying power, using this yearly inflation rate. The main total always shows the other version just below it.</p>
-      <div class="field">
-        <label for="s-goal">Combined goal</label>
-        <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" placeholder="optional" id="s-goal" class="num wide"></span><span class="unit"></span></div>
-      </div>
-      <div class="field">
-        <label for="s-wd">Withdrawal rate</label>
-        <div class="ctl"><span class="box"><input type="number" inputmode="decimal" min="1" max="10" step="0.5" value="4" id="s-wd" class="num"></span><span class="unit">% / yr</span></div>
-      </div>
-        </div>
-      </details>
+      <p class="hint" id="s-promo-note" hidden></p>
+      <button class="link-btn alloc-toggle" id="promo-add" type="button">Add promotion raise</button>
      </div>
      <aside class="shared-summary" aria-label="Summary" aria-live="polite">
       <div>
@@ -510,6 +496,10 @@
         </div>
       </div>
       <div class="ss-goal">
+      <div class="field ss-field">
+        <label for="s-goal">Combined goal</label>
+        <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" placeholder="optional" id="s-goal" class="num wide"></span><span class="unit"></span></div>
+      </div>
         <div class="ss-goal-head" id="ss-goal-head" hidden><span>Goal progress</span><b id="ss-goal-pct">0%</b></div>
         <div class="ss-prog" id="ss-prog" hidden><i id="ss-prog-bar"></i></div>
         <p class="goal-result" id="s-goal-result"></p>
@@ -518,6 +508,10 @@
         <span class="lbl-wrap"><span class="ss-label" id="ss-inc-label">Possible income in retirement</span><button type="button" class="info-btn" data-info="ss-inc-note" aria-label="More info" aria-expanded="false">i</button></span>
         <span class="ss-inc-val"><b id="ss-inc-month">$0</b> <small>/ month</small></span>
         <p class="goal-result" id="ss-inc-detail"></p>
+      <div class="field ss-field">
+        <label for="s-wd">Withdrawal rate</label>
+        <div class="ctl"><span class="box"><input type="number" inputmode="decimal" min="1" max="10" step="0.5" value="4" id="s-wd" class="num"></span><span class="unit">% / yr</span></div>
+      </div>
         <p class="hint" id="ss-inc-note" hidden>This follows the common 4% rule: take 4% of your savings in the first year, then raise that amount with inflation each year. Historically that has lasted about 30 years, but it's a rule of thumb, not a guarantee. A lower rate is safer and a higher one riskier. Figures are before taxes and don't include Social Security or other income.</p>
       </div>
      </aside>
@@ -942,7 +936,8 @@ const LOW_DELTA = -3;   // low case: returns 3 points lower every year
 const HIGH_DELTA = 2;   // high case: returns 2 points higher every year
 const STORE_KEY = 'investcalc.v1';
 const MAX_YEARS = 80;
-const SHOW_INFLATION_UI = true; // the switch that makes today's dollars the main figure lives under Advanced options
+// Long-run U.S. inflation: CPI averaged 3.17% a year from 1913 to 2026 (Official Data, from BLS CPI). Used only for the today's-dollars line under the total.
+const HISTORIC_INFLATION = 3.2;
 
 FUNDS.forEach((f) => document.documentElement.style.setProperty('--c-' + f, RATES[f].color));
 
@@ -1066,11 +1061,11 @@ const ES = {
   "Years to invest": "Años para invertir",
   "Annual salary": "Salario anual",
   "Annual raise": "Aumento anual",
-  "{0} in {1} dollars": "{0} en dólares de {1}",
-  "{0} in today's dollars": "{0} en dólares de hoy",
+  "Add promotion raise": "Agregar aumento por ascenso",
+  "Add another promotion raise": "Agregar otro aumento por ascenso",
+  "A one-time raise on top of your annual raise, starting in the year you choose (year 1 is this year). Set it to 0% to ignore it.": "Un aumento único además de tu aumento anual, a partir del año que elijas (el año 1 es este año). Ponlo en 0% para ignorarlo.",
+  "{0} in today's dollars, at {1}% average yearly inflation": "{0} en dólares de hoy, con {1}% de inflación anual promedio",
   "These are typical starting numbers for a U.S. worker. Replace them with your own.": "Estas son cifras iniciales típicas de un trabajador en EE. UU. Reemplázalas con las tuyas.",
-  "Advanced options": "Opciones avanzadas",
-  "Switch every figure to today's buying power, using this yearly inflation rate. The main total always shows the other version just below it.": "Cambia todas las cifras a poder adquisitivo de hoy, con esta tasa de inflación anual. El total principal siempre muestra la otra versión justo debajo.",
   "Advanced: funds and returns": "Avanzado: fondos y rendimientos",
   "By default everything goes into the first fund (VOO, the S&P 500). Pick a preset to spread it out, or customize the percentages.": "Por defecto todo va al primer fondo (VOO, el S&P 500). Elige un ajuste preestablecido para repartirlo, o personaliza los porcentajes.",
   "One fund": "Un solo fondo",
@@ -1079,23 +1074,20 @@ const ES = {
   "Advanced: account type, frequency and funds": "Avanzado: tipo de cuenta, frecuencia y fondos",
   "You're leaving about {0} a year of free employer match unused. Raising your contribution from {1}% to {2}% would add about {3} to your balance by age {4}, including your own extra savings.": "Estás dejando sin usar unos {0} al año de aportación gratuita de tu patrono. Subir tu aportación de {1}% a {2}% sumaría unos {3} a tu balance a los {4} años, incluyendo tus ahorros adicionales.",
   "About the starting numbers": "Sobre las cifras iniciales",
-  "Salary: the median full-time U.S. worker earned $1,232 a week in the third quarter of 2026, about $64,000 a year ({0}). 401(k): Vanguard's How America Saves 2026 reports a median employee contribution of 6.6% of pay, a most-common match of 50 cents per dollar on the first 6% of pay, and a median balance of $44,115 across all ages; the $40,000 starting balance is rounded down for a saver in their mid-30s ({1}). A 3% raise, 2.5% inflation, a 4% withdrawal rate and a 7% 401(k) return are common planning assumptions. They are only examples, so replace them with your own numbers.": "Salario: el trabajador a tiempo completo mediano en EE. UU. ganó $1,232 a la semana en el tercer trimestre de 2026, unos $64,000 al año ({0}). 401(k): el informe How America Saves 2026 de Vanguard indica una aportación mediana del empleado de 6.6% del salario, una aportación equivalente del patrono, la más común, de 50 centavos por dólar sobre el primer 6% del salario, y un balance mediano de $44,115 entre todas las edades; el balance inicial de $40,000 está redondeado hacia abajo para alguien de unos 35 años ({1}). Un aumento de 3%, inflación de 2.5%, una tasa de retiro de 4% y un rendimiento de 7% en el 401(k) son supuestos comunes de planificación. Son solo ejemplos, así que reemplázalos con tus propias cifras.",
+  "Salary: the median full-time U.S. worker earned $1,232 a week in the third quarter of 2026, about $64,000 a year ({0}). 401(k): Vanguard's How America Saves 2026 reports a median employee contribution of 6.6% of pay, a most-common match of 50 cents per dollar on the first 6% of pay, and a median balance of $44,115 across all ages; the $40,000 starting balance is rounded down for a saver in their mid-30s ({1}). Inflation: consumer prices have risen 3.17% a year on average since 1913, which is the 3.2% used for the today's-dollars line ({2}). A 3% raise, a 4% withdrawal rate and a 7% 401(k) return are common planning assumptions. They are only examples, so replace them with your own numbers.": "Salario: el trabajador a tiempo completo mediano en EE. UU. ganó $1,232 a la semana en el tercer trimestre de 2026, unos $64,000 al año ({0}). 401(k): el informe How America Saves 2026 de Vanguard indica una aportación mediana del empleado de 6.6% del salario, una aportación equivalente del patrono, la más común, de 50 centavos por dólar sobre el primer 6% del salario, y un balance mediano de $44,115 entre todas las edades; el balance inicial de $40,000 está redondeado hacia abajo para alguien de unos 35 años ({1}). Inflación: los precios al consumidor han subido 3.17% al año en promedio desde 1913, que es el 3.2% usado para la línea de dólares de hoy ({2}). Un aumento de 3%, una tasa de retiro de 4% y un rendimiento de 7% en el 401(k) son supuestos comunes de planificación. Son solo ejemplos, así que reemplázalos con tus propias cifras.",
   "Promotion 2 raise": "Segundo aumento por ascenso",
   "Promotion 2 year": "Año del segundo ascenso",
   "Promotion 3 raise": "Tercer aumento por ascenso",
   "Promotion 3 year": "Año del tercer ascenso",
-  "Add another promotion": "Agregar otro ascenso",
   "Promotion {0}: ": "Ascenso {0}: ",
   "Promotion raise": "Aumento por ascenso",
   "year": "año",
   "Promotion year": "Año del ascenso",
-  "Optional. A one-time raise on top of your annual raise, starting in the year you choose (year 1 is this year).": "Opcional. Un aumento único además de tu aumento anual, a partir del año que elijas (el año 1 es este año).",
   "Choose year 2 or later. Year 1 is this year, and your salary above is already what you earn now.": "Elige el año 2 o después. El año 1 es este año, y tu salario de arriba ya es lo que ganas ahora.",
   "That year is after the end of your projection, so it has no effect.": "Ese año cae después del final de tu proyección, así que no tiene efecto.",
   "In year {0} ({1}) your salary is about {2}, including this raise.": "En el año {0} ({1}) tu salario es de unos {2}, con este aumento incluido.",
   "Monthly contributions grow each year with your annual raise and your promotion raise.": "Las aportaciones mensuales crecen cada año con tu aumento anual y tu aumento por ascenso.",
   "A {0}% promotion raise in year {1}.": "Un aumento por ascenso de {0}% en el año {1}.",
-  "Today's dollars": "Dólares de hoy",
   "Combined goal": "Meta combinada",
   "Withdrawal rate": "Tasa de retiro",
   "This follows the common 4% rule: take 4% of your savings in the first year, then raise that amount with inflation each year. Historically that has lasted about 30 years, but it's a rule of thumb, not a guarantee. A lower rate is safer and a higher one riskier. Figures are before taxes and don't include Social Security or other income.": "Esto sigue la regla común del 4%: retiras el 4% de tus ahorros el primer año y luego aumentas esa cantidad con la inflación cada año. Históricamente eso ha durado unos 30 años, pero es una regla general, no una garantía. Una tasa menor es más segura y una mayor, más arriesgada. Las cifras son antes de impuestos y no incluyen el Seguro Social ni otros ingresos.",
@@ -1150,7 +1142,6 @@ const ES = {
   "The contributions line includes your starting balance.": "La línea de aportaciones incluye tu balance inicial.",
   "Monthly contributions grow each year with your annual raise.": "Las aportaciones mensuales crecen cada año con tu aumento anual.",
   "Bi-weekly contributions are modeled as 26 paychecks a year, spread evenly across the months.": "Las aportaciones cada dos semanas se modelan como 26 cheques al año, repartidos en partes iguales entre los meses.",
-  "Figures are in today's dollars at {0}% annual inflation.": "Las cifras están en dólares de hoy con una inflación anual de {0}%.",
   "Your contribution": "Tu aportación",
   "Match limit": "Límite del patrono",
   "Annual limit": "Límite anual",
@@ -1203,7 +1194,6 @@ const ES = {
   "Invested value": "Valor invertido",
   "Invested": "Invertido",
   "The chart library couldn't load (it needs an internet connection the first time). The numbers still work.": "No se pudo cargar la biblioteca de gráficas (necesita conexión a internet la primera vez). Los números siguen funcionando.",
-  "Set a goal under Advanced options to see the year you'd reach it.": "Define una meta en Opciones avanzadas para ver el año en que la alcanzarías.",
   "You already have {0} at the start.": "Ya tienes {0} al comienzo.",
   "{0} together reach {1} in year {2} ({3}).": "{0} juntos alcanzan {1} en el año {2} ({3}).",
   "{0} together land about {1} short of {2} after {3}.": "{0} juntos quedan unos {1} por debajo de {2} después de {3}.",
@@ -1239,7 +1229,6 @@ const ES = {
   "For education and estimates only, not financial, tax or legal advice. Results come from the assumed returns shown and are not guarantees; real markets rise and fall from year to year. Figures are in future dollars, with the today's-dollar equivalent shown under the main total, and they don't include taxes. Fund returns are already after each fund's expense ratio; other account or advisory fees aren't included. Your inputs are saved only in this browser and are never sent anywhere.": "Solo con fines educativos y de estimación; no es asesoría financiera, contributiva ni legal. Los resultados provienen de los rendimientos supuestos que se muestran y no son garantías; los mercados reales suben y bajan de un año a otro. Las cifras están en dólares futuros, con el equivalente en dólares de hoy debajo del total principal, y no incluyen impuestos. Los rendimientos de los fondos ya son después de la razón de gastos de cada fondo; no se incluyen otras comisiones de cuenta o de asesoría. Tus datos se guardan solo en este navegador y nunca se envían a ningún sitio.",
   "Reset all inputs to defaults": "Restablecer todos los datos a los valores por defecto",
   "Language": "Idioma",
-  "Inflation rate per year": "Tasa de inflación por año",
   "Summary": "Resumen",
   "VOO total return": "Rendimiento total de VOO",
   "VOO dividend yield": "Rendimiento por dividendos de VOO",
@@ -1376,7 +1365,6 @@ let currentTab = 'personal';
 let pAlloc = { voo: 100, qqq: 0, schd: 0 };
 let pMode = 'dollar';
 let pReinvest = true;
-let inflOn = false;
 let pCustomOpen = false;
 let pView = 'growth';
 
@@ -1389,7 +1377,7 @@ function matchesPreset() {
 }
 
 const PROMO_IDS = [['s-promo-pct', 's-promo-year'], ['s-promo2-pct', 's-promo2-year'], ['s-promo3-pct', 's-promo3-year']];
-let promoShown = 1;
+let promoShown = 0;
 function shared() {
   const years = Math.min(MAX_YEARS, Math.max(1, Math.round(num('s-years')) || 1));
   return {
@@ -1399,7 +1387,7 @@ function shared() {
     raise: num('s-raise'),
     promos: PROMO_IDS.map((ids) => ({ pct: num(ids[0]), year: Math.round(num(ids[1])) })),
     wd: num('s-wd'),
-    inflRate: inflOn ? num('s-infl-rate') : 0,
+    inflRate: 0,
   };
 }
 
@@ -1546,8 +1534,6 @@ function renderToggles() {
   $('p-freq-row').style.display = pMode === 'dollar' ? 'block' : 'none';
   $('p-reinvest-switch').setAttribute('aria-checked', String(pReinvest));
   $('p-reinvest-label').textContent = pReinvest ? tr('Dividends are reinvested to buy more shares (DRIP).') : tr('Dividends are paid out as cash and not reinvested.');
-  $('s-infl-switch').setAttribute('aria-checked', String(inflOn));
-  $('s-infl-rate').style.opacity = inflOn ? '1' : '0.5';
   $('p-alloc-sliders').hidden = !pCustomOpen;
   $('p-custom-btn').setAttribute('aria-expanded', String(pCustomOpen));
   $('p-custom-btn').textContent = pCustomOpen ? tr('Hide custom percentages') : tr('Customize percentages');
@@ -1558,12 +1544,11 @@ $('p-view-div-btn').addEventListener('click', () => { pView = 'div'; renderToggl
 $('p-freq').addEventListener('change', () => { renderToggles(); recomputeAll(); });
 $('p-mode').addEventListener('change', (e) => { pMode = e.target.value === 'percent' ? 'percent' : 'dollar'; renderToggles(); recomputeAll(); });
 $('p-reinvest-switch').addEventListener('click', () => { pReinvest = !pReinvest; renderToggles(); recomputeAll(); });
-$('promo-add').addEventListener('click', () => { promoShown = Math.min(3, Math.max(promoShown, 1) + 1); renderPromoRows(); recomputeAll(); });
+$('promo-add').addEventListener('click', () => { promoShown = Math.min(3, promoShown + 1); renderPromoRows(); recomputeAll(); });
 $('p-custom-btn').addEventListener('click', () => { pCustomOpen = !pCustomOpen; renderToggles(); saveState(); });
-$('s-infl-switch').addEventListener('click', () => { inflOn = !inflOn; renderToggles(); recomputeAll(); });
 
 [
-  's-age', 's-years', 's-salary', 's-raise', 's-promo-pct', 's-promo-year', 's-promo2-pct', 's-promo2-year', 's-promo3-pct', 's-promo3-year', 's-infl-rate', 's-goal', 's-wd',
+  's-age', 's-years', 's-salary', 's-raise', 's-promo-pct', 's-promo-year', 's-promo2-pct', 's-promo2-year', 's-promo3-pct', 's-promo3-year', 's-goal', 's-wd',
   'a-voo-total', 'a-voo-div', 'a-qqq-total', 'a-qqq-div', 'a-schd-total', 'a-schd-div',
   'p-starting', 'p-monthly', 'p-salary-pct',
   'k-return', 'k-starting', 'k-contrib-pct', 'k-match-rate', 'k-match-cap',
@@ -1770,7 +1755,7 @@ function buildReport() {
   const dl = [];
   dl.push([tr('You'), tr('Age {0}. Salary {1} growing {2}% a year. Projection runs {3}.', s.age, fmt(s.salary), s.raise, yearsText(N)) +
     activePromos(s).map((q) => ' ' + tr('A {0}% promotion raise in year {1}.', q.pct, q.year)).join('') +
-    (inflOn ? ' ' + tr("Figures are in today's dollars at {0}% annual inflation.", num('s-infl-rate')) : '')]);
+    '']);
   dl.push([tr('Personal'), esc(pAmt) + (num('p-starting') > 0 ? ', ' + esc(tr('starting with {0}', fmt(num('p-starting')))) : '') + ', ' + esc(reinvest) + '. ' + fundLine(pAlloc)]);
   const kp = K.p;
   dl.push([tr('401(k)'), esc(tr('{0}% of salary', kp.contribPct)) + (kp.matchRate > 0 && kp.matchCap > 0 ? ', ' + esc(tr('employer adds {0} cents per $1 up to {1}% of salary', kp.matchRate, kp.matchCap)) : '') +
@@ -1798,7 +1783,7 @@ $('pdf-btn').addEventListener('click', () => { buildReport(); window.print(); })
 function collectState() {
   const inputs = {};
   document.querySelectorAll('input[type=number], input[type=text], select').forEach((el) => { inputs[el.id] = el.hasAttribute('data-money') ? el.value.replace(/,/g, '') : el.value; });
-  return { v: 2, inputs, pAlloc, iAlloc, iAllocEdited, iCustomOpen, pMode, pReinvest, inflOn, pCustomOpen, pView, tab: currentTab, lang: LANG };
+  return { v: 2, inputs, pAlloc, iAlloc, iAllocEdited, iCustomOpen, pMode, pReinvest, pCustomOpen, pView, tab: currentTab, lang: LANG };
 }
 
 function saveState() {
@@ -1821,7 +1806,6 @@ function applyState(d) {
   if (typeof d.iCustomOpen === 'boolean') iCustomOpen = d.iCustomOpen;
   if (d.pMode === 'dollar' || d.pMode === 'percent') pMode = d.pMode;
   if (typeof d.pReinvest === 'boolean') pReinvest = d.pReinvest;
-  if (SHOW_INFLATION_UI && typeof d.inflOn === 'boolean') inflOn = d.inflOn;
   if (typeof d.pCustomOpen === 'boolean') pCustomOpen = d.pCustomOpen;
   if (d.pView === 'growth' || d.pView === 'div') pView = d.pView;
   if (TABS.includes(d.tab)) currentTab = d.tab;
@@ -1866,7 +1850,6 @@ function allocIsDefault(a) { return a.voo === 100 && a.qqq === 0 && a.schd === 0
 // A saved or shared scenario may use settings that live under Advanced; open those sections so nothing is hidden.
 function autoOpenAdvanced() {
   const need = {
-    'adv-shared': () => inflOn || num('s-goal') > 0 || idsDiffer(['s-promo-pct', 's-promo-year', 's-promo2-pct', 's-promo2-year', 's-promo3-pct', 's-promo3-year', 's-infl-rate', 's-wd']),
     'adv-personal': () => pMode !== 'dollar' || !pReinvest || !allocIsDefault(pAlloc) || idsDiffer(['p-freq']),
     'adv-401k': () => idsDiffer(['k-limit', 'k-return']),
     'adv-ira': () => idsDiffer(['i-type', 'i-freq', 'i-alloc-mode']),
@@ -2244,14 +2227,17 @@ function renderPromoRows() {
   let last = 0;
   PROMO_IDS.forEach((ids, i) => { if (num(ids[0]) > 0) last = i + 1; });
   const shown = Math.max(promoShown, last);
+  $('s-promo1-row').hidden = shown < 1;
   $('s-promo2-row').hidden = shown < 2;
   $('s-promo3-row').hidden = shown < 3;
+  $('s-promo-note').hidden = shown < 1;
   $('promo-add').hidden = shown >= 3;
+  $('promo-add').textContent = shown < 1 ? tr('Add promotion raise') : tr('Add another promotion raise');
 }
 function updatePromoNote(s) {
   const el = $('s-promo-note');
   const used = s.promos.map((q, i) => ({ q, i })).filter((x) => x.q.pct > 0);
-  if (!used.length) { el.textContent = tr('Optional. A one-time raise on top of your annual raise, starting in the year you choose (year 1 is this year).'); return; }
+  if (!used.length) { el.textContent = tr('A one-time raise on top of your annual raise, starting in the year you choose (year 1 is this year). Set it to 0% to ignore it.'); return; }
   const multi = used.length > 1;
   el.textContent = used.map(({ q, i }) => {
     const pre = multi ? tr('Promotion {0}: ', i + 1) : '';
@@ -2373,7 +2359,7 @@ function computePersonal(s) {
     (start > 0 ? ' ' + tr('The contributions line includes your starting balance.') : '') +
     (pMode === 'percent' ? ' ' + (activePromos(s).length ? tr('Monthly contributions grow each year with your annual raise and your promotion raise.') : tr('Monthly contributions grow each year with your annual raise.')) : '') +
     (pMode === 'dollar' && payPerYear() === 26 ? ' ' + tr('Bi-weekly contributions are modeled as 26 paychecks a year, spread evenly across the months.') : '') +
-    (inflOn ? ' ' + tr("Figures are in today's dollars at {0}% annual inflation.", num('s-infl-rate')) : '');
+    '';
 
   return {
     final: finalTotal, p, series: Array.from({ length: N + 1 }, (_, y) => (base.invested[y] + base.cash[y]) * d(y)),
@@ -2462,7 +2448,7 @@ function computeK401(s) {
       : tr('From age 50 it rises by the {0} catch-up, which is included automatically when your contribution is high enough to use it.', fmt(cu.amt))) + ' ' +
     (p.start > 0 ? tr('The contributions line includes your starting balance.') + ' ' : '') +
     tr('The low and high cases shift the expected return by {0} and +{1} points a year to show sensitivity; they are not a forecast range.', LOW_DELTA, HIGH_DELTA) +
-    (inflOn ? ' ' + tr("Figures are in today's dollars at {0}% annual inflation.", num('s-infl-rate')) : '');
+    '';
 
   return {
     final: finalValue, series: Array.from({ length: N + 1 }, (_, y) => base.bal[y] * d(y)), capped: t.capped, limit: p.limit,
@@ -2520,7 +2506,7 @@ function computeIRA(s) {
     tr('Uses the same return and dividend assumptions as the Personal tab, with dividends reinvested. The limit is held at its 2026 level for the whole projection, and the {0} catch-up is added from age 50.', fmt(IRA_CATCHUP)) + ' ' +
     (start > 0 ? tr('The contributions line includes your starting balance.') + ' ' : '') +
     tr("The low and high cases shift every fund's return by {0} and +{1} points a year to show sensitivity; they are not a forecast range.", LOW_DELTA, HIGH_DELTA) +
-    (inflOn ? ' ' + tr("Figures are in today's dollars at {0}% annual inflation.", num('s-infl-rate')) : '');
+    '';
 
   return {
     final: finalValue, series: Array.from({ length: N + 1 }, (_, y) => base.invested[y] * d(y)), capped, limit: IRA_LIMIT, active: start > 0 || wanted > 0,
@@ -2541,7 +2527,7 @@ function updateGoal(s, P, K, I) {
   $('ss-prog').classList.toggle('done', pct >= 100);
   $('ss-prog-bar').style.width = Math.min(100, pct) + '%';
   $('ss-goal-pct').textContent = tr('{0}% of {1}', Math.floor(pct), short(goal));
-  if (goal <= 0) { el.className = 'goal-result'; el.textContent = tr("Set a goal under Advanced options to see the year you'd reach it."); return; }
+  if (goal <= 0) { el.className = 'goal-result'; el.textContent = ''; return; }
   const N = s.years;
   let hit = -1;
   for (let y = 0; y <= N; y++) { if (P.series[y] + K.series[y] + I.series[y] >= goal) { hit = y; break; } }
@@ -2565,22 +2551,20 @@ function updateGoal(s, P, K, I) {
 }
 
 /* ---------------- retirement income ---------------- */
-// One short line under the total with the same amount in the other kind of dollars.
+// One short line under the total with the same amount in today's dollars, using the long-run inflation rate.
 function updateHeadline(s, P, K, I) {
   const N = s.years;
   const tot = P.final + K.final + I.final;
   const alt = $('ss-alt');
-  const infl = num('s-infl-rate');
-  const dN = deflator(infl, N);
-  alt.textContent = tot > 0 && infl > 0
-    ? (inflOn ? tr('{0} in {1} dollars', fmt(tot / dN), new Date().getFullYear() + N)
-              : tr("{0} in today's dollars", fmt(tot * dN)))
+  alt.textContent = tot > 0
+    ? tr("{0} in today's dollars, at {1}% average yearly inflation", fmt(tot * deflator(HISTORIC_INFLATION, N)), HISTORIC_INFLATION)
     : '';
 }
 function renderAbout() {
-  $('about-body').innerHTML = tr("Salary: the median full-time U.S. worker earned $1,232 a week in the third quarter of 2026, about $64,000 a year ({0}). 401(k): Vanguard's How America Saves 2026 reports a median employee contribution of 6.6% of pay, a most-common match of 50 cents per dollar on the first 6% of pay, and a median balance of $44,115 across all ages; the $40,000 starting balance is rounded down for a saver in their mid-30s ({1}). A 3% raise, 2.5% inflation, a 4% withdrawal rate and a 7% 401(k) return are common planning assumptions. They are only examples, so replace them with your own numbers.",
+  $('about-body').innerHTML = tr("Salary: the median full-time U.S. worker earned $1,232 a week in the third quarter of 2026, about $64,000 a year ({0}). 401(k): Vanguard's How America Saves 2026 reports a median employee contribution of 6.6% of pay, a most-common match of 50 cents per dollar on the first 6% of pay, and a median balance of $44,115 across all ages; the $40,000 starting balance is rounded down for a saver in their mid-30s ({1}). Inflation: consumer prices have risen 3.17% a year on average since 1913, which is the 3.2% used for the today's-dollars line ({2}). A 3% raise, a 4% withdrawal rate and a 7% 401(k) return are common planning assumptions. They are only examples, so replace them with your own numbers.",
     link('https://www.bls.gov/news.release/wkyeng.nr0.htm', 'BLS'),
-    link('https://workplace.vanguard.com/content/dam/inst/iig-transformation/has/2026/pdf/HowAmericaSaves2026.pdf', 'Vanguard'));
+    link('https://workplace.vanguard.com/content/dam/inst/iig-transformation/has/2026/pdf/HowAmericaSaves2026.pdf', 'Vanguard'),
+    link('https://www.officialdata.org/us/inflation/1913', 'Official Data'));
 }
 
 function updateIncome(s, P, K, I) {
@@ -2704,16 +2688,15 @@ function recomputeAll() {
   $('ss-bp').style.width = (tot > 0 ? personal / tot * 100 : (I.active ? 33 : 50)) + '%';
   $('ss-bk').style.width = (tot > 0 ? k401 / tot * 100 : (I.active ? 33 : 50)) + '%';
   $('ss-bi').style.width = (tot > 0 ? ira / tot * 100 : (I.active ? 34 : 0)) + '%';
-  $('ss-label').textContent = tr('After {0}', yearsText(s.years)) + (inflOn ? tr(" · today's dollars") : '');
+  $('ss-label').textContent = tr('After {0}', yearsText(s.years));
   updateGoal(s, P, K, I);
   updateIncome(s, P, K, I);
   updateHeadline(s, P, K, I);
   renderAbout();
-  $('s-label').textContent = tr('Combined after {0}', yearsText(s.years)) + (inflOn ? tr(" · today's dollars") : '');
+  $('s-label').textContent = tr('Combined after {0}', yearsText(s.years));
   saveState();
 }
 
-$('s-infl-field').hidden = !SHOW_INFLATION_UI;
 loadState();
 formatAllMoney();
 $('share-note').hidden = !sharedLoaded;
