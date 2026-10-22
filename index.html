@@ -1039,15 +1039,15 @@ const ES = {
   "Years to invest": "Años para invertir",
   "Annual salary": "Salario anual",
   "Annual raise": "Aumento anual",
+  "Mostly the S&P 500, with extra Nasdaq-100 for growth and a little dividend income.": "Sobre todo el S&P 500, con más Nasdaq-100 para crecer y un poco de ingresos por dividendos.",
+  "An even blend of core, growth and dividend stocks.": "Una mezcla pareja de acciones base, de crecimiento y de dividendos.",
+  "Leans on dividend stocks for more cash payouts.": "Se apoya en acciones de dividendos para recibir más efectivo.",
   "Mix several funds": "Combinar varios fondos",
   "Mix several funds instead": "Combinar varios fondos",
   "Edit mix": "Editar mezcla",
   "Mixing several funds: {0}.": "Combinando varios fondos: {0}.",
   "Off: all of your money goes into the fund you picked above.": "Desactivado: todo tu dinero va al fondo que elegiste arriba.",
   "Pick a ready-made mix, or choose your own funds and percentages. The three always add up to 100%.": "Elige una mezcla lista o escoge tus propios fondos y porcentajes. Los tres siempre suman 100%.",
-  "Large U.S. companies plus the Nasdaq-100 for extra growth.": "Grandes empresas de EE. UU. más el Nasdaq-100 para crecer más.",
-  "About 60% stocks and 40% bonds, with some international stocks.": "Cerca de 60% en acciones y 40% en bonos, con algo de acciones internacionales.",
-  "Leans on dividend-paying stocks for more cash payouts.": "Se apoya en acciones que pagan dividendos para recibir más efectivo.",
   "U.S. stocks plus a 40% share of companies outside the U.S.": "Acciones de EE. UU. más 40% en empresas fuera de EE. UU.",
   "Uses the funds from your Personal mix. The three always add up to 100%.": "Usa los fondos de tu mezcla de Personal. Los tres siempre suman 100%.",
   "To use other funds, turn on \"Mix several funds\" under Advanced on the Personal tab. The three always add up to 100%.": "Para usar otros fondos, activa \"Combinar varios fondos\" en Avanzado, en la pestaña Personal. Los tres siempre suman 100%.",
@@ -1286,9 +1286,9 @@ let pMix = false;
 let mixAlloc = { voo: 100, qqq: 0, schd: 0 };
 // Ready-made mixes. Each one sets real funds and percentages, in slot order.
 const MIX_PRESETS = {
-  growth:        { name: 'Growth-tilted',  funds: ['VOO', 'QQQM'],         pct: [60, 40],     desc: 'Large U.S. companies plus the Nasdaq-100 for extra growth.' },
-  balanced:      { name: 'Balanced',       funds: ['VOO', 'VXUS', 'BND'],  pct: [45, 15, 40], desc: 'About 60% stocks and 40% bonds, with some international stocks.' },
-  income:        { name: 'Income-leaning', funds: ['VOO', 'SCHD', 'VYM'],  pct: [50, 30, 20], desc: 'Leans on dividend-paying stocks for more cash payouts.' },
+  growth:        { name: 'Growth-tilted',  funds: ['VOO', 'QQQM', 'SCHD'], pct: [60, 25, 15], desc: 'Mostly the S&P 500, with extra Nasdaq-100 for growth and a little dividend income.' },
+  balanced:      { name: 'Balanced',       funds: ['VOO', 'QQQM', 'SCHD'], pct: [50, 25, 25], desc: 'An even blend of core, growth and dividend stocks.' },
+  income:        { name: 'Income-leaning', funds: ['VOO', 'QQQM', 'SCHD'], pct: [50, 15, 35], desc: 'Leans on dividend stocks for more cash payouts.' },
   international: { name: 'International',  funds: ['VTI', 'VXUS'],         pct: [60, 40],     desc: 'U.S. stocks plus a 40% share of companies outside the U.S.' },
 };
 function buildFundSelects() {
