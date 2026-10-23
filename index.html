@@ -158,8 +158,10 @@
   .shared-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px 32px; }
   @media (min-width: 700px) { .shared-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: stretch; } }
   .shared-inputs { min-width: 0; }
-  .shared-inputs .box { width: 132px; }
-  .shared-inputs .box .num, .shared-inputs .box .num.wide { flex: 1; width: auto; min-width: 0; }
+  /* every entry box and dropdown in a field row is the same length */
+  :root { --ctl-w: 144px; }
+  .shared-inputs .box, .inputs-col .field .box.money, .inputs-col .field .num.sel { width: var(--ctl-w); }
+  .shared-inputs .box .num, .shared-inputs .box .num.wide, .inputs-col .field .box.money .num { flex: 1; width: auto; min-width: 0; }
   .page-foot { margin: 24px auto 0; max-width: 640px; text-align: center; }
   .page-foot .link-btn { margin-top: 4px; }
   .disclaimer { margin: 0 0 6px; font-size: 12px; line-height: 1.5; color: var(--text-2); }
@@ -308,6 +310,7 @@
   .subtab[aria-selected=true] { color: var(--text); font-weight: 600; border-bottom-color: var(--accent); }
   [hidden] { display: none !important; }
   .num.sel { width: auto; max-width: 100%; text-align: left; padding: 0 8px; cursor: pointer; }
+  .inputs-col .field .num.sel { width: var(--ctl-w); }
   .cap { display: block; font-style: normal; font-size: 11px; color: var(--amber-ink); }
   .goal-result { margin: 0; font-size: 13px; line-height: 1.45; color: var(--text-2); }
   .goal-result.ok { color: var(--green-ink); font-weight: 600; }
@@ -354,7 +357,7 @@
   .ss-alt:empty { display: none; }
   .ss-field { min-height: 40px; }
   .ss-income .ss-field { margin-top: 6px; }
-  .shared-summary .box { width: 120px; }
+  .shared-summary .box { width: var(--ctl-w); }
   .shared-summary .box .num, .shared-summary .box .num.wide { flex: 1; width: auto; min-width: 0; }
   .goal-result:empty { display: none; }
   .ss-alt { margin: 2px 0 0; font-size: 13px; color: var(--text-2); }
@@ -470,7 +473,7 @@
       </div>
       <div class="field">
         <label for="s-salary">Annual salary</label>
-        <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="2000000" value="64000" id="s-salary" class="num wide"></span><span class="unit">/ yr</span></div>
+        <div class="ctl"><span class="box money"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="2000000" value="64000" id="s-salary" class="num wide"></span><span class="unit">/ yr</span></div>
       </div>
       <div class="field">
         <label for="s-raise">Annual raise</label>
@@ -524,7 +527,7 @@
       <div class="ss-goal">
       <div class="field ss-field">
         <label for="s-goal">Combined goal</label>
-        <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" placeholder="optional" id="s-goal" class="num wide"></span><span class="unit"></span></div>
+        <div class="ctl"><span class="box money"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" placeholder="optional" id="s-goal" class="num wide"></span><span class="unit"></span></div>
       </div>
         <div class="ss-goal-head" id="ss-goal-head" hidden><span>Goal progress</span><b id="ss-goal-pct">0%</b></div>
         <div class="ss-prog" id="ss-prog" hidden><i id="ss-prog-bar"></i></div>
@@ -558,7 +561,7 @@
           <h3>Starting point</h3>
           <div class="field">
             <label for="p-starting">Starting balance</label>
-            <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="5000000" value="0" id="p-starting" class="num wide"></span></div>
+            <div class="ctl"><span class="box money"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="5000000" value="0" id="p-starting" class="num wide"></span></div>
           </div>
           <p class="hint" id="p-start-note" hidden>Your starting balance is split using the percentages in Allocation.</p>
         </div>
@@ -588,7 +591,7 @@
           <div id="p-monthly-row">
             <div class="field">
               <label for="p-monthly" id="p-amount-lbl">Per month</label>
-              <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="50000" value="200" id="p-monthly" class="num wide"></span></div>
+              <div class="ctl"><span class="box money"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="50000" value="200" id="p-monthly" class="num wide"></span></div>
             </div>
           </div>
           <div id="p-percent-fields" style="display:none;">
@@ -726,7 +729,7 @@
           <h3>Starting point</h3>
           <div class="field">
             <label for="k-starting">Starting balance</label>
-            <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="5000000" value="18000" id="k-starting" class="num wide"></span></div>
+            <div class="ctl"><span class="box money"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="5000000" value="18000" id="k-starting" class="num wide"></span></div>
           </div>
         </div>
 
@@ -764,7 +767,7 @@
           <p class="hint" id="k-limit-hint" hidden>Most Puerto Rico plans cap your contributions at $15,000 a year. "PR dual" means a dual-qualified plan with a higher limit, which drops to $22,500 if you also contribute to an IRA. Ask HR which one yours is. From age 50 a catch-up is added on top.</p>
           <div class="field">
             <span class="lbl-wrap"><label for="k-return">Expected return</label><button type="button" class="info-btn" data-info="k-return-hint" aria-label="More info" aria-expanded="false">i</button></span>
-            <div class="ctl"><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.5" value="7" id="k-return" class="num"></span><span class="unit">% / yr</span></div>
+            <div class="ctl"><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.5" value="7" id="k-return" class="num"></span><span class="unit" style="min-width:0">% / yr</span></div>
           </div>
           <p class="hint" id="k-return-hint" hidden>Diversified 401(k) plans have historically returned around 5-8% a year; 7% is a commonly cited long-run average.</p>
         </div>
@@ -798,7 +801,7 @@
           <h3>Starting point</h3>
           <div class="field">
             <label for="i-starting">Starting balance</label>
-            <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="5000000" value="0" id="i-starting" class="num wide"></span></div>
+            <div class="ctl"><span class="box money"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="5000000" value="0" id="i-starting" class="num wide"></span></div>
           </div>
         </div>
 
@@ -827,7 +830,7 @@
           <div id="i-amount-row">
             <div class="field">
               <label for="i-amount" id="i-amount-lbl">Per month</label>
-              <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="50000" value="0" id="i-amount" class="num wide"></span></div>
+              <div class="ctl"><span class="box money"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="50000" value="0" id="i-amount" class="num wide"></span></div>
             </div>
           </div>
           <div id="i-percent-fields" style="display:none;">
