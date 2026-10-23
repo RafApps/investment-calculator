@@ -1437,21 +1437,16 @@ function switchTab(tab) {
 TABS.forEach((t) => $('tab-' + t + '-btn').addEventListener('click', () => switchTab(t)));
 
 /* ---------------- allocation ---------------- */
+// Editing one percent changes only that box and one other: the last box takes up the difference (the middle one, if the last box is the one being edited), so typing 50, 30, 20 in order gives exactly 50/30/20. If that box can't absorb it, the remaining box gives way.
 function normalizeAlloc(alloc, key, rawValue) {
-  const value = Math.max(0, Math.min(100, Number(rawValue) || 0));
+  const value = Math.round(Math.max(0, Math.min(100, Number(rawValue) || 0)));
   const keys = Object.keys(alloc);
   const others = keys.filter((k) => k !== key);
-  const remaining = 100 - value;
-  const othersSum = others.reduce((s, k) => s + alloc[k], 0);
-  const next = { [key]: value };
-  if (othersSum <= 0) {
-    others.forEach((k) => (next[k] = remaining / others.length));
-  } else {
-    others.forEach((k) => (next[k] = (alloc[k] / othersSum) * remaining));
-  }
-  keys.forEach((k) => (next[k] = Math.round(next[k])));
-  const diff = 100 - keys.reduce((s, k) => s + next[k], 0);
-  next[others[0]] += diff;
+  const absorb = others[others.length - 1];
+  const keep = others[0];
+  const next = { [key]: value, [keep]: Math.round(alloc[keep]), [absorb]: 0 };
+  next[absorb] = 100 - value - next[keep];
+  if (next[absorb] < 0) { next[absorb] = 0; next[keep] = 100 - value; }
   return next;
 }
 
