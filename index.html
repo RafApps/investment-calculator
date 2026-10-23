@@ -121,7 +121,8 @@
 
   /* ---------- page ---------- */
   .page { max-width: 1040px; margin: 0 auto; padding: 20px 16px 56px; }
-  h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; margin: 0 0 4px; }
+  h1 { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 700; letter-spacing: -0.01em; margin: 0 0 4px; }
+  h1 .logo { width: 28px; height: 28px; flex: none; }
   .subtitle { font-size: 14px; color: var(--text-2); margin: 0 0 18px; }
   .card {
     background: var(--surface); border: 1px solid var(--border);
@@ -164,7 +165,13 @@
 
   /* ---------- fields ---------- */
   .shared-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px 32px; }
-  @media (min-width: 700px) { .shared-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: stretch; } }
+  @media (min-width: 700px) {
+    .shared-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: stretch; }
+    /* line the first heading up with the first line in the summary box */
+    .shared-inputs { display: flex; flex-direction: column; padding: 14px 0 8px; }
+  }
+  /* on wide screens, share any spare height between the two groups */
+  @media (min-width: 1000px) { .shared-inputs > .section { flex: 1 1 auto; } }
   .shared-inputs { min-width: 0; }
   /* every entry box and dropdown in a field row is the same length */
   :root { --ctl-w: 144px; }
@@ -320,6 +327,7 @@
   .lg-sw { width: 16px; height: 0; border-top: 3px solid; flex-shrink: 0; }
   .lg-sw.box { height: 10px; width: 10px; border: none; border-radius: 3px; }
   .chart-wrap { position: relative; width: 100%; height: 280px; margin-bottom: 22px; }
+  @media (min-width: 700px) { .chart-wrap { height: 340px; } }
   .chart-empty { margin: 18px 0 22px; padding: 28px 16px; text-align: center; font-size: 14px; color: var(--text-2); background: var(--surface-2); border: 1px dashed var(--border); border-radius: 10px; }
   .chart-empty[hidden], #i-chart-block[hidden] { display: none; }
   .footnote { font-size: 12px; color: var(--text-2); line-height: 1.5; margin: 0 0 8px; }
@@ -466,7 +474,7 @@
 <main class="page">
   <div class="head-row">
     <div>
-      <h1>Investment growth calculator</h1>
+      <h1><svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="var(--accent)"/><path d="M12 46 L26 32 L36 40 L52 18" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M42 18 H52 V28" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>Investment growth calculator</h1>
       <p class="subtitle">Model your personal brokerage account, your workplace 401(k) and an IRA side by side.</p>
     </div>
     <div class="lang" role="group" aria-label="Language">
