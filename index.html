@@ -537,6 +537,7 @@
             <label for="p-starting">Starting balance</label>
             <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="5000000" value="0" id="p-starting" class="num wide"></span></div>
           </div>
+          <p class="hint" id="p-start-note" hidden>Your starting balance is split using the percentages in Allocation, and your contributions follow the same split.</p>
         </div>
 
         <div class="section">
@@ -1046,6 +1047,7 @@ const ES = {
   "Dividends buy more shares, so your balance compounds faster.": "Los dividendos compran más acciones, así que tu saldo crece más rápido.",
   "Dividends are paid out as cash instead of buying shares, so they don't compound. They show as Cash in your results.": "Los dividendos se pagan en efectivo en vez de comprar acciones, así que no se acumulan. Aparecen como Efectivo en tus resultados.",
   "Mix on": "Mezcla activa",
+  "Your starting balance is split using the percentages in Allocation, and your contributions follow the same split.": "Tu saldo inicial se divide según los porcentajes de Distribución, y tus aportaciones siguen la misma división.",
   "Dividends off": "Dividendos en efectivo",
   "Mostly the S&P 500, with extra Nasdaq-100 for growth and a little dividend income.": "Sobre todo el S&P 500, con más Nasdaq-100 para crecer y un poco de ingresos por dividendos.",
   "An even blend of core, growth and dividend stocks.": "Una mezcla pareja de acciones base, de crecimiento y de dividendos.",
@@ -1556,6 +1558,7 @@ function renderToggles() {
   $('p-freq-row').style.display = pMode === 'dollar' ? 'block' : 'none';
   $('p-mix-switch').setAttribute('aria-checked', String(pMix));
   $('p-mix').hidden = !pMix;
+  $('p-start-note').hidden = !pMix;
   $('p-mix-hint').textContent = pMix
     ? tr('Pick a ready-made mix, or choose your own funds and percentages. The three always add up to 100%.')
     : tr('Split your money across up to three funds, starting from a ready-made mix.');
