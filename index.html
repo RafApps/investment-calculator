@@ -128,7 +128,15 @@
     border-radius: 12px; padding: 18px; box-shadow: var(--shadow);
   }
   .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
-  @media (max-width: 480px) { .card-head { flex-wrap: wrap; } .card-head .card-actions { justify-content: flex-start; gap: 8px; } }
+  @media (max-width: 480px) {
+    /* on phones the two actions shrink to icons that sit beside the heading; their text stays available to screen readers */
+    .card-head { position: relative; }
+    .card-head .card-actions { flex-wrap: nowrap; flex: none; gap: 6px; }
+    .act-btn { width: 38px; min-height: 38px; padding: 0; justify-content: center; border-radius: 19px; }
+    .act-btn svg { width: 18px; height: 18px; }
+    .act-btn .lbl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .card-head .share-status { position: absolute; right: 0; top: 100%; z-index: 2; margin-top: 2px; padding: 3px 9px; border-radius: 8px; background: var(--surface); box-shadow: var(--shadow); border: 1px solid var(--border); }
+  }
   h2 { font-size: 16px; font-weight: 600; margin: 0; }
   h3 { font-size: 14px; font-weight: 600; margin: 0 0 10px; color: var(--text); }
   .link-btn {
@@ -458,7 +466,7 @@
   <section class="card" aria-labelledby="shared-h">
     <div class="card-head">
       <h2 id="shared-h">Applies to all accounts</h2>
-      <div class="card-actions"><span class="share-status" id="share-status" role="status"></span><button class="act-btn" id="pdf-btn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19.5h14"/></svg>Save summary as PDF</button><button class="act-btn" id="share-btn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg>Copy share link</button></div>
+      <div class="card-actions"><span class="share-status" id="share-status" role="status"></span><button class="act-btn" id="pdf-btn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19.5h14"/></svg><span class="lbl">Save summary as PDF</span></button><button class="act-btn" id="share-btn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg><span class="lbl">Copy share link</span></button></div>
     </div>
     <p class="hint" id="s-example-note">These are typical starting numbers for a U.S. worker. Replace them with your own.</p>
     <div class="shared-grid">
