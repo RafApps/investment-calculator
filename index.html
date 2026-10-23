@@ -135,7 +135,14 @@
     .card-head .card-actions { flex-wrap: nowrap; flex: none; gap: 6px; }
     .act-btn { width: 38px; min-height: 38px; padding: 0; justify-content: center; border-radius: 19px; }
     .act-btn svg { width: 18px; height: 18px; }
+    .act-btn { position: relative; }
     .act-btn .lbl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    /* hovering, keyboard focus or pressing and holding an icon shows what it does */
+    .act-btn:hover .lbl, .act-btn:focus-visible .lbl, .act-btn:active .lbl {
+      width: auto; height: auto; clip: auto; overflow: visible; z-index: 3; top: calc(100% + 6px); right: 0;
+      padding: 4px 10px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow);
+      font-size: 12px; font-weight: 500; color: var(--text);
+    }
     .card-head .share-status { position: absolute; right: 0; top: 100%; z-index: 2; margin-top: 2px; padding: 3px 9px; border-radius: 8px; background: var(--surface); box-shadow: var(--shadow); border: 1px solid var(--border); }
   }
   h2 { font-size: 16px; font-weight: 600; margin: 0; }
@@ -228,6 +235,7 @@
     background: var(--surface-2);
   }
   .num.wide { width: 112px; }
+  .num.is-example { color: var(--text-2); }
   .num:focus { outline: 2px solid var(--accent); outline-offset: 0; background: var(--surface); }
   .ctl > .unit:last-child { min-width: var(--uw, 44px); }
   #panel-401k .inputs-col { --uw: 66px; }
@@ -358,6 +366,14 @@
   .info-btn::after { content: ''; position: absolute; inset: -11px; } /* 44px touch target */
   .info-btn[aria-expanded=true] { background: var(--accent-bg); border-color: var(--accent-border); color: var(--accent-ink); }
   details.why .footnote { font-size: 13px; }
+  /* the footer's "About the starting numbers" looks like the quiet buttons beside it */
+  #about-defaults { text-align: center; }
+  #about-defaults > .footnote { text-align: left; }
+  #about-defaults > summary { list-style: none; display: inline-flex; align-items: center; gap: 6px; min-height: 0; padding: 8px 6px; border-radius: 6px; font-weight: 400; color: var(--text-2); }
+  #about-defaults > summary::-webkit-details-marker { display: none; }
+  #about-defaults > summary:hover { background: var(--surface-2); color: var(--text); }
+  #about-defaults > summary::after { content: ""; width: 6px; height: 6px; margin-top: -3px; border-right: 1.75px solid currentColor; border-bottom: 1.75px solid currentColor; transform: rotate(45deg); transition: transform .15s; }
+  #about-defaults[open] > summary::after { margin-top: 3px; transform: rotate(-135deg); }
   .head-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
   .lang { display: inline-flex; flex-shrink: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
   .lang-btn { min-height: 36px; min-width: 44px; border: none; background: transparent; color: var(--text-2); font-size: 13px; font-weight: 600; cursor: pointer; }
@@ -1418,6 +1434,16 @@ buildFundSelects();
 // the page's starting values, used to keep share links short and to restore defaults
 const DEFAULT_INPUTS = {};
 document.querySelectorAll('input[type=number], input[type=text], select').forEach((el) => { DEFAULT_INPUTS[el.id] = el.value; });
+// The starting numbers are examples: they feed the results, but show in a softer color until the person edits them.
+// (Fund percentages and return rates are left out; the page sets those itself.)
+const EXAMPLE_INPUTS = Array.from(document.querySelectorAll('input[type=number], input[type=text]'))
+  .filter((el) => el.closest('.shared-inputs, .shared-summary') || /^(p-starting|p-monthly|p-salary-pct|i-starting|i-amount|i-salary-pct|k-)/.test(el.id));
+const editedInputs = new Set();
+EXAMPLE_INPUTS.forEach((el) => el.addEventListener('input', () => { editedInputs.add(el.id); refreshExamples(); }));
+function refreshExamples() {
+  const plain = (v) => String(v).replace(/,/g, '');
+  EXAMPLE_INPUTS.forEach((el) => el.classList.toggle('is-example', !editedInputs.has(el.id) && plain(el.value) === plain(DEFAULT_INPUTS[el.id])));
+}
 // Dollar fields are text inputs that show thousands separators as you type (82400 becomes 82,400).
 function fmtMoneyInput(str) {
   const clean = String(str).replace(/[^\d.]/g, '');
@@ -2908,6 +2934,7 @@ function renderWhy() {
 let lastFundKey = null;
 let LAST = null;
 function recomputeAll() {
+  refreshExamples();
   syncRates();
   if (lastFundKey !== null && fundKey() !== lastFundKey) {
     lastFundKey = fundKey();
