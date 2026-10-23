@@ -23,7 +23,7 @@
 <meta name="twitter:title" content="Investment Growth Calculator: Personal, 401(k) and IRA">
 <meta name="twitter:description" content="Estimate how your personal investments, workplace 401(k) and IRA could grow over 15+ years. Free, private, and works on your phone.">
 <meta name="twitter:image" content="https://rafapps.github.io/investment-calculator/og.png">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="chart.umd.js"></script>
 <style>
   :root {
     color-scheme: light dark;
@@ -278,6 +278,8 @@
   .lg-sw { width: 16px; height: 0; border-top: 3px solid; flex-shrink: 0; }
   .lg-sw.box { height: 10px; width: 10px; border: none; border-radius: 3px; }
   .chart-wrap { position: relative; width: 100%; height: 280px; margin-bottom: 22px; }
+  .chart-empty { margin: 18px 0 22px; padding: 28px 16px; text-align: center; font-size: 14px; color: var(--text-2); background: var(--surface-2); border: 1px dashed var(--border); border-radius: 10px; }
+  .chart-empty[hidden], #i-chart-block[hidden] { display: none; }
   .footnote { font-size: 12px; color: var(--text-2); line-height: 1.5; margin: 0 0 8px; }
   .subtabs { display: flex; gap: 22px; border-bottom: 1px solid var(--border); margin: 0 0 10px; }
   .subtab {
@@ -401,6 +403,7 @@
 </style>
 </head>
 <body>
+<noscript><p style="margin:24px auto;max-width:560px;padding:0 16px;font:16px/1.5 system-ui,sans-serif;color:#1f2933;">This calculator needs JavaScript to run. Turn it on in your browser settings and reload the page.</p></noscript>
 
 <header class="summary" aria-live="polite">
   <div class="summary-inner">
@@ -873,9 +876,12 @@
           <div class="stat"><p class="stat-label">Your contributions</p><p class="stat-value" id="i-stat-contributed">$0</p></div>
           <div class="stat green"><p class="stat-label">Investment growth</p><p class="stat-value" id="i-stat-gain">$0</p></div>
         </div>
+        <p class="chart-empty" id="i-empty" hidden>Enter a starting balance or a contribution amount and your IRA chart will appear here.</p>
+        <div id="i-chart-block">
         <h3>IRA growth</h3>
         <div class="legend" id="i-growth-legend"></div>
         <div class="chart-wrap"><canvas id="i-growth-chart" role="img" aria-label="IRA growth over time"></canvas></div>
+        </div>
         <details class="why"><summary>Notes and sources</summary><p class="footnote" id="i-footnote"></p><div id="i-why-body"></div></details>
       </section>
     </div>
@@ -959,6 +965,7 @@ const ES = {
   "dividends paid out as cash": "dividendos pagados en efectivo",
   "per paycheck (bi-weekly)": "por cheque (quincenal)",
   "per month": "por mes",
+  "Enter a starting balance or a contribution amount and your IRA chart will appear here.": "Ingresa un saldo inicial o una aportación y tu gráfica de la IRA aparecerá aquí.",
   "You": "Tú",
   "Age {0}. Salary {1} growing {2}% a year. Projection runs {3}.": "{0} años. Salario de {1} que crece {2}% al año. La proyección abarca {3}.",
   "{0}% of salary": "{0}% del salario",
@@ -1254,7 +1261,7 @@ const I18N_TITLE = document.title;
   const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   while (w.nextNode()) {
     const n = w.currentNode;
-    if (!n.nodeValue.trim() || n.parentNode.nodeName === 'SCRIPT') continue;
+    if (!n.nodeValue.trim() || n.parentNode.nodeName === 'SCRIPT' || n.parentNode.nodeName === 'NOSCRIPT') continue;
     I18N_NODES.push({ n, orig: n.nodeValue.trim(), lead: n.nodeValue.match(/^\s*/)[0], trail: n.nodeValue.match(/\s*$/)[0] });
   }
   ['aria-label', 'placeholder'].forEach((attr) => document.querySelectorAll('[' + attr + ']').forEach((el) => I18N_ATTRS.push({ el, attr, orig: el.getAttribute(attr) })));
@@ -2255,7 +2262,7 @@ function initCharts() {
       },
       options: baseOptions(t, true, false, true, true),
     });
-    const fundOn = (f) => () => pAlloc[f] > 0;
+    const fundOn = (f) => () => pAlloc[f] > 0 && FUNDS.filter((g) => pAlloc[g] > 0).length > 1;
     buildLegend('p-growth-legend', pGrowthChart, [
       { group: tr('Portfolio'), label: tr('Your contributions'), color: CONTRIB_COLOR, idx: [2] },
       { group: tr('Portfolio'), label: () => (pReinvest ? 'Portfolio value' : 'Invested value'), color: t.total, idx: [0] },
@@ -2330,7 +2337,7 @@ function initCharts() {
       },
       options: baseOptions(t, false, false, true, true),
     });
-    const iFundOn = (f) => () => iraAlloc()[f] > 0;
+    const iFundOn = (f) => () => iraAlloc()[f] > 0 && FUNDS.filter((g) => iraAlloc()[g] > 0).length > 1;
     const iFundName = (f) => () => iraRates()[f].label;
     buildLegend('i-growth-legend', iGrowthChart, [
       { group: tr('Portfolio'), label: tr('Your contributions'), color: CONTRIB_COLOR, idx: [1] },
@@ -2637,7 +2644,10 @@ function computeIRA(s) {
   $('i-stat-contributed').textContent = fmt(contributed);
   $('i-stat-gain').textContent = fmt(finalValue - start - contributed);
 
-  if (iGrowthChart) {
+  const iActive = start > 0 || wanted > 0;
+  $('i-empty').hidden = iActive;
+  $('i-chart-block').hidden = !iActive;
+  if (iGrowthChart && iActive) {
     const idx = Array.from({ length: N + 1 }, (_, y) => y);
     iGrowthChart.data.labels = idx.map(yrLabel);
     iGrowthChart.data.datasets[0].data = idx.map((y) => Math.round(base.invested[y] * d(y)));
