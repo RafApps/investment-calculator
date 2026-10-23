@@ -169,12 +169,25 @@
   /* every entry box and dropdown in a field row is the same length */
   :root { --ctl-w: 144px; }
   .shared-inputs .box, .inputs-col .field .box.money, .inputs-col .field .num.sel { width: var(--ctl-w); }
+  /* two short fields side by side; below 380px they go back to one row each */
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+  .pair-f { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .pair-f > label { font-size: 14px; color: var(--text); }
+  .pair-f .ctl { justify-content: flex-start; margin-left: 0; flex-wrap: nowrap; }
+  .shared-inputs .pair .box { width: 84px; }
+  .shared-inputs .promo-field .box { width: 72px; }
+  .shared-inputs .promo-field .ctl { gap: 6px; }
+  @media (max-width: 380px) {
+    .pair { grid-template-columns: 1fr; gap: 0; }
+    .pair-f { flex-direction: row; align-items: center; justify-content: space-between; min-height: 48px; }
+    .pair-f .ctl { justify-content: flex-end; margin-left: auto; }
+  }
   .shared-inputs .box .num, .shared-inputs .box .num.wide, .inputs-col .field .box.money .num { flex: 1; width: auto; min-width: 0; }
   .page-foot { margin: 24px auto 0; max-width: 640px; text-align: center; }
   .page-foot .link-btn { margin-top: 4px; }
   .disclaimer { margin: 0 0 6px; font-size: 12px; line-height: 1.5; color: var(--text-2); }
   .shared-summary {
-    min-width: 0; display: flex; flex-direction: column; gap: 12px; padding: 14px 16px;
+    min-width: 0; align-self: start; display: flex; flex-direction: column; gap: 12px; padding: 14px 16px;
     background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px;
   }
   .ss-label { display: block; font-size: 12px; color: var(--text-2); }
@@ -471,14 +484,21 @@
     <p class="hint" id="s-example-note">These are typical starting numbers for a U.S. worker. Replace them with your own.</p>
     <div class="shared-grid">
      <div class="shared-inputs">
-      <div class="field">
-        <label for="s-age">Your age</label>
-        <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="16" max="90" value="30" id="s-age" class="num"></span><span class="unit">yrs</span></div>
+      <div class="section">
+        <h3>About you</h3>
+        <div class="pair">
+          <div class="pair-f">
+            <label for="s-age">Your age</label>
+            <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="16" max="90" value="30" id="s-age" class="num"></span><span class="unit">yrs</span></div>
+          </div>
+          <div class="pair-f">
+            <label for="s-years">Years to invest</label>
+            <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="1" max="80" value="30" id="s-years" class="num"></span><span class="unit">yrs</span></div>
+          </div>
+        </div>
       </div>
-      <div class="field">
-        <label for="s-years">Years to invest</label>
-        <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="1" max="80" value="30" id="s-years" class="num"></span><span class="unit">yrs</span></div>
-      </div>
+      <div class="section">
+      <h3>Your pay</h3>
       <div class="field">
         <label for="s-salary">Annual salary</label>
         <div class="ctl"><span class="box money"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="2000000" value="64000" id="s-salary" class="num wide"></span><span class="unit">/ yr</span></div>
@@ -488,37 +508,26 @@
         <div class="ctl"><span class="box"><input type="number" inputmode="decimal" min="0" max="50" step="0.5" value="3" id="s-raise" class="num"></span><span class="unit">%</span></div>
       </div>
       <div id="s-promo1-row" hidden>
-      <div class="field">
-        <label for="s-promo-pct">Promotion raise</label>
-        <div class="ctl"><span class="box"><input type="number" inputmode="decimal" min="0" max="100" step="0.5" value="0" id="s-promo-pct" class="num"></span><span class="unit">%</span></div>
-      </div>
-      <div class="field">
-        <label for="s-promo-year">Promotion year</label>
-        <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="2" max="80" step="1" value="5" id="s-promo-year" class="num"></span><span class="unit">year</span></div>
-      </div>
+        <div class="field promo-field">
+          <label for="s-promo-pct">Promotion</label>
+          <div class="ctl nowrap"><span class="box"><input type="number" inputmode="decimal" min="0" max="100" step="0.5" value="0" id="s-promo-pct" class="num"></span><span class="unit">% in year</span><span class="box"><input type="number" inputmode="numeric" min="2" max="80" step="1" value="5" id="s-promo-year" class="num" aria-label="Promotion year"></span></div>
+        </div>
       </div>
       <div id="s-promo2-row" hidden>
-        <div class="field">
-          <label for="s-promo2-pct">Promotion 2 raise</label>
-          <div class="ctl"><span class="box"><input type="number" inputmode="decimal" min="0" max="100" step="0.5" value="0" id="s-promo2-pct" class="num"></span><span class="unit">%</span></div>
-        </div>
-        <div class="field">
-          <label for="s-promo2-year">Promotion 2 year</label>
-          <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="2" max="80" step="1" value="10" id="s-promo2-year" class="num"></span><span class="unit">year</span></div>
+        <div class="field promo-field">
+          <label for="s-promo2-pct">Promotion 2</label>
+          <div class="ctl nowrap"><span class="box"><input type="number" inputmode="decimal" min="0" max="100" step="0.5" value="0" id="s-promo2-pct" class="num"></span><span class="unit">% in year</span><span class="box"><input type="number" inputmode="numeric" min="2" max="80" step="1" value="10" id="s-promo2-year" class="num" aria-label="Promotion 2 year"></span></div>
         </div>
       </div>
       <div id="s-promo3-row" hidden>
-        <div class="field">
-          <label for="s-promo3-pct">Promotion 3 raise</label>
-          <div class="ctl"><span class="box"><input type="number" inputmode="decimal" min="0" max="100" step="0.5" value="0" id="s-promo3-pct" class="num"></span><span class="unit">%</span></div>
-        </div>
-        <div class="field">
-          <label for="s-promo3-year">Promotion 3 year</label>
-          <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="2" max="80" step="1" value="15" id="s-promo3-year" class="num"></span><span class="unit">year</span></div>
+        <div class="field promo-field">
+          <label for="s-promo3-pct">Promotion 3</label>
+          <div class="ctl nowrap"><span class="box"><input type="number" inputmode="decimal" min="0" max="100" step="0.5" value="0" id="s-promo3-pct" class="num"></span><span class="unit">% in year</span><span class="box"><input type="number" inputmode="numeric" min="2" max="80" step="1" value="15" id="s-promo3-year" class="num" aria-label="Promotion 3 year"></span></div>
         </div>
       </div>
       <p class="hint" id="s-promo-note" hidden></p>
       <button class="link-btn alloc-toggle" id="promo-add" type="button">Add promotion raise</button>
+      </div>
      </div>
      <aside class="shared-summary" aria-label="Summary" aria-live="polite">
       <div>
@@ -1149,6 +1158,12 @@ const ES = {
   "Promotion 3 year": "Año del tercer ascenso",
   "Promotion {0}: ": "Ascenso {0}: ",
   "Promotion raise": "Aumento por ascenso",
+  "Promotion": "Ascenso",
+  "Promotion 2": "Ascenso 2",
+  "Promotion 3": "Ascenso 3",
+  "% in year": "% en el año",
+  "About you": "Sobre ti",
+  "Your pay": "Tu salario",
   "year": "año",
   "Promotion year": "Año del ascenso",
   "Choose year 2 or later. Year 1 is this year, and your salary above is already what you earn now.": "Elige el año 2 o después. El año 1 es este año, y tu salario de arriba ya es lo que ganas ahora.",
