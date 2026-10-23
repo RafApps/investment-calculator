@@ -354,6 +354,8 @@
   .a-vals { display: flex; flex-wrap: wrap; gap: 8px 18px; }
   .a-val { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-2); }
   .a-val .box .num { width: 60px; }
+  .a-slot:not(.is-single) .a-desc { display: none; }
+  #mix-customize { padding: 6px 0; }
   .a-desc { margin: 6px 0 0; font-size: 12px; color: var(--text-3); }
   /* ---------- printable summary (shown only when printing or saving as PDF) ---------- */
   #print-report { display: none; }
@@ -591,8 +593,10 @@
           </div>
         </div>
           </div>
-          <p class="hint" id="fund-mixnote" hidden></p>
-          <button class="link-btn" id="fund-edit-mix" type="button" hidden>Edit mix</button>
+          <div id="fund-mix" hidden>
+            <div class="alloc-bar" id="p-alloc-bar" aria-hidden="true"></div>
+            <p class="hint" id="p-preset-note"></p>
+          </div>
         </div>
 
         <details class="adv" id="adv-personal" open>
@@ -600,10 +604,11 @@
           <div class="adv-body">
         <div class="section">
           <div class="field">
-            <span class="lbl" id="p-mix-lbl">Mix several funds</span>
+            <span class="lbl-wrap"><span class="lbl" id="p-mix-lbl">Mix several funds</span><button type="button" class="info-btn" data-info="p-mix-info" aria-label="More info" aria-expanded="false">i</button></span>
             <div class="ctl"><button class="switch" id="p-mix-switch" type="button" role="switch" aria-checked="false" aria-labelledby="p-mix-lbl"></button></div>
           </div>
           <p class="hint" id="p-mix-hint"></p>
+            <p class="hint" id="p-mix-info" hidden>Total return includes dividends and is after the fund's expense ratio, which published fund returns already include. These are long-run historical averages, not a forecast. To try your own numbers, pick Custom fund. The 401(k) tab has its own expected return.</p>
           <div id="p-mix" hidden>
             <div class="strategies" id="p-strategies">
               <button class="strat-btn" type="button" data-preset="growth">Growth-tilted</button>
@@ -611,8 +616,8 @@
               <button class="strat-btn" type="button" data-preset="income">Income-leaning</button>
               <button class="strat-btn" type="button" data-preset="international">International</button>
             </div>
-            <p class="hint" id="p-preset-note"></p>
-            <div class="alloc-bar" id="p-alloc-bar" aria-hidden="true"></div>
+            <button class="link-btn" id="mix-customize" type="button" aria-expanded="false" aria-controls="mix-custom">Customize funds</button>
+            <div id="mix-custom" hidden>
             <div class="a-slots" id="mix-slots">
         <div class="a-slot" id="slot-qqq">
           <div class="a-top">
@@ -641,8 +646,8 @@
           </div>
         </div>
             </div>
-            <p class="hint">Total return includes dividends and is after the fund's expense ratio, which published fund returns already include. These are long-run historical averages, not a forecast. To try your own numbers, pick Custom fund. The 401(k) tab has its own expected return.</p>
             <button class="link-btn" id="rates-reset" type="button">Restore default funds and rates</button>
+            </div>
           </div>
         </div>
 
@@ -1025,6 +1030,9 @@ const ES = {
   "Years to invest": "Años para invertir",
   "Annual salary": "Salario anual",
   "Annual raise": "Aumento anual",
+  "All in {0} for now. Pick a mix above, or customize your own.": "Todo en {0} por ahora. Elige una mezcla arriba, o personaliza la tuya.",
+  "Customize funds": "Personalizar fondos",
+  "Hide fund details": "Ocultar detalles de fondos",
   "QQQM holds the same stocks as QQQ, which tracks the same Nasdaq-100 and launched in 1999, so the calculator uses QQQ's record: {0}% a year since March 1999 with dividends reinvested ({1}). That span includes the 2000 to 2002 crash, when the index fell about 82% ({2}). The index itself returned 14.25% a year since 1985 ({3}). QQQM launched in 2020, with a {4}% expense ratio (QQQ: 0.18%) and a {5}% yield ({6}).": "QQQM tiene las mismas acciones que QQQ, que sigue el mismo Nasdaq-100 y se lanzó en 1999, así que el calculador usa el récord de QQQ: {0}% al año desde marzo de 1999 con dividendos reinvertidos ({1}). Ese período incluye la caída de 2000 a 2002, cuando el índice bajó cerca de 82% ({2}). El índice mismo rindió 14.25% al año desde 1985 ({3}). QQQM se lanzó en 2020, con una razón de gastos de {4}% (QQQ: 0.18%) y un rendimiento de {5}% ({6}).",
   "The S&amp;P 500 returned 10.47% a year with dividends reinvested from 1926 through 2026 ({0}). VOO itself returned {1}% a year since its 2010 launch, a strong stretch for stocks, so the calculator uses the longer record ({2}, as of {3}). Yield {4}% ({5}), expense ratio {6}%.": "El S&amp;P 500 rindió 10.47% al año con dividendos reinvertidos de 1926 a 2026 ({0}). VOO mismo rindió {1}% al año desde su lanzamiento en 2010, un período fuerte para las acciones, así que el calculador usa el récord más largo ({2}, al {3}). Rendimiento por dividendos {4}% ({5}), razón de gastos {6}%.",
   "Dividend-growing and dividend-initiating stocks in the S&amp;P 500 returned 10.22% a year from 1973 to 2025 ({0}). SCHD itself returned 13.11% a year since its 2011 launch and 12.44% over 10 years, a strong stretch for stocks ({1}, as of {2}). Yield {3}% over the trailing 12 months, expense ratio {4}%.": "Las acciones del S&amp;P 500 que aumentan o inician dividendos rindieron 10.22% al año de 1973 a 2025 ({0}). SCHD mismo rindió 13.11% al año desde su lanzamiento en 2011 y 12.44% en 10 años, un período fuerte para las acciones ({1}, al {2}). Rendimiento por dividendos {3}% en los últimos 12 meses, razón de gastos {4}%.",
@@ -1043,8 +1051,6 @@ const ES = {
   "An even blend of core, growth and dividend stocks.": "Una mezcla pareja de acciones base, de crecimiento y de dividendos.",
   "Leans on dividend stocks for more cash payouts.": "Se apoya en acciones de dividendos para recibir más efectivo.",
   "Mix several funds": "Combinar varios fondos",
-  "Edit mix": "Editar mezcla",
-  "Mixing several funds: {0}.": "Combinando varios fondos: {0}.",
   "Pick a ready-made mix, or choose your own funds and percentages. The three always add up to 100%.": "Elige una mezcla lista o escoge tus propios fondos y porcentajes. Los tres siempre suman 100%.",
   "U.S. stocks plus a 40% share of companies outside the U.S.": "Acciones de EE. UU. más 40% en empresas fuera de EE. UU.",
   "Uses the funds from your Personal mix. The three always add up to 100%.": "Usa los fondos de tu mezcla de Personal. Los tres siempre suman 100%.",
@@ -1270,6 +1276,7 @@ function applyI18n() {
 // Fills the three fund drop-downs (re-run when the language changes) and greys out funds already used in another slot.
 // Mixing is off by default: everything goes into the one fund picked in the main section. When it is on, mixAlloc holds the split.
 let pMix = false;
+let mixOpen = false; // whether the fund rows under Customize are showing
 let mixAlloc = { voo: 100, qqq: 0, schd: 0 };
 // Ready-made mixes. Each one sets real funds and percentages, in slot order.
 const MIX_PRESETS = {
@@ -1294,12 +1301,21 @@ function buildFundSelects() {
   });
   refreshFundOptions();
 }
+// With several funds the select shares its row with the percent box, so the closed select shows just the ticker; the open list keeps the full names.
+function shortFundLabels() {
+  FUNDS.forEach((f, i) => {
+    const sel = $('a-' + f + '-fund');
+    Array.from(sel.options).forEach((o) => { if (o.value !== 'CUSTOM') o.textContent = o.value + ' \u00b7 ' + tr(CATALOG[o.value].name); });
+    if ((pMix || i > 0) && sel.value !== 'CUSTOM' && sel.selectedOptions[0]) sel.selectedOptions[0].textContent = sel.value;
+  });
+}
 function refreshFundOptions() {
   // one fund can only fill one slot, but with mixing off only the first slot is in play
   const used = FUNDS.map((f, i) => (pMix || i === 0 ? $('a-' + f + '-fund').value : null));
   FUNDS.forEach((f, i) => {
     Array.from($('a-' + f + '-fund').options).forEach((o) => { o.disabled = o.value !== 'CUSTOM' && used.some((u, j) => j !== i && u === o.value); });
   });
+  shortFundLabels();
 }
 buildFundSelects();
 // the page's starting values, used to keep share links short and to restore defaults
@@ -1481,10 +1497,12 @@ function syncAllocInputs() {
     const on = presetActive(b.dataset.preset);
     b.classList.toggle('active', on);
     b.setAttribute('aria-pressed', String(on));
+    b.title = tr(MIX_PRESETS[b.dataset.preset].desc);
     if (on) active = b.dataset.preset;
   });
-  $('p-preset-note').textContent = (active ? tr(MIX_PRESETS[active].name) : tr('Custom mix')) + ': ' + allocText(pAlloc) + '.' + (active ? ' ' + tr(MIX_PRESETS[active].desc) : '');
-  $('fund-mixnote').textContent = tr('Mixing several funds: {0}.', allocText(pAlloc));
+  $('p-preset-note').textContent = !active && allocIsDefault(pAlloc)
+    ? tr('All in {0} for now. Pick a mix above, or customize your own.', RATES.voo.label)
+    : (active ? tr(MIX_PRESETS[active].name) : tr('Custom mix')) + ': ' + allocText(pAlloc) + '.';
 }
 
 // Point a slot at a catalog fund (or Custom) and load that fund's numbers.
@@ -1510,7 +1528,7 @@ function dedupeSlots() {
 function setMix(on) {
   if (on === pMix) return;
   pMix = on;
-  if (on) { pAlloc = Object.assign({}, mixAlloc); dedupeSlots(); }
+  if (on) { pAlloc = Object.assign({}, mixAlloc); dedupeSlots(); autoMixOpen(); }
   else { mixAlloc = Object.assign({}, pAlloc); pAlloc = { voo: 100, qqq: 0, schd: 0 }; }
   refreshFundOptions();
   syncRates();
@@ -1530,7 +1548,9 @@ function applyPreset(key) {
   recomputeAll();
 }
 $('p-mix-switch').addEventListener('click', () => setMix(!pMix));
-$('fund-edit-mix').addEventListener('click', () => { $('adv-personal').open = true; $('p-mix-switch').scrollIntoView({ block: 'center' }); });
+$('mix-customize').addEventListener('click', () => { mixOpen = !mixOpen; renderToggles(); });
+// a mix that matches no preset is somebody's own, so show its rows rather than hide them
+function autoMixOpen() { if (pMix && !allocIsDefault(pAlloc) && !Object.keys(MIX_PRESETS).some(presetActive)) mixOpen = true; }
 document.querySelectorAll('#p-strategies .strat-btn').forEach((btn) => btn.addEventListener('click', () => applyPreset(btn.dataset.preset)));
 FUNDS.forEach((f) => {
   $('p-' + f + '-num').addEventListener('input', (e) => {
@@ -1563,8 +1583,10 @@ function renderToggles() {
   if (slot1.parentNode !== host) { if (pMix) host.insertBefore(slot1, host.firstChild); else host.appendChild(slot1); }
   slot1.classList.toggle('is-single', !pMix);
   $('fund-single').hidden = pMix;
-  $('fund-mixnote').hidden = !pMix;
-  $('fund-edit-mix').hidden = !pMix;
+  $('fund-mix').hidden = !pMix;
+  $('mix-custom').hidden = !mixOpen;
+  $('mix-customize').setAttribute('aria-expanded', String(mixOpen));
+  $('mix-customize').textContent = mixOpen ? tr('Hide fund details') : tr('Customize funds');
   $('p-reinvest-switch').setAttribute('aria-checked', String(pReinvest));
   $('p-reinvest-label').textContent = pReinvest ? tr('Dividends buy more shares, so your balance compounds faster.') : tr("Dividends are paid out as cash instead of buying shares, so they don't compound. They show as Cash in your results.");
   renderIraToggles();
@@ -2726,6 +2748,7 @@ loadState();
 formatAllMoney();
 $('share-note').hidden = !sharedLoaded;
 syncRates();
+autoMixOpen();
 syncAllocInputs();
 syncIraAlloc();
 renderToggles();
