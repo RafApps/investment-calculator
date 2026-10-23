@@ -33,7 +33,7 @@
     --border: #e3e6ea;
     --text: #14181f;
     --text-2: #5b6472;
-    --text-3: #8a93a1;
+    --text-3: #667085;
     --accent: #2a78d6;
     --accent-ink: #1d4ed8;
     --accent-bg: #eaf2fd;
@@ -44,7 +44,7 @@
     --amber-border: #f1d98a;
     --amber-ink: #8a5a00;
     --ira: #7c4dd6;
-    --switch-off: #cbd1d9;
+    --switch-off: #8791a0;
     --chart-text: #7b8494;
     --chart-grid: #e9ecf0;
     --total: #334155;
@@ -59,7 +59,7 @@
       --border: #2b323d;
       --text: #eceff4;
       --text-2: #a4adbb;
-      --text-3: #7d8797;
+      --text-3: #8f99a8;
       --accent: #5b9bf0;
       --accent-ink: #8db8f7;
       --accent-bg: #19283d;
@@ -70,7 +70,7 @@
       --amber-border: #5a4a1d;
       --amber-ink: #e6c067;
       --ira: #a78bfa;
-      --switch-off: #3a4350;
+      --switch-off: #667286;
       --chart-text: #8d97a7;
       --chart-grid: #262c36;
       --total: #e2e8f0;
@@ -344,7 +344,9 @@
   .a-slot .a-vals { display: none; margin-top: 2px; }
   .a-slot.is-custom .a-vals, .a-slot.vals-open .a-vals { display: flex; }
   .a-slot.is-custom .a-edit { display: none; }
-  .a-edit { padding: 6px 0; }
+  .a-links { display: flex; flex-wrap: wrap; gap: 0 18px; margin-top: 2px; }
+  .a-links .link-btn { padding: 6px 0; }
+  .a-slot:not(.is-single) .a-mixlink { display: none; }
   .a-share { display: flex; align-items: center; gap: 4px; flex: none; }
   .a-share .box .num { width: 56px; }
   .a-slot.is-single .a-share { display: none; }
@@ -397,7 +399,7 @@
     .r-dl dd { margin: 0; }
     .r-foot { margin-top: 10px; padding-top: 8px; border-top: 1px solid #c9cfd8; font-size: 9.5px; color: #5b6472; }
   }
-  .badge { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; background: var(--amber-bg); color: var(--amber-ink); border: 1px solid var(--amber-border); }
+  .badge { white-space: nowrap; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; background: var(--amber-bg); color: var(--amber-ink); border: 1px solid var(--amber-border); }
 </style>
 </head>
 <body>
@@ -586,23 +588,25 @@
             <input type="text" id="a-voo-name" class="num a-name" maxlength="8" placeholder="Name" aria-label="Custom fund 1 name" autocomplete="off" hidden>
             <span class="a-share"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="100" id="p-voo-num" class="num"></span><span class="unit">%</span></span>
           </div>
-          <button class="link-btn a-edit" type="button" data-slot="voo" aria-expanded="false">Edit return and yield</button>
+          <p class="a-desc" id="a-voo-desc"></p>
+          <div class="a-links">
+            <button class="link-btn a-edit" type="button" data-slot="voo" aria-expanded="false">Edit return and yield</button>
+            <button class="link-btn a-mixlink" id="fund-mix-link" type="button">Mix several funds instead</button>
+          </div>
           <div class="a-vals">
             <label class="a-val"><span>Total return</span><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.1" value="10.5" id="a-voo-total" class="num"><span class="unit">%</span></span></label>
             <label class="a-val"><span>Dividend yield</span><span class="box"><input type="number" inputmode="decimal" min="0" max="15" step="0.1" value="1.1" id="a-voo-div" class="num"><span class="unit">%</span></span></label>
           </div>
-          <p class="a-desc" id="a-voo-desc"></p>
         </div>
           </div>
           <p class="hint" id="fund-mixnote" hidden></p>
-          <button class="link-btn" id="fund-mix-link" type="button">Mix several funds instead</button>
+          <button class="link-btn" id="fund-edit-mix" type="button" hidden>Edit mix</button>
         </div>
 
         <details class="adv" id="adv-personal">
-          <summary>Advanced: funds and dividends <span class="badge" id="assump-badge" hidden>Customized</span></summary>
+          <summary>Advanced: funds and dividends <span class="badge" id="assump-badge" hidden></span></summary>
           <div class="adv-body">
         <div class="section">
-          <h3>Funds</h3>
           <div class="field">
             <span class="lbl" id="p-mix-lbl">Mix several funds</span>
             <div class="ctl"><button class="switch" id="p-mix-switch" type="button" role="switch" aria-checked="false" aria-labelledby="p-mix-lbl"></button></div>
@@ -625,12 +629,14 @@
             <input type="text" id="a-qqq-name" class="num a-name" maxlength="8" placeholder="Name" aria-label="Custom fund 2 name" autocomplete="off" hidden>
             <span class="a-share"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="0" id="p-qqq-num" class="num"></span><span class="unit">%</span></span>
           </div>
+          <p class="a-desc" id="a-qqq-desc"></p>
+          <div class="a-links">
           <button class="link-btn a-edit" type="button" data-slot="qqq" aria-expanded="false">Edit return and yield</button>
+          </div>
           <div class="a-vals">
             <label class="a-val"><span>Total return</span><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.1" value="12" id="a-qqq-total" class="num"><span class="unit">%</span></span></label>
             <label class="a-val"><span>Dividend yield</span><span class="box"><input type="number" inputmode="decimal" min="0" max="15" step="0.1" value="0.4" id="a-qqq-div" class="num"><span class="unit">%</span></span></label>
           </div>
-          <p class="a-desc" id="a-qqq-desc"></p>
         </div>
         <div class="a-slot" id="slot-schd">
           <div class="a-top">
@@ -639,12 +645,14 @@
             <input type="text" id="a-schd-name" class="num a-name" maxlength="8" placeholder="Name" aria-label="Custom fund 3 name" autocomplete="off" hidden>
             <span class="a-share"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="0" id="p-schd-num" class="num"></span><span class="unit">%</span></span>
           </div>
+          <p class="a-desc" id="a-schd-desc"></p>
+          <div class="a-links">
           <button class="link-btn a-edit" type="button" data-slot="schd" aria-expanded="false">Edit return and yield</button>
+          </div>
           <div class="a-vals">
             <label class="a-val"><span>Total return</span><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.1" value="10.07" id="a-schd-total" class="num"><span class="unit">%</span></span></label>
             <label class="a-val"><span>Dividend yield</span><span class="box"><input type="number" inputmode="decimal" min="0" max="15" step="0.1" value="3.2" id="a-schd-div" class="num"><span class="unit">%</span></span></label>
           </div>
-          <p class="a-desc" id="a-schd-desc"></p>
         </div>
             </div>
             <p class="hint">Total return includes dividends and is after the fund's expense ratio, which published fund returns already include. The numbers are long-run historical averages, so changing them shows a what-if, not a forecast. The 401(k) tab has its own expected return.</p>
@@ -653,7 +661,6 @@
         </div>
 
         <div class="section">
-          <h3>Dividends</h3>
           <div class="field">
             <span class="lbl" id="p-reinvest-lbl">Reinvest dividends</span>
             <div class="ctl">
@@ -1039,6 +1046,11 @@ const ES = {
   "Years to invest": "Años para invertir",
   "Annual salary": "Salario anual",
   "Annual raise": "Aumento anual",
+  "Split your money across up to three funds, starting from a ready-made mix.": "Reparte tu dinero entre hasta tres fondos, empezando con una mezcla lista.",
+  "Dividends buy more shares, so your balance compounds faster.": "Los dividendos compran más acciones, así que tu saldo crece más rápido.",
+  "Dividends are paid out as cash instead of buying shares, so they don't compound. They show as Cash in your results.": "Los dividendos se pagan en efectivo en vez de comprar acciones, así que no se acumulan. Aparecen como Efectivo en tus resultados.",
+  "Mix on": "Mezcla activa",
+  "Dividends off": "Dividendos en efectivo",
   "Mostly the S&P 500, with extra Nasdaq-100 for growth and a little dividend income.": "Sobre todo el S&P 500, con más Nasdaq-100 para crecer y un poco de ingresos por dividendos.",
   "An even blend of core, growth and dividend stocks.": "Una mezcla pareja de acciones base, de crecimiento y de dividendos.",
   "Leans on dividend stocks for more cash payouts.": "Se apoya en acciones de dividendos para recibir más efectivo.",
@@ -1046,7 +1058,6 @@ const ES = {
   "Mix several funds instead": "Combinar varios fondos",
   "Edit mix": "Editar mezcla",
   "Mixing several funds: {0}.": "Combinando varios fondos: {0}.",
-  "Off: all of your money goes into the fund you picked above.": "Desactivado: todo tu dinero va al fondo que elegiste arriba.",
   "Pick a ready-made mix, or choose your own funds and percentages. The three always add up to 100%.": "Elige una mezcla lista o escoge tus propios fondos y porcentajes. Los tres siempre suman 100%.",
   "U.S. stocks plus a 40% share of companies outside the U.S.": "Acciones de EE. UU. más 40% en empresas fuera de EE. UU.",
   "Uses the funds from your Personal mix. The three always add up to 100%.": "Usa los fondos de tu mezcla de Personal. Los tres siempre suman 100%.",
@@ -1089,7 +1100,6 @@ const ES = {
   "Couldn't copy. Copy the address from the box that opens next.": "No se pudo copiar. Copia la dirección del cuadro que se abre a continuación.",
   "Copy this link": "Copia este enlace",
   "Fund return assumptions": "Supuestos de rendimiento de los fondos",
-  "Customized": "Personalizado",
   "Used by the Personal and IRA tabs. Total return includes dividends. The defaults are long-run historical figures, so changing them shows a what-if, not a forecast. The 401(k) tab has its own expected return.": "Se usan en las pestañas Personal e IRA. El rendimiento total incluye los dividendos. Los valores por defecto son cifras históricas a largo plazo, así que cambiarlos muestra un \"qué pasaría si\", no un pronóstico. La pestaña 401(k) tiene su propio rendimiento esperado.",
   "Total return": "Rendimiento total",
   "Dividend": "Dividendo",
@@ -1118,8 +1128,6 @@ const ES = {
   "More info": "Más información",
   "i": "i",
   "The same plan with returns {0} and +{1} points a year from the base case. A sensitivity check, not a forecast.": "El mismo plan con rendimientos {0} y +{1} puntos al año respecto al caso base. Una prueba de sensibilidad, no un pronóstico.",
-  "Dividends are reinvested to buy more shares (DRIP).": "Los dividendos se reinvierten para comprar más acciones (DRIP).",
-  "Dividends are paid out as cash and not reinvested.": "Los dividendos se pagan en efectivo y no se reinvierten.",
   "= about {0} / month on average (26 paychecks a year). Stays fixed each year.": "= unos {0} / mes en promedio (26 cheques al año). Se mantiene fijo cada año.",
   "= {0} / month. Stays fixed each year.": "= {0} / mes. Se mantiene fijo cada año.",
   "= {0} / month now (about {1} per bi-weekly paycheck), from a {2} salary growing {3}% a year": "= {0} / mes ahora (unos {1} por cheque cada dos semanas), de un salario de {2} que crece {3}% al año",
@@ -1425,7 +1433,11 @@ function syncRates() {
     document.querySelectorAll('[data-yield="' + f + '"]').forEach((el) => { el.textContent = tr('{0}% dividend', div); });
   });
   renderFundNames();
-  $('assump-badge').hidden = !(pMix || !pReinvest);
+  const inside = [];
+  if (pMix) inside.push(tr('Mix on'));
+  if (!pReinvest) inside.push(tr('Dividends off'));
+  $('assump-badge').textContent = inside.join(' \u00b7 ');
+  $('assump-badge').hidden = !inside.length;
   return edited;
 }
 function renderEditBtns() {
@@ -1550,6 +1562,7 @@ function applyPreset(key) {
 }
 $('p-mix-switch').addEventListener('click', () => setMix(!pMix));
 $('fund-mix-link').addEventListener('click', () => { setMix(true); $('adv-personal').open = true; $('p-mix-switch').scrollIntoView({ block: 'center' }); });
+$('fund-edit-mix').addEventListener('click', () => { $('adv-personal').open = true; $('p-mix-switch').scrollIntoView({ block: 'center' }); });
 document.querySelectorAll('#p-strategies .strat-btn').forEach((btn) => btn.addEventListener('click', () => applyPreset(btn.dataset.preset)));
 FUNDS.forEach((f) => {
   $('p-' + f + '-num').addEventListener('input', (e) => {
@@ -1576,16 +1589,16 @@ function renderToggles() {
   $('p-mix').hidden = !pMix;
   $('p-mix-hint').textContent = pMix
     ? tr('Pick a ready-made mix, or choose your own funds and percentages. The three always add up to 100%.')
-    : tr('Off: all of your money goes into the fund you picked above.');
+    : tr('Split your money across up to three funds, starting from a ready-made mix.');
   const slot1 = $('slot-voo');
   const host = pMix ? $('mix-slots') : $('fund-single');
   if (slot1.parentNode !== host) { if (pMix) host.insertBefore(slot1, host.firstChild); else host.appendChild(slot1); }
   slot1.classList.toggle('is-single', !pMix);
   $('fund-single').hidden = pMix;
   $('fund-mixnote').hidden = !pMix;
-  $('fund-mix-link').textContent = pMix ? tr('Edit mix') : tr('Mix several funds instead');
+  $('fund-edit-mix').hidden = !pMix;
   $('p-reinvest-switch').setAttribute('aria-checked', String(pReinvest));
-  $('p-reinvest-label').textContent = pReinvest ? tr('Dividends are reinvested to buy more shares (DRIP).') : tr('Dividends are paid out as cash and not reinvested.');
+  $('p-reinvest-label').textContent = pReinvest ? tr('Dividends buy more shares, so your balance compounds faster.') : tr("Dividends are paid out as cash instead of buying shares, so they don't compound. They show as Cash in your results.");
   renderEditBtns();
   renderIraToggles();
   syncAllocInputs();
