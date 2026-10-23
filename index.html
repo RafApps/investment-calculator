@@ -826,6 +826,7 @@
           </div>
           <p class="hint" id="i-alloc-same"></p>
           <div id="i-alloc-custom" hidden>
+          <p class="hint" id="i-mix-hint"></p>
           <div class="strategies" id="i-strategies">
             <button class="strat-btn" type="button" data-preset="growth">Growth-tilted</button>
             <button class="strat-btn" type="button" data-preset="balanced">Balanced</button>
@@ -833,6 +834,9 @@
             <button class="strat-btn" type="button" data-preset="international">International</button>
           </div>
           <div class="alloc-bar" id="i-alloc-bar" aria-hidden="true"></div>
+          <p class="hint" id="i-preset-note"></p>
+          <button class="link-btn" id="i-customize" type="button" aria-expanded="false" aria-controls="i-custom-rows">Customize funds</button>
+          <div id="i-custom-rows" hidden>
           <div class="a-slots">
             <div class="a-slot">
               <div class="a-top">
@@ -856,7 +860,7 @@
               </div>
             </div>
           </div>
-          <p class="hint" id="i-mix-hint"></p>
+          </div>
           </div>
         </div>
 
@@ -1620,6 +1624,7 @@ $('k-limit').addEventListener('change', recomputeAll);
 /* ---------------- IRA inputs ---------------- */
 let iAlloc = { voo: 100, qqq: 0, schd: 0 };
 let iAllocEdited = false;
+let iMixOpen = false; // whether the IRA's fund rows are showing
 function iraAlloc() { return $('i-alloc-mode').value === 'custom' ? iAlloc : pAlloc; }
 // The funds behind the IRA split: the Personal slots, or the IRA's own picks once Custom mix is on.
 function iraRates() {
@@ -1650,19 +1655,31 @@ function syncIraAlloc() {
   });
 }
 function allocText(a, R) { R = R || RATES; return FUNDS.filter((f) => a[f] > 0).map((f) => R[f].label + ' ' + a[f] + '%').join(' · '); }
+function iraPresetActive(key) {
+  const pr = MIX_PRESETS[key];
+  return FUNDS.every((f, i) => (i < pr.funds.length ? $('i-' + f + '-fund').value === pr.funds[i] && iAlloc[f] === pr.pct[i] : iAlloc[f] === 0));
+}
+// a mix that matches no preset is somebody's own, so show its rows rather than hide them
+function autoIraMixOpen() { if ($('i-alloc-mode').value === 'custom' && !allocIsDefault(iAlloc) && !Object.keys(MIX_PRESETS).some(iraPresetActive)) iMixOpen = true; }
+$('i-customize').addEventListener('click', () => { iMixOpen = !iMixOpen; renderIraToggles(); });
 function renderIraToggles() {
   const custom = $('i-alloc-mode').value === 'custom';
   $('i-alloc-custom').hidden = !custom;
   $('i-alloc-same').hidden = custom;
   $('i-alloc-same').textContent = tr('Uses your Personal mix: {0}.', allocText(pAlloc));
   $('i-mix-hint').textContent = tr('Pick a ready-made mix, or choose your own funds and percentages. The three always add up to 100%.');
+  let activeKey = null;
   document.querySelectorAll('#i-strategies .strat-btn').forEach((b) => {
-    const pr = MIX_PRESETS[b.dataset.preset];
-    const on = FUNDS.every((f, i) => (i < pr.funds.length ? $('i-' + f + '-fund').value === pr.funds[i] && iAlloc[f] === pr.pct[i] : iAlloc[f] === 0));
+    const on = iraPresetActive(b.dataset.preset);
     b.classList.toggle('active', on);
     b.setAttribute('aria-pressed', String(on));
-    b.title = tr(pr.desc);
+    b.title = tr(MIX_PRESETS[b.dataset.preset].desc);
+    if (on) activeKey = b.dataset.preset;
   });
+  $('i-preset-note').textContent = (activeKey ? tr(MIX_PRESETS[activeKey].name) : tr('Custom mix')) + ': ' + allocText(iAlloc, iraRates()) + '.';
+  $('i-custom-rows').hidden = !iMixOpen;
+  $('i-customize').setAttribute('aria-expanded', String(iMixOpen));
+  $('i-customize').textContent = iMixOpen ? tr('Hide fund details') : tr('Customize funds');
   $('i-amount-lbl').textContent = iraPerYear() === 26 ? tr('Per paycheck') : tr('Per month');
   $('i-type-hint').textContent = $('i-type').value === 'roth'
     ? tr("Roth: withdrawals in retirement are tax-free, but eligibility phases out at higher incomes (2026: starting at $153,000 single or $242,000 married filing jointly). Taxes aren't modeled here.")
@@ -1714,6 +1731,7 @@ $('i-alloc-mode').addEventListener('change', () => {
     FUNDS.forEach((f) => { const c = $('a-' + f + '-fund').value; $('i-' + f + '-fund').value = c === 'CUSTOM' ? DEFAULT_FUND[f] : c; });
     dedupeIraFunds();
     refreshFundOptions();
+    autoIraMixOpen();
   }
   syncIraAlloc();
   renderIraToggles();
@@ -2833,6 +2851,7 @@ formatAllMoney();
 $('share-note').hidden = !sharedLoaded;
 syncRates();
 autoMixOpen();
+autoIraMixOpen();
 syncAllocInputs();
 syncIraAlloc();
 renderToggles();
