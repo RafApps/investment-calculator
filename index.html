@@ -586,8 +586,8 @@
           </div>
           <p class="a-desc" id="a-voo-desc"></p>
           <div class="a-vals">
-            <label class="a-val"><span>Total return</span><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.1" value="10.5" id="a-voo-total" class="num"><span class="unit">%</span></span></label>
-            <label class="a-val"><span>Dividend yield</span><span class="box"><input type="number" inputmode="decimal" min="0" max="15" step="0.1" value="1.1" id="a-voo-div" class="num"><span class="unit">%</span></span></label>
+            <label class="a-val"><span>Total return</span><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.1" value="10.47" id="a-voo-total" class="num"><span class="unit">%</span></span></label>
+            <label class="a-val"><span>Dividend yield</span><span class="box"><input type="number" inputmode="decimal" min="0" max="15" step="0.1" value="1.06" id="a-voo-div" class="num"><span class="unit">%</span></span></label>
           </div>
         </div>
           </div>
@@ -623,8 +623,8 @@
           </div>
           <p class="a-desc" id="a-qqq-desc"></p>
           <div class="a-vals">
-            <label class="a-val"><span>Total return</span><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.1" value="12" id="a-qqq-total" class="num"><span class="unit">%</span></span></label>
-            <label class="a-val"><span>Dividend yield</span><span class="box"><input type="number" inputmode="decimal" min="0" max="15" step="0.1" value="0.4" id="a-qqq-div" class="num"><span class="unit">%</span></span></label>
+            <label class="a-val"><span>Total return</span><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.1" value="14.25" id="a-qqq-total" class="num"><span class="unit">%</span></span></label>
+            <label class="a-val"><span>Dividend yield</span><span class="box"><input type="number" inputmode="decimal" min="0" max="15" step="0.1" value="0.45" id="a-qqq-div" class="num"><span class="unit">%</span></span></label>
           </div>
         </div>
         <div class="a-slot" id="slot-schd">
@@ -636,8 +636,8 @@
           </div>
           <p class="a-desc" id="a-schd-desc"></p>
           <div class="a-vals">
-            <label class="a-val"><span>Total return</span><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.1" value="10.07" id="a-schd-total" class="num"><span class="unit">%</span></span></label>
-            <label class="a-val"><span>Dividend yield</span><span class="box"><input type="number" inputmode="decimal" min="0" max="15" step="0.1" value="3.2" id="a-schd-div" class="num"><span class="unit">%</span></span></label>
+            <label class="a-val"><span>Total return</span><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.1" value="10.22" id="a-schd-total" class="num"><span class="unit">%</span></span></label>
+            <label class="a-val"><span>Dividend yield</span><span class="box"><input type="number" inputmode="decimal" min="0" max="15" step="0.1" value="3.24" id="a-schd-div" class="num"><span class="unit">%</span></span></label>
           </div>
         </div>
             </div>
@@ -875,19 +875,19 @@
 // the fund shown in each slot is chosen from CATALOG, or set to CUSTOM with the person's own numbers.
 const FUNDS = ['voo', 'qqq', 'schd'];
 const DEFAULT_FUND = { voo: 'VOO', qqq: 'QQQM', schd: 'SCHD' };
-// total = assumed long-run annual return with dividends reinvested, after the fund's expense ratio (published fund returns already include it); div = dividend yield; fee = expense ratio, shown for reference only and not subtracted again (all %); since = launch year
+// total = documented long-run annual return with dividends reinvested, after the fund's expense ratio (published fund returns already include it). Basis per fund is in fundNote(): issuer since-launch return for older funds, a longer index record for VOO, QQQM and SCHD, the yield for BND; div = dividend yield; fee = expense ratio, shown for reference only and not subtracted again (all %); since = launch year
 const CATALOG = {
-  VOO:  { name: 'S&P 500',                      group: 'Core U.S. stocks',   total: 10.5,  div: 1.1, fee: 0.03, since: 2010 },
-  VTI:  { name: 'Total U.S. stock market',      group: 'Core U.S. stocks',   total: 9.5,   div: 1,   fee: 0.03, since: 2001 },
-  VUG:  { name: 'U.S. large-company growth',    group: 'Growth',             total: 12,    div: 0.4, fee: 0.03, since: 2004 },
-  QQQM: { name: 'Nasdaq-100',                   group: 'Growth',             total: 12,    div: 0.4, fee: 0.15, since: 2020 },
-  SCHD: { name: 'Quality dividend stocks',      group: 'Dividend stocks',    total: 10.07, div: 3.2, fee: 0.06, since: 2011 },
-  VYM:  { name: 'High dividend yield',          group: 'Dividend stocks',    total: 9.5,   div: 2.3, fee: 0.04, since: 2006 },
-  VIG:  { name: 'Dividend growers',             group: 'Dividend stocks',    total: 10,    div: 1.5, fee: 0.04, since: 2006 },
-  VB:   { name: 'U.S. small companies',         group: 'Smaller companies',  total: 9,     div: 1.3, fee: 0.03, since: 2004 },
-  VXUS: { name: 'International stocks',         group: 'International',      total: 6,     div: 2.4, fee: 0.05, since: 2011 },
-  VNQ:  { name: 'U.S. real estate (REITs)',     group: 'Real estate',        total: 5.5,   div: 3.7, fee: 0.13, since: 2004 },
-  BND:  { name: 'U.S. bonds',                   group: 'Bonds',              total: 4,     div: 4,   fee: 0.03, since: 2007 },
+  VOO:  { name: 'S&P 500',                      group: 'Core U.S. stocks',   total: 10.47, div: 1.06, fee: 0.03, since: 2010 },
+  VTI:  { name: 'Total U.S. stock market',      group: 'Core U.S. stocks',   total: 9.48, div: 1.05,   fee: 0.03, since: 2001 },
+  VUG:  { name: 'U.S. large-company growth',    group: 'Growth',             total: 12.15, div: 0.4, fee: 0.03, since: 2004 },
+  QQQM: { name: 'Nasdaq-100',                   group: 'Growth',             total: 14.25, div: 0.45, fee: 0.15, since: 2020 },
+  SCHD: { name: 'Quality dividend stocks',      group: 'Dividend stocks',    total: 10.22, div: 3.24, fee: 0.06, since: 2011 },
+  VYM:  { name: 'High dividend yield',          group: 'Dividend stocks',    total: 9.13, div: 2.26, fee: 0.04, since: 2006 },
+  VIG:  { name: 'Dividend growers',             group: 'Dividend stocks',    total: 10.18, div: 1.49, fee: 0.04, since: 2006 },
+  VB:   { name: 'U.S. small companies',         group: 'Smaller companies',  total: 9.46, div: 1.26, fee: 0.03, since: 2004 },
+  VXUS: { name: 'International stocks',         group: 'International',      total: 6.68, div: 2.4, fee: 0.05, since: 2011 },
+  VNQ:  { name: 'U.S. real estate (REITs)',     group: 'Real estate',        total: 7.25, div: 3.68, fee: 0.13, since: 2004 },
+  BND:  { name: 'U.S. bonds',                   group: 'Bonds',              total: 4.12, div: 4.12,   fee: 0.03, since: 2007 },
 };
 const FUND_GROUPS = ['Core U.S. stocks', 'Growth', 'Dividend stocks', 'Smaller companies', 'International', 'Real estate', 'Bonds'];
 const RATES = {
@@ -987,8 +987,6 @@ const ES = {
   "{0} allocation": "Asignación a {0}",
   "IRA {0} allocation": "Asignación a {0} en la IRA",
   "Your own numbers for a fund that is not in the list.": "Tus propias cifras para un fondo que no está en la lista.",
-  "A bond fund's future return is close to its starting yield, not its past. BND returned only about 2.0% a year since 2007 ({0}) because rates jumped in 2022, so the calculator uses today's yield of about 4% instead. Yield {1}%, expense ratio {2}% ({3}).": "El rendimiento futuro de un fondo de bonos se parece a su rendimiento inicial, no a su pasado. BND rindió solo cerca de 2.0% anual desde 2007 ({0}) porque las tasas subieron en 2022, así que la calculadora usa el rendimiento actual de cerca de 4%. Rendimiento {1}%, razón de gastos {2}% ({3}).",
-  "The lower of the fund's since-launch and 20-year annualized returns with dividends reinvested ({0}), rounded to the nearest half point. Yield {1}%, expense ratio {2}% ({3}).": "El menor entre el rendimiento anualizado del fondo desde su lanzamiento y el de 20 años, con los dividendos reinvertidos ({0}), redondeado al medio punto más cercano. Rendimiento {1}%, razón de gastos {2}% ({3}).",
   "EN": "EN",
   "ES": "ES",
   "$": "$",
@@ -1027,6 +1025,13 @@ const ES = {
   "Years to invest": "Años para invertir",
   "Annual salary": "Salario anual",
   "Annual raise": "Aumento anual",
+  "The S&amp;P 500 returned 10.47% a year with dividends reinvested from 1926 through 2026 ({0}). VOO itself returned {1}% a year since its 2010 launch, a strong stretch for stocks, so the calculator uses the longer record ({2}, as of {3}). Yield {4}% ({5}), expense ratio {6}%.": "El S&amp;P 500 rindió 10.47% al año con dividendos reinvertidos de 1926 a 2026 ({0}). VOO mismo rindió {1}% al año desde su lanzamiento en 2010, un período fuerte para las acciones, así que el calculador usa el récord más largo ({2}, al {3}). Rendimiento por dividendos {4}% ({5}), razón de gastos {6}%.",
+  "The Nasdaq-100 returned 14.25% a year from its 1985 start ({0}). That record includes the 1990s tech boom, and the index fell about 82% from 2000 to 2002 ({1}), so expect a bumpier ride than the S&amp;P 500. QQQM launched in 2020, with a {2}% expense ratio and a {3}% yield ({4}).": "El Nasdaq-100 rindió 14.25% al año desde su inicio en 1985 ({0}). Ese récord incluye el auge tecnológico de los 90, y el índice cayó cerca de 82% de 2000 a 2002 ({1}), así que espera un camino más irregular que el S&amp;P 500. QQQM se lanzó en 2020, con una razón de gastos de {2}% y un rendimiento de {3}% ({4}).",
+  "Dividend-growing and dividend-initiating stocks in the S&amp;P 500 returned 10.22% a year from 1973 to 2025 ({0}). SCHD itself returned 13.11% a year since its 2011 launch and 12.44% over 10 years, a strong stretch for stocks ({1}, as of {2}). Yield {3}% over the trailing 12 months, expense ratio {4}%.": "Las acciones del S&amp;P 500 que aumentan o inician dividendos rindieron 10.22% al año de 1973 a 2025 ({0}). SCHD mismo rindió 13.11% al año desde su lanzamiento en 2011 y 12.44% en 10 años, un período fuerte para las acciones ({1}, al {2}). Rendimiento por dividendos {3}% en los últimos 12 meses, razón de gastos {4}%.",
+  "A bond fund's future return is close to its starting yield, so the calculator uses BND's yield of {0}% ({1}). Since its 2007 launch BND returned {2}% a year, held down by the 2022 rate jump ({3}, as of {4}). Expense ratio {5}%.": "El rendimiento futuro de un fondo de bonos se acerca a su rendimiento inicial, así que el calculador usa el rendimiento de BND, {0}% ({1}). Desde su lanzamiento en 2007 BND rindió {2}% al año, frenado por el salto de tasas de 2022 ({3}, al {4}). Razón de gastos {5}%.",
+  "{0}% a year since the fund launched in {1}, with dividends reinvested ({2}, as of {3}). Yield {4}%, expense ratio {5}% ({6}).": "{0}% al año desde que el fondo se lanzó en {1}, con dividendos reinvertidos ({2}, al {3}). Rendimiento por dividendos {4}%, razón de gastos {5}% ({6}).",
+  "June 30, 2026": "30 de junio de 2026",
+  "September 30, 2026": "30 de septiembre de 2026",
   "Advanced options": "Opciones avanzadas",
   "Plan settings": "Ajustes del plan",
   "Split your money across up to three funds, starting from a ready-made mix.": "Reparte tu dinero entre hasta tres fondos, empezando con una mezcla lista.",
@@ -1179,10 +1184,7 @@ const ES = {
   " · today's dollars": " · dólares de hoy",
   "You have changed some return assumptions. The notes below describe the default figures.": "Cambiaste algunos supuestos de rendimiento. Las notas de abajo describen las cifras por defecto.",
   "{0}, {1}% a year.": "{0}, {1}% al año.",
-  "The S&amp;P 500 returned about 10.5% a year with dividends reinvested from 1926 to 2026 ({0}). Dividend yield {1}% ({2}).": "El S&amp;P 500 rindió alrededor de 10.5% al año con los dividendos reinvertidos de 1926 a 2026 ({0}). Rendimiento por dividendos de {1}% ({2}).",
   "trailing, Wisesheets": "últimos 12 meses, Wisesheets",
-  "QQQM tracks the Nasdaq-100, which Nasdaq says returned 14.25% a year since 1985 ({0}). That span includes the 1990s tech boom, and the index fell about 82% from 2000 to 2002 ({1}), so the calculator trims it to {2}%. The fund launched in 2020, with a 0.15% expense ratio and a {3}% yield ({4}).": "QQQM sigue el Nasdaq-100, que según Nasdaq rindió 14.25% al año desde 1985 ({0}). Ese período incluye el auge tecnológico de los años 90, y el índice cayó cerca de 82% de 2000 a 2002 ({1}), por eso la calculadora lo reduce a {2}%. El fondo se lanzó en 2020, con una razón de gastos de 0.15% y un rendimiento por dividendos de {3}% ({4}).",
-  "This comes from a long-run study of dividend-growing stocks, not the fund's short history. SCHD itself returned about 13% a year since 2011, a strong stretch for stocks, and yields about 3.1% to 3.2% ({0}).": "Esto proviene de un estudio a largo plazo de acciones que aumentan sus dividendos, no de la corta historia del fondo. SCHD rindió cerca de 13% al año desde 2011, un período fuerte para las acciones, y paga alrededor de 3.1% a 3.2% en dividendos ({0}).",
   "Checked October 2026. Yields and returns change over time.": "Verificado en octubre de 2026. Los rendimientos y retornos cambian con el tiempo.",
   "Contribution limit.": "Límite de aportación.",
   "For 2026 the IRA limit is $7,500, plus a $1,100 catch-up if you are 50 or older, and Roth eligibility phases out starting at $153,000 (single) or $242,000 (married filing jointly) ({0}). Puerto Rico IRAs follow the same limit starting in 2025 ({1}).": "Para 2026 el límite de la IRA es $7,500, más $1,100 adicionales (catch-up) si tienes 50 años o más, y la elegibilidad para Roth se reduce a partir de $153,000 (soltero) o $242,000 (casados que declaran en conjunto) ({0}). Las IRA de Puerto Rico siguen el mismo límite desde 2025 ({1}).",
@@ -2590,38 +2592,51 @@ function updateIncome(s, P, K, I) {
 
 /* ---------------- sources ---------------- */
 function link(url, text) { return '<a href="' + url + '" target="_blank" rel="noopener">' + text + '</a>'; }
+// exact figures from the issuer fact sheets (Vanguard average annual NAV total returns since launch), with the as-of date of the sheet
+const VG_DOCS = {
+  VTI:  { ret: 9.48,  asof: 'June 30, 2026',      sheet: 'F0970' },
+  VUG:  { ret: 12.15, asof: 'September 30, 2026', sheet: 'F0967' },
+  VYM:  { ret: 9.13,  asof: 'September 30, 2026', sheet: 'F0923' },
+  VIG:  { ret: 10.18, asof: 'June 30, 2026',      sheet: 'F0920' },
+  VB:   { ret: 9.46,  asof: 'September 30, 2026', sheet: 'F0969' },
+  VXUS: { ret: 6.68,  asof: 'June 30, 2026',      sheet: 'F3369' },
+  VNQ:  { ret: 7.25,  asof: 'September 30, 2026', sheet: 'F0986' },
+  BND:  { ret: 3.08,  asof: 'June 30, 2026',      sheet: 'F0928' },
+  VOO:  { ret: 14.94, asof: 'September 30, 2026', sheet: 'F0968' },
+};
 function fundNote(code, label) {
   const para = (head, body) => '<p><b>' + head + '</b> ' + body + '</p>';
   const c = CATALOG[code];
+  const head = tr('{0}, {1}% a year.', code, c.total);
+  const yieldSrc = link('https://stockanalysis.com/etf/' + code.toLowerCase() + '/', 'StockAnalysis');
+  const vg = VG_DOCS[code];
+  const sheet = vg ? link('https://fund-docs.vanguard.com/' + vg.sheet + '.pdf', 'Vanguard') : '';
   if (code === 'VOO') {
-    return para(tr('{0}, {1}% a year.', 'VOO', c.total),
-      tr('The S&amp;P 500 returned about 10.5% a year with dividends reinvested from 1926 to 2026 ({0}). Dividend yield {1}% ({2}).',
-        link('https://www.officialdata.org/us/stocks/s-p-500/1926', 'Official Data'), c.div,
-        link('https://www.wisesheets.io/etf/VOO/dividends', tr('trailing, Wisesheets'))));
+    return para(head,
+      tr('The S&amp;P 500 returned 10.47% a year with dividends reinvested from 1926 through 2026 ({0}). VOO itself returned {1}% a year since its 2010 launch, a strong stretch for stocks, so the calculator uses the longer record ({2}, as of {3}). Yield {4}% ({5}), expense ratio {6}%.',
+        link('https://www.officialdata.org/us/stocks/s-p-500/1926', 'Official Data'), vg.ret, sheet, tr(vg.asof), c.div, yieldSrc, c.fee));
   }
   if (code === 'QQQM') {
-    return para(tr('{0}, {1}% a year.', 'QQQM', c.total),
-      tr('QQQM tracks the Nasdaq-100, which Nasdaq says returned 14.25% a year since 1985 ({0}). That span includes the 1990s tech boom, and the index fell about 82% from 2000 to 2002 ({1}), so the calculator trims it to {2}%. The fund launched in 2020, with a 0.15% expense ratio and a {3}% yield ({4}).',
+    return para(head,
+      tr('The Nasdaq-100 returned 14.25% a year from its 1985 start ({0}). That record includes the 1990s tech boom, and the index fell about 82% from 2000 to 2002 ({1}), so expect a bumpier ride than the S&amp;P 500. QQQM launched in 2020, with a {2}% expense ratio and a {3}% yield ({4}).',
         link('https://www.nasdaq.com/press-release/celebrating-40-years-nasdaq-100-indexr-ndxr-2025-01-31', 'Nasdaq'),
         link('https://www.cmegroup.com/insights/economic-research/2024/nasdaqs-stellar-returns-potential-risks-ahead.html', 'CME Group'),
-        c.total, c.div, link('https://chartrow.com/compare/qqq-vs-qqqm', 'Chartrow')));
+        c.fee, c.div, yieldSrc));
   }
   if (code === 'SCHD') {
-    return para(tr('{0}, {1}% a year.', 'SCHD', c.total),
-      tr("This comes from a long-run study of dividend-growing stocks, not the fund's short history. SCHD itself returned about 13% a year since 2011, a strong stretch for stocks, and yields about 3.1% to 3.2% ({0}).",
-        link('https://www.fool.com/investing/2026/08/23/where-will-schd-be-in-2035/', 'Motley Fool')));
+    return para(head,
+      tr('Dividend-growing and dividend-initiating stocks in the S&amp;P 500 returned 10.22% a year from 1973 to 2025 ({0}). SCHD itself returned 13.11% a year since its 2011 launch and 12.44% over 10 years, a strong stretch for stocks ({1}, as of {2}). Yield {3}% over the trailing 12 months, expense ratio {4}%.',
+        link('https://www.hartfordfunds.com/dam/en/docs/pub/whitepapers/WP106.pdf', 'Ned Davis Research via Hartford Funds'),
+        link('https://www.schwabassetmanagement.com/products/schd', 'Schwab'), tr('September 30, 2026'), c.div, c.fee));
   }
-  const t = code.toLowerCase();
-  const perf = link('https://chartrow.com/quote/' + t + '/trailing-returns', 'Chartrow');
-  const fund = link('https://stockanalysis.com/etf/' + t + '/', 'StockAnalysis');
   if (code === 'BND') {
-    return para(tr('{0}, {1}% a year.', code, c.total),
-      tr("A bond fund's future return is close to its starting yield, not its past. BND returned only about 2.0% a year since 2007 ({0}) because rates jumped in 2022, so the calculator uses today's yield of about 4% instead. Yield {1}%, expense ratio {2}% ({3}).",
-        perf, c.div, c.fee, fund));
+    return para(head,
+      tr("A bond fund's future return is close to its starting yield, so the calculator uses BND's yield of {0}% ({1}). Since its 2007 launch BND returned {2}% a year, held down by the 2022 rate jump ({3}, as of {4}). Expense ratio {5}%.",
+        c.total, yieldSrc, vg.ret, sheet, tr(vg.asof), c.fee));
   }
-  return para(tr('{0}, {1}% a year.', code, c.total),
-    tr("The lower of the fund's since-launch and 20-year annualized returns with dividends reinvested ({0}), rounded to the nearest half point. Yield {1}%, expense ratio {2}% ({3}).",
-      perf, c.div, c.fee, fund));
+  return para(head,
+    tr('{0}% a year since the fund launched in {1}, with dividends reinvested ({2}, as of {3}). Yield {4}%, expense ratio {5}% ({6}).',
+      vg.ret, c.since, sheet, tr(vg.asof), c.div, c.fee, yieldSrc));
 }
 function renderWhy() {
   const para = (head, body) => '<p><b>' + head + '</b> ' + body + '</p>';
