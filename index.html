@@ -128,13 +128,31 @@
     border-radius: 12px; padding: 18px; box-shadow: var(--shadow);
   }
   .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
-  @media (max-width: 480px) { .card-head { flex-wrap: wrap; } .card-head .card-actions { justify-content: flex-start; gap: 4px 16px; } }
+  @media (max-width: 480px) { .card-head { flex-wrap: wrap; } .card-head .card-actions { justify-content: flex-start; gap: 8px; } }
   h2 { font-size: 16px; font-weight: 600; margin: 0; }
   h3 { font-size: 14px; font-weight: 600; margin: 0 0 10px; color: var(--text); }
   .link-btn {
-    background: none; border: none; padding: 8px 4px; font-size: 13px; color: var(--accent-ink);
-    cursor: pointer; text-decoration: underline; text-underline-offset: 2px;
+    display: inline-flex; align-items: center; gap: 6px; background: none; border: none; border-radius: 6px; padding: 8px 6px;
+    font-size: 13px; font-weight: 500; color: var(--accent-ink); cursor: pointer; text-decoration: none;
   }
+  .link-btn:hover { background: var(--accent-bg); }
+  .link-btn.quiet { color: var(--text-2); font-weight: 400; }
+  .link-btn.quiet:hover { background: var(--surface-2); color: var(--text); }
+  /* a small chevron on buttons that open or close something */
+  .link-btn[aria-expanded]::after {
+    content: ""; width: 6px; height: 6px; margin-top: -3px; border-right: 1.75px solid currentColor; border-bottom: 1.75px solid currentColor;
+    transform: rotate(45deg); transition: transform .15s;
+  }
+  .link-btn[aria-expanded="true"]::after { margin-top: 3px; transform: rotate(-135deg); }
+  #promo-add::before { content: "+"; font-size: 17px; font-weight: 500; line-height: 1; margin-top: -1px; }
+  /* the two actions at the top of the page */
+  .act-btn {
+    display: inline-flex; align-items: center; gap: 7px; min-height: 34px; padding: 6px 13px; font-size: 13px; font-weight: 500; line-height: 1.2;
+    color: var(--accent-ink); background: var(--surface); border: 1px solid var(--accent-border); border-radius: 17px; cursor: pointer;
+    transition: background .15s, border-color .15s;
+  }
+  .act-btn:hover { background: var(--accent-bg); border-color: var(--accent); }
+  .act-btn svg { width: 15px; height: 15px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
   /* ---------- fields ---------- */
   .shared-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px 32px; }
@@ -143,6 +161,7 @@
   .shared-inputs .box { width: 132px; }
   .shared-inputs .box .num, .shared-inputs .box .num.wide { flex: 1; width: auto; min-width: 0; }
   .page-foot { margin: 24px auto 0; max-width: 640px; text-align: center; }
+  .page-foot .link-btn { margin-top: 4px; }
   .disclaimer { margin: 0 0 6px; font-size: 12px; line-height: 1.5; color: var(--text-2); }
   .shared-summary {
     min-width: 0; display: flex; flex-direction: column; gap: 12px; padding: 14px 16px;
@@ -292,7 +311,8 @@
   .cap { display: block; font-style: normal; font-size: 11px; color: var(--amber-ink); }
   .goal-result { margin: 0; font-size: 13px; line-height: 1.45; color: var(--text-2); }
   .goal-result.ok { color: var(--green-ink); font-weight: 600; }
-  .alloc-toggle { display: block; margin: 0 0 6px; }
+  .alloc-toggle { display: flex; width: fit-content; margin: 0 0 6px -6px; }
+  #mix-customize, #i-customize, #rates-reset { margin-left: -6px; }
   details.why { margin: 4px 0 4px; font-size: 13px; color: var(--text-2); }
   details.why summary { cursor: pointer; min-height: 40px; display: flex; align-items: center; color: var(--accent-ink); }
   details.why p { margin: 0 0 10px; line-height: 1.5; }
@@ -435,7 +455,7 @@
   <section class="card" aria-labelledby="shared-h">
     <div class="card-head">
       <h2 id="shared-h">Applies to all accounts</h2>
-      <div class="card-actions"><span class="share-status" id="share-status" role="status"></span><button class="link-btn" id="pdf-btn" type="button">Save summary as PDF</button><button class="link-btn" id="share-btn" type="button">Copy share link</button></div>
+      <div class="card-actions"><span class="share-status" id="share-status" role="status"></span><button class="act-btn" id="pdf-btn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19.5h14"/></svg>Save summary as PDF</button><button class="act-btn" id="share-btn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg>Copy share link</button></div>
     </div>
     <p class="hint" id="s-example-note">These are typical starting numbers for a U.S. worker. Replace them with your own.</p>
     <div class="shared-grid">
@@ -650,7 +670,7 @@
           </div>
         </div>
             </div>
-            <button class="link-btn" id="rates-reset" type="button">Restore default funds and rates</button>
+            <button class="link-btn quiet" id="rates-reset" type="button">Restore default funds and rates</button>
             </div>
           </div>
         </div>
@@ -909,7 +929,7 @@
   <footer class="page-foot">
     <p class="disclaimer">For education and estimates only, not financial, tax or legal advice. Results come from the assumed returns shown and are not guarantees; real markets rise and fall from year to year. Figures are in future dollars, with the today's-dollar equivalent shown under the main total, and they don't include taxes. Fund returns are already after each fund's expense ratio; other account or advisory fees aren't included. Your inputs are saved only in this browser and are never sent anywhere.</p>
     <details class="why about" id="about-defaults"><summary>About the starting numbers</summary><p class="footnote" id="about-body"></p></details>
-    <button class="link-btn" id="reset-btn" type="button">Reset all inputs to defaults</button>
+    <button class="link-btn quiet" id="reset-btn" type="button"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M4 12a8 8 0 1 0 2.5-5.8M4 4v4.5h4.5"/></svg>Reset all inputs to defaults</button>
   </footer>
 </main>
 
