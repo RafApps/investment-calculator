@@ -579,7 +579,7 @@
         </div>
 
         <div class="section">
-          <h3>Fund</h3>
+          <h3>Allocation</h3>
           <div id="fund-single">
         <div class="a-slot is-single" id="slot-voo">
           <div class="a-top">
@@ -604,7 +604,7 @@
         </div>
 
         <details class="adv" id="adv-personal">
-          <summary>Advanced: funds and dividends <span class="badge" id="assump-badge" hidden></span></summary>
+          <summary>Advanced options <span class="badge" id="assump-badge" hidden></span></summary>
           <div class="adv-body">
         <div class="section">
           <div class="field">
@@ -734,9 +734,8 @@
           <div class="warn" id="k-warn" style="display:none;"></div>
         </div>
 
-        <details class="adv" id="adv-401k">
-          <summary>Advanced: plan limit and expected return</summary>
-          <div class="adv-body">
+        <div class="section">
+          <h3>Plan settings</h3>
           <div class="field">
             <span class="lbl-wrap"><label for="k-limit">Annual limit</label><button type="button" class="info-btn" data-info="k-limit-hint" aria-label="More info" aria-expanded="false">i</button></span>
             <div class="ctl">
@@ -748,15 +747,12 @@
             </div>
           </div>
           <p class="hint" id="k-limit-hint" hidden>Most Puerto Rico plans cap your contributions at $15,000 a year. "PR dual" means a dual-qualified plan with a higher limit, which drops to $22,500 if you also contribute to an IRA. Ask HR which one yours is. From age 50 a catch-up is added on top.</p>
-          <div>
           <div class="field">
             <span class="lbl-wrap"><label for="k-return">Expected return</label><button type="button" class="info-btn" data-info="k-return-hint" aria-label="More info" aria-expanded="false">i</button></span>
             <div class="ctl"><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.5" value="7" id="k-return" class="num"></span><span class="unit">% / yr</span></div>
           </div>
           <p class="hint" id="k-return-hint" hidden>Diversified 401(k) plans have historically returned around 5-8% a year; 7% is a commonly cited long-run average.</p>
         </div>
-          </div>
-        </details>
 
       </section>
 
@@ -803,7 +799,7 @@
         </div>
 
         <details class="adv" id="adv-ira">
-          <summary>Advanced: account type, frequency and funds</summary>
+          <summary>Advanced options</summary>
           <div class="adv-body">
           <div class="field">
             <span class="lbl-wrap"><label for="i-type">Account type</label><button type="button" class="info-btn" data-info="i-type-hint" aria-label="More info" aria-expanded="false">i</button></span>
@@ -1046,6 +1042,8 @@ const ES = {
   "Years to invest": "Años para invertir",
   "Annual salary": "Salario anual",
   "Annual raise": "Aumento anual",
+  "Advanced options": "Opciones avanzadas",
+  "Plan settings": "Ajustes del plan",
   "Split your money across up to three funds, starting from a ready-made mix.": "Reparte tu dinero entre hasta tres fondos, empezando con una mezcla lista.",
   "Dividends buy more shares, so your balance compounds faster.": "Los dividendos compran más acciones, así que tu saldo crece más rápido.",
   "Dividends are paid out as cash instead of buying shares, so they don't compound. They show as Cash in your results.": "Los dividendos se pagan en efectivo en vez de comprar acciones, así que no se acumulan. Aparecen como Efectivo en tus resultados.",
@@ -1068,14 +1066,11 @@ const ES = {
   "Hide return and yield": "Ocultar rendimiento y dividendos",
   "Total return includes dividends and is after the fund's expense ratio, which published fund returns already include. The numbers are long-run historical averages, so changing them shows a what-if, not a forecast. The 401(k) tab has its own expected return.": "El rendimiento total incluye los dividendos y es después de la razón de gastos del fondo, que los rendimientos publicados de los fondos ya incluyen. Las cifras son promedios históricos a largo plazo, así que cambiarlas muestra un \"qué pasaría si\", no un pronóstico. La pestaña 401(k) tiene su propio rendimiento esperado.",
   "Fixed $": "$ fijo",
-  "Advanced: funds and dividends": "Avanzado: fondos y dividendos",
   "Add promotion raise": "Agregar aumento por ascenso",
   "Add another promotion raise": "Agregar otro aumento por ascenso",
   "A one-time raise on top of your annual raise, starting in the year you choose (year 1 is this year). Set it to 0% to ignore it.": "Un aumento único además de tu aumento anual, a partir del año que elijas (el año 1 es este año). Ponlo en 0% para ignorarlo.",
   "{0} in today's dollars, at {1}% average yearly inflation": "{0} en dólares de hoy, con {1}% de inflación anual promedio",
   "These are typical starting numbers for a U.S. worker. Replace them with your own.": "Estas son cifras iniciales típicas de un trabajador en EE. UU. Reemplázalas con las tuyas.",
-  "Advanced: plan limit and expected return": "Avanzado: límite del plan y rendimiento esperado",
-  "Advanced: account type, frequency and funds": "Avanzado: tipo de cuenta, frecuencia y fondos",
   "You're leaving about {0} a year of free employer match unused. Raising your contribution from {1}% to {2}% would add about {3} to your balance by age {4}, including your own extra savings.": "Estás dejando sin usar unos {0} al año de aportación gratuita de tu patrono. Subir tu aportación de {1}% a {2}% sumaría unos {3} a tu balance a los {4} años, incluyendo tus ahorros adicionales.",
   "About the starting numbers": "Sobre las cifras iniciales",
   "Salary: the median full-time U.S. worker earned $1,232 a week in the third quarter of 2026, about $64,000 a year ({0}). 401(k): Vanguard's How America Saves 2026 reports a median employee contribution of 6.6% of pay, a most-common match of 50 cents per dollar on the first 6% of pay, and a median balance of $44,115 across all ages; the $40,000 starting balance is rounded down for a saver in their mid-30s ({1}). Inflation: consumer prices have risen 3.17% a year on average since 1913, which is the 3.2% used for the today's-dollars line ({2}). A 3% raise, a 4% withdrawal rate and a 7% 401(k) return are common planning assumptions. They are only examples, so replace them with your own numbers.": "Salario: el trabajador a tiempo completo mediano en EE. UU. ganó $1,232 a la semana en el tercer trimestre de 2026, unos $64,000 al año ({0}). 401(k): el informe How America Saves 2026 de Vanguard indica una aportación mediana del empleado de 6.6% del salario, una aportación equivalente del patrono, la más común, de 50 centavos por dólar sobre el primer 6% del salario, y un balance mediano de $44,115 entre todas las edades; el balance inicial de $40,000 está redondeado hacia abajo para alguien de unos 35 años ({1}). Inflación: los precios al consumidor han subido 3.17% al año en promedio desde 1913, que es el 3.2% usado para la línea de dólares de hoy ({2}). Un aumento de 3%, una tasa de retiro de 4% y un rendimiento de 7% en el 401(k) son supuestos comunes de planificación. Son solo ejemplos, así que reemplázalos con tus propias cifras.",
@@ -1903,7 +1898,6 @@ function allocIsDefault(a) { return a.voo === 100 && a.qqq === 0 && a.schd === 0
 function autoOpenAdvanced() {
   const need = {
     'adv-personal': () => { FUNDS.forEach(slotEdited); return pMix || !pReinvest; },
-    'adv-401k': () => idsDiffer(['k-limit', 'k-return']),
     'adv-ira': () => idsDiffer(['i-type', 'i-freq', 'i-alloc-mode']),
   };
   Object.keys(need).forEach((id) => { if (need[id]()) $(id).open = true; });
