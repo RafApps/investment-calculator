@@ -1116,7 +1116,6 @@ const ES = {
   "i": "i",
   "The same plan with returns {0} and +{1} points a year from the base case. A sensitivity check, not a forecast.": "El mismo plan con rendimientos {0} y +{1} puntos al año respecto al caso base. Una prueba de sensibilidad, no un pronóstico.",
   "About {0} / month on average": "Unos {0} / mes en promedio",
-  "= {0} / month. Stays fixed each year.": "= {0} / mes. Se mantiene fijo cada año.",
   "= {0} / month now (about {1} per bi-weekly paycheck), from a {2} salary growing {3}% a year": "= {0} / mes ahora (unos {1} por cheque cada dos semanas), de un salario de {2} que crece {3}% al año",
   "Rates are assumptions based on long-run history, not guarantees.": "Las tasas son supuestos basados en la historia a largo plazo, no garantías.",
   "Dividend yields ({0}) are held at today's levels for the whole period.": "Los rendimientos por dividendos ({0}) se mantienen en los niveles de hoy durante todo el período.",
@@ -1154,8 +1153,6 @@ const ES = {
   "Traditional: contributions may be tax-deductible and withdrawals are taxed. Deductibility depends on your income and workplace plan. Taxes aren't modeled here.": "Tradicional: las aportaciones pueden ser deducibles de impuestos y los retiros tributan. La deducibilidad depende de tus ingresos y de tu plan de trabajo. Aquí no se modelan los impuestos.",
   "2026 limit: {0} a year, or {1} from age 50. It is shared across all your IRAs.": "Límite de 2026: {0} al año, o {1} a partir de los 50 años. Se comparte entre todas tus IRA.",
   "Enter an amount to start modeling an IRA. Until then it is left out of your combined total.": "Ingresa una cantidad para empezar a modelar una IRA. Hasta entonces no se incluye en tu total combinado.",
-  "= about {0} / month on average (26 paychecks a year), {1} a year.": "= unos {0} / mes en promedio (26 cheques al año), {1} al año.",
-  "= {0} a year.": "= {0} al año.",
   "That is more than the IRA annual limit ({0}, or {1} from age 50), so contributions are capped at the limit each year.": "Eso es más que el límite anual de la IRA ({0}, o {1} a partir de los 50 años), así que las aportaciones se limitan al máximo cada año.",
   "Uses the same return and dividend assumptions as the Personal tab, with dividends reinvested. The limit is held at its 2026 level for the whole projection, and the {0} catch-up is added from age 50.": "Usa los mismos supuestos de rendimiento y dividendos que la pestaña Personal, con los dividendos reinvertidos. El límite se mantiene en su nivel de 2026 durante toda la proyección y se suma la aportación adicional (catch-up) de {0} a partir de los 50 años.",
   "Portfolio value: {0}": "Valor del portafolio: {0}",
@@ -2319,10 +2316,9 @@ function computePersonal(s) {
 
   const perCheck = (baseMonthly * 12) / 26;
   $('p-effective-monthly').textContent = pMode === 'dollar'
-    ? (perYear === 26
-        ? tr('About {0} / month on average', fmt(baseMonthly))
-        : tr('= {0} / month. Stays fixed each year.', fmt(baseMonthly)))
+    ? (perYear === 26 ? tr('About {0} / month on average', fmt(baseMonthly)) : '')
     : tr('= {0} / month now (about {1} per bi-weekly paycheck), from a {2} salary growing {3}% a year', fmt(baseMonthly), fmt(perCheck), fmt(s.salary), s.raise);
+  $('p-effective-monthly').hidden = !$('p-effective-monthly').textContent;
 
   const base = simPersonal(p, 0);
   const low = simPersonal(p, LOW_DELTA);
@@ -2501,8 +2497,9 @@ function computeIRA(s) {
   $('i-effective').textContent = wanted <= 0
     ? tr('Enter an amount to start modeling an IRA. Until then it is left out of your combined total.')
     : (perYear === 26
-        ? tr('= about {0} / month on average (26 paychecks a year), {1} a year.', fmt(annual / 12), fmt(annual))
-        : tr('= {0} a year.', fmt(annual)));
+        ? tr('About {0} / month on average', fmt(annual / 12))
+        : '');
+  $('i-effective').hidden = !$('i-effective').textContent;
   $('i-warn').style.display = capped ? 'block' : 'none';
   $('i-warn').textContent = tr('That is more than the IRA annual limit ({0}, or {1} from age 50), so contributions are capped at the limit each year.', fmt(IRA_LIMIT), fmt(IRA_LIMIT + IRA_CATCHUP));
   $('i-alloc-same').textContent = tr('Uses your Personal mix: {0}.', allocText(pAlloc));
