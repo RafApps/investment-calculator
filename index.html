@@ -206,9 +206,9 @@
   }
   @media (max-width: 480px) { .tab-btn { font-size: 14px; padding: 4px 4px; } }
   .tab-btn[aria-selected=true] { background: var(--surface); color: var(--text); font-weight: 600; box-shadow: var(--shadow); }
-  .strategies { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .strategies { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
   .strat-btn {
-    min-height: 44px; padding: 6px 8px; font-size: 13px; border: 1px solid var(--border); border-radius: 8px;
+    min-height: 30px; padding: 3px 12px; font-size: 13px; line-height: 1.2; border: 1px solid var(--border); border-radius: 15px;
     background: var(--surface); color: var(--text-2); cursor: pointer;
   }
   .strat-btn.active { background: var(--accent-bg); border-color: var(--accent-border); color: var(--accent-ink); font-weight: 600; }
@@ -826,23 +826,34 @@
           </div>
           <p class="hint" id="i-alloc-same"></p>
           <div id="i-alloc-custom" hidden>
+          <div class="strategies" id="i-strategies">
+            <button class="strat-btn" type="button" data-preset="growth">Growth-tilted</button>
+            <button class="strat-btn" type="button" data-preset="balanced">Balanced</button>
+            <button class="strat-btn" type="button" data-preset="income">Income-leaning</button>
+            <button class="strat-btn" type="button" data-preset="international">International</button>
+          </div>
           <div class="alloc-bar" id="i-alloc-bar" aria-hidden="true"></div>
-          <div class="alloc">
-            <div class="alloc-head">
-              <label for="i-voo-num"><span class="dot" style="background:var(--c-voo)"></span><span data-fname="voo"></span> <span class="muted" data-yield="voo"></span></label>
-              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="100" id="i-voo-num" class="num"></span><span class="unit">%</span></div>
+          <div class="a-slots">
+            <div class="a-slot">
+              <div class="a-top">
+                <span class="dot" style="background:var(--c-voo)"></span>
+                <select id="i-voo-fund" class="num sel a-select" aria-label="IRA fund 1"></select>
+                <span class="a-share"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="100" id="i-voo-num" class="num"></span><span class="unit">%</span></span>
+              </div>
             </div>
-          </div>
-          <div class="alloc">
-            <div class="alloc-head">
-              <label for="i-qqq-num"><span class="dot" style="background:var(--c-qqq)"></span><span data-fname="qqq"></span> <span class="muted" data-yield="qqq"></span></label>
-              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="0" id="i-qqq-num" class="num"></span><span class="unit">%</span></div>
+            <div class="a-slot">
+              <div class="a-top">
+                <span class="dot" style="background:var(--c-qqq)"></span>
+                <select id="i-qqq-fund" class="num sel a-select" aria-label="IRA fund 2"></select>
+                <span class="a-share"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="0" id="i-qqq-num" class="num"></span><span class="unit">%</span></span>
+              </div>
             </div>
-          </div>
-          <div class="alloc">
-            <div class="alloc-head">
-              <label for="i-schd-num"><span class="dot" style="background:var(--c-schd)"></span><span data-fname="schd"></span> <span class="muted" data-yield="schd"></span></label>
-              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="0" id="i-schd-num" class="num"></span><span class="unit">%</span></div>
+            <div class="a-slot">
+              <div class="a-top">
+                <span class="dot" style="background:var(--c-schd)"></span>
+                <select id="i-schd-fund" class="num sel a-select" aria-label="IRA fund 3"></select>
+                <span class="a-share"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" value="0" id="i-schd-num" class="num"></span><span class="unit">%</span></span>
+              </div>
             </div>
           </div>
           <p class="hint" id="i-mix-hint"></p>
@@ -964,6 +975,9 @@ const ES = {
   "Fund 1": "Fondo 1",
   "Fund 2": "Fondo 2",
   "Fund 3": "Fondo 3",
+  "IRA fund 1": "Fondo 1 de la IRA",
+  "IRA fund 2": "Fondo 2 de la IRA",
+  "IRA fund 3": "Fondo 3 de la IRA",
   "Custom fund 1 name": "Nombre del fondo personalizado 1",
   "Custom fund 2 name": "Nombre del fondo personalizado 2",
   "Custom fund 3 name": "Nombre del fondo personalizado 3",
@@ -1278,6 +1292,19 @@ function buildFundSelects() {
     sel.appendChild(new Option(tr('Custom fund'), 'CUSTOM'));
     sel.value = cur;
   });
+  // the IRA picks from the same list of funds, without the Custom option
+  FUNDS.forEach((f) => {
+    const sel = $('i-' + f + '-fund');
+    const cur = sel.value || DEFAULT_FUND[f];
+    sel.innerHTML = '';
+    FUND_GROUPS.forEach((g) => {
+      const og = document.createElement('optgroup');
+      og.label = tr(g);
+      Object.keys(CATALOG).filter((t) => CATALOG[t].group === g).forEach((t) => og.appendChild(new Option(t + ' \u00b7 ' + tr(CATALOG[t].name), t)));
+      sel.appendChild(og);
+    });
+    sel.value = cur;
+  });
   refreshFundOptions();
 }
 // With several funds the select shares its row with the percent box, so the closed select shows just the ticker; the open list keeps the full names.
@@ -1286,6 +1313,9 @@ function shortFundLabels() {
     const sel = $('a-' + f + '-fund');
     Array.from(sel.options).forEach((o) => { if (o.value !== 'CUSTOM') o.textContent = o.value + ' \u00b7 ' + tr(CATALOG[o.value].name); });
     if ((pMix || i > 0) && sel.value !== 'CUSTOM' && sel.selectedOptions[0]) sel.selectedOptions[0].textContent = sel.value;
+    const isel = $('i-' + f + '-fund');
+    Array.from(isel.options).forEach((o) => { o.textContent = o.value + ' \u00b7 ' + tr(CATALOG[o.value].name); });
+    if (isel.selectedOptions[0]) isel.selectedOptions[0].textContent = isel.value;
   });
 }
 function refreshFundOptions() {
@@ -1293,6 +1323,10 @@ function refreshFundOptions() {
   const used = FUNDS.map((f, i) => (pMix || i === 0 ? $('a-' + f + '-fund').value : null));
   FUNDS.forEach((f, i) => {
     Array.from($('a-' + f + '-fund').options).forEach((o) => { o.disabled = o.value !== 'CUSTOM' && used.some((u, j) => j !== i && u === o.value); });
+  });
+  const iused = FUNDS.map((f) => $('i-' + f + '-fund').value);
+  FUNDS.forEach((f, i) => {
+    Array.from($('i-' + f + '-fund').options).forEach((o) => { o.disabled = iused.some((u, j) => j !== i && u === o.value); });
   });
   shortFundLabels();
 }
@@ -1415,7 +1449,7 @@ function renderFundNames() {
   document.querySelectorAll('[data-fname]').forEach((el) => { el.textContent = RATES[el.dataset.fname].label; });
   FUNDS.forEach((f) => {
     $('p-' + f + '-num').setAttribute('aria-label', tr('{0} allocation', RATES[f].label));
-    $('i-' + f + '-num').setAttribute('aria-label', tr('IRA {0} allocation', RATES[f].label));
+    $('i-' + f + '-num').setAttribute('aria-label', tr('IRA {0} allocation', $('i-' + f + '-fund').value));
   });
 }
 const fundKey = () => FUNDS.map((f) => RATES[f].label).join('|');
@@ -1587,31 +1621,48 @@ $('k-limit').addEventListener('change', recomputeAll);
 let iAlloc = { voo: 100, qqq: 0, schd: 0 };
 let iAllocEdited = false;
 function iraAlloc() { return $('i-alloc-mode').value === 'custom' ? iAlloc : pAlloc; }
+// The funds behind the IRA split: the Personal slots, or the IRA's own picks once Custom mix is on.
+function iraRates() {
+  if ($('i-alloc-mode').value !== 'custom') return RATES;
+  const r = {};
+  FUNDS.forEach((f) => {
+    const code = $('i-' + f + '-fund').value;
+    r[f] = { total: CATALOG[code].total, div: CATALOG[code].div, label: code, color: RATES[f].color };
+  });
+  return r;
+}
 function iraPerYear() { return $('i-freq').value === 'monthly' ? 12 : 26; }
 function syncIraAlloc() {
+  renderFundNames();
   FUNDS.forEach((f) => {
     $('i-' + f + '-num').value = iAlloc[f];
   });
   const bar = $('i-alloc-bar');
+  const R = iraRates();
   bar.innerHTML = '';
   FUNDS.forEach((f) => {
     const seg = document.createElement('span');
     seg.style.width = iAlloc[f] + '%';
-    seg.style.background = RATES[f].color;
-    seg.textContent = iAlloc[f] >= 30 ? RATES[f].label + ' ' + iAlloc[f] + '%' : iAlloc[f] >= 8 ? iAlloc[f] + '%' : '';
-    seg.title = RATES[f].label + ' ' + iAlloc[f] + '%';
+    seg.style.background = R[f].color;
+    seg.textContent = iAlloc[f] >= 30 ? R[f].label + ' ' + iAlloc[f] + '%' : iAlloc[f] >= 8 ? iAlloc[f] + '%' : '';
+    seg.title = R[f].label + ' ' + iAlloc[f] + '%';
     bar.appendChild(seg);
   });
 }
-function allocText(a) { return FUNDS.filter((f) => a[f] > 0).map((f) => RATES[f].label + ' ' + a[f] + '%').join(' · '); }
+function allocText(a, R) { R = R || RATES; return FUNDS.filter((f) => a[f] > 0).map((f) => R[f].label + ' ' + a[f] + '%').join(' · '); }
 function renderIraToggles() {
   const custom = $('i-alloc-mode').value === 'custom';
   $('i-alloc-custom').hidden = !custom;
   $('i-alloc-same').hidden = custom;
   $('i-alloc-same').textContent = tr('Uses your Personal mix: {0}.', allocText(pAlloc));
-  $('i-mix-hint').textContent = pMix
-    ? tr('Uses the funds from your Personal mix. The three always add up to 100%.')
-    : tr('To use other funds, turn on "Mix several funds" under Advanced options on the Personal tab. The three always add up to 100%.');
+  $('i-mix-hint').textContent = tr('Pick a ready-made mix, or choose your own funds and percentages. The three always add up to 100%.');
+  document.querySelectorAll('#i-strategies .strat-btn').forEach((b) => {
+    const pr = MIX_PRESETS[b.dataset.preset];
+    const on = FUNDS.every((f, i) => (i < pr.funds.length ? $('i-' + f + '-fund').value === pr.funds[i] && iAlloc[f] === pr.pct[i] : iAlloc[f] === 0));
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-pressed', String(on));
+    b.title = tr(pr.desc);
+  });
   $('i-amount-lbl').textContent = iraPerYear() === 26 ? tr('Per paycheck') : tr('Per month');
   $('i-type-hint').textContent = $('i-type').value === 'roth'
     ? tr("Roth: withdrawals in retirement are tax-free, but eligibility phases out at higher incomes (2026: starting at $153,000 single or $242,000 married filing jointly). Taxes aren't modeled here.")
@@ -1622,12 +1673,48 @@ FUNDS.forEach((f) => {
     iAlloc = normalizeAlloc(iAlloc, f, e.target.value);
     iAllocEdited = true;
     syncIraAlloc();
+    renderIraToggles();
+    recomputeAll();
+  });
+});
+// Keep the three IRA picks distinct: a later slot that repeats an earlier one moves to a fund nobody in the IRA is using.
+function dedupeIraFunds() {
+  FUNDS.forEach((f, i) => {
+    const taken = FUNDS.map((g) => $('i-' + g + '-fund').value);
+    if (!taken.slice(0, i).includes(taken[i])) return;
+    const pick = taken.includes(DEFAULT_FUND[f]) ? Object.keys(CATALOG).find((t) => !taken.includes(t)) : DEFAULT_FUND[f];
+    $('i-' + f + '-fund').value = pick;
+  });
+}
+function applyIraPreset(key) {
+  const pr = MIX_PRESETS[key];
+  FUNDS.forEach((f, i) => { if (i < pr.funds.length) $('i-' + f + '-fund').value = pr.funds[i]; });
+  dedupeIraFunds();
+  iAlloc = { voo: pr.pct[0] || 0, qqq: pr.pct[1] || 0, schd: pr.pct[2] || 0 };
+  iAllocEdited = true;
+  refreshFundOptions();
+  syncIraAlloc();
+  renderIraToggles();
+  recomputeAll();
+}
+document.querySelectorAll('#i-strategies .strat-btn').forEach((btn) => btn.addEventListener('click', () => applyIraPreset(btn.dataset.preset)));
+FUNDS.forEach((f) => {
+  $('i-' + f + '-fund').addEventListener('change', () => {
+    iAllocEdited = true;
+    refreshFundOptions();
+    syncIraAlloc();
+    renderIraToggles();
     recomputeAll();
   });
 });
 $('i-alloc-mode').addEventListener('change', () => {
-  // first time on Custom, start from the Personal mix so there is something sensible to tweak
-  if ($('i-alloc-mode').value === 'custom' && !iAllocEdited) { iAlloc = Object.assign({}, pAlloc); }
+  // first time on Custom, start from the Personal mix and funds so there is something sensible to tweak
+  if ($('i-alloc-mode').value === 'custom' && !iAllocEdited) {
+    iAlloc = Object.assign({}, pAlloc);
+    FUNDS.forEach((f) => { const c = $('a-' + f + '-fund').value; $('i-' + f + '-fund').value = c === 'CUSTOM' ? DEFAULT_FUND[f] : c; });
+    dedupeIraFunds();
+    refreshFundOptions();
+  }
   syncIraAlloc();
   renderIraToggles();
   recomputeAll();
@@ -1702,8 +1789,28 @@ function reportChart(L) {
   return '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(tr('Value of your accounts over time')) + '">' + g + '</svg>';
 }
 
-function fundLine(alloc) {
-  return FUNDS.filter((f) => alloc[f] > 0).map((f) => esc(RATES[f].label) + ' ' + alloc[f] + '%').join(' · ');
+function fundLine(alloc, R) {
+  R = R || RATES;
+  return FUNDS.filter((f) => alloc[f] > 0).map((f) => esc(R[f].label) + ' ' + alloc[f] + '%').join(' · ');
+}
+// Every fund behind the Personal mix and (when it has its own) the IRA mix, once each, with its numbers.
+function fundsInUse(includeIra) {
+  const seen = new Set();
+  const out = [];
+  const add = (R, f, code) => {
+    const key = code === 'CUSTOM' ? 'CUSTOM' + f : code;
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push({ code, label: R[f].label, total: R[f].total, div: R[f].div, f });
+  };
+  FUNDS.forEach((f) => { if (pAlloc[f] > 0) add(RATES, f, $('a-' + f + '-fund').value); });
+  if (includeIra) {
+    const R = iraRates();
+    const A = iraAlloc();
+    const custom = $('i-alloc-mode').value === 'custom';
+    FUNDS.forEach((f) => { if (A[f] > 0) add(R, f, custom ? $('i-' + f + '-fund').value : $('a-' + f + '-fund').value); });
+  }
+  return out;
 }
 
 function buildReport() {
@@ -1760,9 +1867,9 @@ function buildReport() {
   const kp = K.p;
   dl.push([tr('401(k)'), esc(tr('{0}% of salary', kp.contribPct)) + (kp.matchRate > 0 && kp.matchCap > 0 ? ', ' + esc(tr('employer adds {0} cents per $1 up to {1}% of salary', kp.matchRate, kp.matchCap)) : '') +
     ', ' + esc(tr('{0}% expected return', kp.rate)) + (K.capped ? ', ' + esc(tr('capped at the {0} annual limit', fmt(K.limit))) : '')]);
-  if (I.active) dl.push([tr('IRA'), esc($('i-type').selectedOptions[0].textContent) + ', ' + esc(tr('{0} a year', fmt(I.annual))) + (I.capped ? ' (' + esc(tr('capped at the annual limit')) + ')' : '') + ', ' + fundLine(iraAlloc())]);
-  const used = FUNDS.filter((f) => pAlloc[f] > 0 || (I.active && iraAlloc()[f] > 0));
-  dl.push([tr('Fund returns'), used.map((f) => esc(RATES[f].label) + ' ' + RATES[f].total + '% ' + esc(tr('total')) + ' / ' + RATES[f].div + '% ' + esc(tr('dividend yield'))).join(' · ')]);
+  if (I.active) dl.push([tr('IRA'), esc($('i-type').selectedOptions[0].textContent) + ', ' + esc(tr('{0} a year', fmt(I.annual))) + (I.capped ? ' (' + esc(tr('capped at the annual limit')) + ')' : '') + ', ' + fundLine(iraAlloc(), iraRates())]);
+  const used = fundsInUse(I.active);
+  dl.push([tr('Fund returns'), used.map((r) => esc(r.label) + ' ' + r.total + '% ' + esc(tr('total')) + ' / ' + r.div + '% ' + esc(tr('dividend yield'))).join(' · ')]);
   h += '<div class="r-h">' + esc(tr('What this assumes')) + '</div><dl class="r-dl">' +
        dl.map(([k, v]) => '<dt>' + esc(k) + '</dt><dd>' + (/<|&/.test(v) ? v : esc(v)) + '</dd>').join('') + '</dl>';
 
@@ -1783,7 +1890,7 @@ $('pdf-btn').addEventListener('click', () => { buildReport(); window.print(); })
 function collectState() {
   const inputs = {};
   document.querySelectorAll('input[type=number], input[type=text], select').forEach((el) => { inputs[el.id] = el.hasAttribute('data-money') ? el.value.replace(/,/g, '') : el.value; });
-  return { v: 2, inputs, pAlloc, iAlloc, iAllocEdited, pMix, mixAlloc, pMode, pReinvest, pView, tab: currentTab, lang: LANG };
+  return { v: 3, inputs, pAlloc, iAlloc, iAllocEdited, pMix, mixAlloc, pMode, pReinvest, pView, tab: currentTab, lang: LANG };
 }
 
 function saveState() {
@@ -1803,6 +1910,11 @@ function applyState(d) {
   if (d.iAlloc && FUNDS.every((f) => typeof d.iAlloc[f] === 'number') &&
       FUNDS.reduce((s, f) => s + d.iAlloc[f], 0) === 100) iAlloc = d.iAlloc;
   if (typeof d.iAllocEdited === 'boolean') iAllocEdited = d.iAllocEdited;
+  // before the IRA had its own funds, its custom mix used the funds picked on Personal
+  if ((d.v || 0) < 3 && $('i-alloc-mode').value === 'custom') {
+    FUNDS.forEach((f) => { const c = $('a-' + f + '-fund').value; $('i-' + f + '-fund').value = c === 'CUSTOM' ? DEFAULT_FUND[f] : c; });
+    dedupeIraFunds();
+  }
   // saves made before mixing was a switch have no pMix: a split meant mixing was in use
   pMix = typeof d.pMix === 'boolean' ? d.pMix : !allocIsDefault(pAlloc);
   mixAlloc = d.mixAlloc && FUNDS.every((f) => typeof d.mixAlloc[f] === 'number') && FUNDS.reduce((t, f) => t + d.mixAlloc[f], 0) === 100 ? d.mixAlloc : Object.assign({}, pAlloc);
@@ -2258,9 +2370,10 @@ function updatePromoNote(s) {
 // All balances are nominal. Contributions are also tracked in today's dollars (realContrib),
 // discounting each year's contributions to the middle of that year.
 function simPersonal(p, delta) {
+  const R = p.rates || RATES;
   const mRate = {};
   FUNDS.forEach((f) => {
-    const rate = (p.reinvest ? RATES[f].total : RATES[f].total - RATES[f].div) + delta;
+    const rate = (p.reinvest ? R[f].total : R[f].total - R[f].div) + delta;
     mRate[f] = Math.pow(1 + rate / 100, 1 / 12) - 1;
   });
   const bal = {};
@@ -2277,7 +2390,7 @@ function simPersonal(p, delta) {
       // dividends accrue monthly on the balance held that month, so the first year isn't zero
       let payout = 0;
       for (let m = 0; m < 12; m++) {
-        payout += (bal[f] * RATES[f].div) / 1200;
+        payout += (bal[f] * R[f].div) / 1200;
         bal[f] = bal[f] * (1 + mRate[f]) + amt;
       }
       out.div[f].push(payout);
@@ -2475,7 +2588,7 @@ function computeIRA(s) {
   const start = num('i-starting');
   const p = {
     start, monthly: annual / 12, monthlyFn: (y) => Math.min(wanted, limitAt(y)) / 12, perYear, growth: 0,
-    years: s.years, alloc: iraAlloc(), reinvest: true, inflRate: s.inflRate,
+    years: s.years, alloc: iraAlloc(), rates: iraRates(), reinvest: true, inflRate: s.inflRate,
   };
   const base = simPersonal(p, 0);
   const low = simPersonal(p, LOW_DELTA);
@@ -2636,11 +2749,9 @@ function fundNote(code, label) {
 }
 function renderWhy() {
   const para = (head, body) => '<p><b>' + head + '</b> ' + body + '</p>';
-  const inUse = FUNDS.filter((f) => pAlloc[f] > 0 || iraAlloc()[f] > 0);
-  const notes = inUse.map((f) => {
-    const code = $('a-' + f + '-fund').value;
-    if (code === 'CUSTOM') return para(tr('{0}, {1}% a year.', RATES[f].label, RATES[f].total), tr('Your own numbers for a fund that is not in the list.'));
-    return fundNote(code, RATES[f].label);
+  const notes = fundsInUse(true).map((r) => {
+    if (r.code === 'CUSTOM') return para(tr('{0}, {1}% a year.', r.label, r.total), tr('Your own numbers for a fund that is not in the list.'));
+    return fundNote(r.code, r.label);
   });
   $('p-why-body').innerHTML =
     notes.join('') +
