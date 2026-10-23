@@ -785,17 +785,36 @@
         <div class="section">
           <h3>Contributions</h3>
           <div class="field">
-            <label for="i-freq">How often</label>
+            <label for="i-mode">Contribute</label>
             <div class="ctl">
-              <select id="i-freq" class="num sel">
-                <option value="monthly" selected>Monthly</option>
-                <option value="biweekly">Bi-weekly</option>
+              <select id="i-mode" class="num sel">
+                <option value="dollar" selected>Fixed $</option>
+                <option value="percent">% of salary</option>
               </select>
             </div>
           </div>
-          <div class="field">
-            <label for="i-amount" id="i-amount-lbl">Per month</label>
-            <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="50000" value="0" id="i-amount" class="num wide"></span></div>
+          <div id="i-freq-row">
+            <div class="field">
+              <label for="i-freq">How often</label>
+              <div class="ctl">
+                <select id="i-freq" class="num sel">
+                  <option value="monthly" selected>Monthly</option>
+                  <option value="biweekly">Bi-weekly</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div id="i-amount-row">
+            <div class="field">
+              <label for="i-amount" id="i-amount-lbl">Per month</label>
+              <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="50000" value="0" id="i-amount" class="num wide"></span></div>
+            </div>
+          </div>
+          <div id="i-percent-fields" style="display:none;">
+            <div class="field">
+              <label for="i-salary-pct">Share of salary</label>
+              <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="0" max="100" step="1" value="5" id="i-salary-pct" class="num"></span><span class="unit">%</span></div>
+            </div>
           </div>
           <p class="hint" id="i-effective"></p>
           <p class="hint" id="i-limit-hint"></p>
@@ -1688,6 +1707,10 @@ function renderIraToggles() {
   $('i-customize').setAttribute('aria-expanded', String(iMixOpen));
   $('i-customize').textContent = iMixOpen ? tr('Hide fund details') : tr('Customize funds');
   $('i-amount-lbl').textContent = iraPerYear() === 26 ? tr('Per paycheck') : tr('Per month');
+  const iPct = $('i-mode').value === 'percent';
+  $('i-amount-row').style.display = iPct ? 'none' : 'block';
+  $('i-freq-row').style.display = iPct ? 'none' : 'block';
+  $('i-percent-fields').style.display = iPct ? 'block' : 'none';
   $('i-type-hint').textContent = $('i-type').value === 'roth'
     ? tr("Roth: withdrawals in retirement are tax-free, but eligibility phases out at higher incomes (2026: starting at $153,000 single or $242,000 married filing jointly). Taxes aren't modeled here.")
     : tr("Traditional: contributions may be tax-deductible and withdrawals are taxed. Deductibility depends on your income and workplace plan. Taxes aren't modeled here.");
@@ -1745,6 +1768,7 @@ $('i-alloc-mode').addEventListener('change', () => {
   recomputeAll();
 });
 $('i-freq').addEventListener('change', () => { renderIraToggles(); recomputeAll(); });
+$('i-mode').addEventListener('change', () => { renderIraToggles(); recomputeAll(); });
 $('i-type').addEventListener('change', () => { renderIraToggles(); recomputeAll(); });
 $('rates-reset').addEventListener('click', () => {
   FUNDS.forEach((f) => {
@@ -1763,7 +1787,7 @@ FUNDS.forEach((f) => {
   });
   $('a-' + f + '-name').addEventListener('change', recomputeAll);
 });
-['i-starting', 'i-amount'].forEach((id) => $(id).addEventListener('input', recomputeAll));
+['i-starting', 'i-amount', 'i-salary-pct'].forEach((id) => $(id).addEventListener('input', recomputeAll));
 
 /* ---------------- info toggles ---------------- */
 document.querySelectorAll('.info-btn').forEach((btn) => {
@@ -1892,7 +1916,8 @@ function buildReport() {
   const kp = K.p;
   dl.push([tr('401(k)'), esc(tr('{0}% of salary', kp.contribPct)) + (kp.matchRate > 0 && kp.matchCap > 0 ? ', ' + esc(tr('employer adds {0} cents per $1 up to {1}% of salary', kp.matchRate, kp.matchCap)) : '') +
     ', ' + esc(tr('{0}% expected return', kp.rate)) + (K.capped ? ', ' + esc(tr('capped at the {0} annual limit', fmt(K.limit))) : '')]);
-  if (I.active) dl.push([tr('IRA'), esc($('i-type').selectedOptions[0].textContent) + ', ' + esc(tr('{0} a year', fmt(I.annual))) + (I.capped ? ' (' + esc(tr('capped at the annual limit')) + ')' : '') + ', ' + fundLine(iraAlloc(), iraRates())]);
+  const iPctMode = $('i-mode').value === 'percent';
+  if (I.active) dl.push([tr('IRA'), esc($('i-type').selectedOptions[0].textContent) + ', ' + (iPctMode ? esc(tr('{0}% of salary', num('i-salary-pct'))) + ', ' : '') + esc(tr('{0} a year', fmt(I.annual))) + (I.capped ? ' (' + esc(tr('capped at the annual limit')) + ')' : '') + ', ' + fundLine(iraAlloc(), iraRates())]);
   const used = fundsInUse(I.active);
   dl.push([tr('Fund returns'), used.map((r) => esc(r.label) + ' ' + r.total + '% ' + esc(tr('total')) + ' / ' + r.div + '% ' + esc(tr('dividend yield'))).join(' · ')]);
   h += '<div class="r-h">' + esc(tr('What this assumes')) + '</div><dl class="r-dl">' +
@@ -2611,14 +2636,18 @@ function computeK401(s) {
 // with contributions capped at the annual limit.
 function computeIRA(s) {
   const perYear = iraPerYear();
-  const wanted = num('i-amount') * perYear;
+  const pctMode = $('i-mode').value === 'percent';
+  // a share of salary rises with the raise and promotions; either way each year is held to that year's limit
+  const baseMonthly = Math.round(((s.salary * num('i-salary-pct')) / 100 / 12) * 100) / 100;
+  const wantedAt = (y) => (pctMode ? baseMonthly * 12 * salaryFactor(s, y) : num('i-amount') * perYear);
+  const wanted = wantedAt(1);
   const limitAt = (y) => iraLimitAt(s.age + y - 1);
   let capped = false;
-  for (let y = 1; y <= s.years; y++) if (wanted > limitAt(y)) capped = true;
+  for (let y = 1; y <= s.years; y++) if (wantedAt(y) > limitAt(y)) capped = true;
   const annual = Math.min(wanted, limitAt(1));
   const start = num('i-starting');
   const p = {
-    start, monthly: annual / 12, monthlyFn: (y) => Math.min(wanted, limitAt(y)) / 12, perYear, growth: 0,
+    start, monthly: annual / 12, monthlyFn: (y) => Math.min(wantedAt(y), limitAt(y)) / 12, perYear, growth: 0,
     years: s.years, alloc: iraAlloc(), rates: iraRates(), reinvest: true, inflRate: s.inflRate,
   };
   const base = simPersonal(p, 0);
@@ -2632,9 +2661,9 @@ function computeIRA(s) {
   $('i-limit-hint').textContent = tr('2026 limit: {0} a year, or {1} from age 50. It is shared across all your IRAs.', fmt(IRA_LIMIT), fmt(IRA_LIMIT + IRA_CATCHUP));
   $('i-effective').textContent = wanted <= 0
     ? tr('Enter an amount to start modeling an IRA. Until then it is left out of your combined total.')
-    : (perYear === 26
-        ? tr('About {0} / month on average', fmt(annual / 12))
-        : '');
+    : (pctMode
+        ? tr('= {0} / month now (about {1} per bi-weekly paycheck), from a {2} salary growing {3}% a year', fmt(baseMonthly), fmt((baseMonthly * 12) / 26), fmt(s.salary), s.raise)
+        : (perYear === 26 ? tr('About {0} / month on average', fmt(annual / 12)) : ''));
   $('i-effective').hidden = !$('i-effective').textContent;
   $('i-warn').style.display = capped ? 'block' : 'none';
   $('i-warn').textContent = tr('That is more than the IRA annual limit ({0}, or {1} from age 50), so contributions are capped at the limit each year.', fmt(IRA_LIMIT), fmt(IRA_LIMIT + IRA_CATCHUP));
@@ -2667,6 +2696,7 @@ function computeIRA(s) {
   $('i-footnote').textContent =
     tr('Uses the same return and dividend assumptions as the Personal tab, with dividends reinvested. The limit is held at its 2026 level for the whole projection, and the {0} catch-up is added from age 50.', fmt(IRA_CATCHUP)) + ' ' +
     (start > 0 ? tr('The contributions line includes your starting balance.') + ' ' : '') +
+    (pctMode ? (activePromos(s).length ? tr('Monthly contributions grow each year with your annual raise and your promotion raise.') : tr('Monthly contributions grow each year with your annual raise.')) + ' ' : '') +
     tr("The low and high cases shift every fund's return by {0} and +{1} points a year to show sensitivity; they are not a forecast range.", LOW_DELTA, HIGH_DELTA) +
     '';
 
