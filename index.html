@@ -703,7 +703,7 @@
           <h3>Starting point</h3>
           <div class="field">
             <label for="k-starting">Starting balance</label>
-            <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="5000000" value="40000" id="k-starting" class="num wide"></span></div>
+            <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="5000000" value="18000" id="k-starting" class="num wide"></span></div>
           </div>
         </div>
 
@@ -1085,7 +1085,7 @@ const ES = {
   "These are typical starting numbers for a U.S. worker. Replace them with your own.": "Estas son cifras iniciales típicas de un trabajador en EE. UU. Reemplázalas con las tuyas.",
   "You're leaving about {0} a year of free employer match unused. Raising your contribution from {1}% to {2}% would add about {3} to your balance by age {4}, including your own extra savings.": "Estás dejando sin usar unos {0} al año de aportación gratuita de tu patrono. Subir tu aportación de {1}% a {2}% sumaría unos {3} a tu balance a los {4} años, incluyendo tus ahorros adicionales.",
   "About the starting numbers": "Sobre las cifras iniciales",
-  "Salary: the median full-time U.S. worker earned $1,232 a week in the third quarter of 2026, about $64,000 a year ({0}). 401(k): Vanguard's How America Saves 2026 reports a median employee contribution of 6.6% of pay, a most-common match of 50 cents per dollar on the first 6% of pay, and a median balance of $44,115 across all ages; the $40,000 starting balance is that figure rounded down ({1}). Inflation: consumer prices have risen 3.17% a year on average since 1913, which is the 3.2% used for the today's-dollars line ({2}). A 3% raise, a 4% withdrawal rate and a 7% 401(k) return are common planning assumptions. They are only examples, so replace them with your own numbers.": "Salario: el trabajador a tiempo completo mediano en EE. UU. ganó $1,232 a la semana en el tercer trimestre de 2026, unos $64,000 al año ({0}). 401(k): el informe How America Saves 2026 de Vanguard indica una aportación mediana del empleado de 6.6% del salario, una aportación equivalente del patrono, la más común, de 50 centavos por dólar sobre el primer 6% del salario, y un balance mediano de $44,115 entre todas las edades; el balance inicial de $40,000 es esa cifra redondeada hacia abajo ({1}). Inflación: los precios al consumidor han subido 3.17% al año en promedio desde 1913, que es el 3.2% usado para la línea de dólares de hoy ({2}). Un aumento de 3%, una tasa de retiro de 4% y un rendimiento de 7% en el 401(k) son supuestos comunes de planificación. Son solo ejemplos, así que reemplázalos con tus propias cifras.",
+  "Salary: the median full-time U.S. worker earned $1,232 a week in the third quarter of 2026, about $64,000 a year ({0}). 401(k): Vanguard's How America Saves 2026 reports a median employee contribution of 6.6% of pay, a most-common match of 50 cents per dollar on the first 6% of pay, and a median balance of $18,732 for savers aged 25 to 34; the $18,000 starting balance is that figure rounded down ({1}). Inflation: consumer prices have risen 3.17% a year on average since 1913, which is the 3.2% used for the today's-dollars line ({2}). A 3% raise, a 4% withdrawal rate and a 7% 401(k) return are common planning assumptions. They are only examples, so replace them with your own numbers.": "Salario: el trabajador a tiempo completo mediano en EE. UU. ganó $1,232 a la semana en el tercer trimestre de 2026, unos $64,000 al año ({0}). 401(k): el informe How America Saves 2026 de Vanguard indica una aportación mediana del empleado de 6.6% del salario, una aportación equivalente del patrono, la más común, de 50 centavos por dólar sobre el primer 6% del salario, y un balance mediano de $18,732 entre quienes tienen de 25 a 34 años; el balance inicial de $18,000 es esa cifra redondeada hacia abajo ({1}). Inflación: los precios al consumidor han subido 3.17% al año en promedio desde 1913, que es el 3.2% usado para la línea de dólares de hoy ({2}). Un aumento de 3%, una tasa de retiro de 4% y un rendimiento de 7% en el 401(k) son supuestos comunes de planificación. Son solo ejemplos, así que reemplázalos con tus propias cifras.",
   "Promotion 2 raise": "Segundo aumento por ascenso",
   "Promotion 2 year": "Año del segundo ascenso",
   "Promotion 3 raise": "Tercer aumento por ascenso",
@@ -1908,7 +1908,7 @@ $('pdf-btn').addEventListener('click', () => { buildReport(); window.print(); })
 function collectState() {
   const inputs = {};
   document.querySelectorAll('input[type=number], input[type=text], select').forEach((el) => { inputs[el.id] = el.hasAttribute('data-money') ? el.value.replace(/,/g, '') : el.value; });
-  return { v: 4, inputs, pAlloc, iAlloc, iAllocEdited, pMix, mixAlloc, pMode, pReinvest, pView, tab: currentTab, lang: LANG };
+  return { v: 5, inputs, pAlloc, iAlloc, iAllocEdited, pMix, mixAlloc, pMode, pReinvest, pView, tab: currentTab, lang: LANG };
 }
 
 function saveState() {
@@ -1980,8 +1980,8 @@ function readShare() {
     const d = JSON.parse(unb64url(m[1]));
     if (!d || typeof d !== 'object') return null;
     // links made before the defaults changed (no version) leave out values that matched the old defaults, so restore those
-    // links made before the default age moved from 35 to 30 (version 4) leave out an age of 35, so restore it
-    d.inputs = Object.assign({}, DEFAULT_INPUTS, d.v ? (d.v < 4 ? { 's-age': '35' } : {}) : LEGACY_DEFAULTS, d.inputs && typeof d.inputs === 'object' ? d.inputs : {});
+    // links made before the defaults moved (age 35 to 30 in version 4, 401(k) start $40,000 to $18,000 in version 5) leave out the old values, so restore them
+    d.inputs = Object.assign({}, DEFAULT_INPUTS, d.v ? Object.assign(d.v < 4 ? { 's-age': '35' } : {}, d.v < 5 ? { 'k-starting': '40000' } : {}) : LEGACY_DEFAULTS, d.inputs && typeof d.inputs === 'object' ? d.inputs : {});
     return d;
   } catch (e) { return null; }
 }
@@ -2713,7 +2713,7 @@ function updateHeadline(s, P, K, I) {
     : '';
 }
 function renderAbout() {
-  $('about-body').innerHTML = tr("Salary: the median full-time U.S. worker earned $1,232 a week in the third quarter of 2026, about $64,000 a year ({0}). 401(k): Vanguard's How America Saves 2026 reports a median employee contribution of 6.6% of pay, a most-common match of 50 cents per dollar on the first 6% of pay, and a median balance of $44,115 across all ages; the $40,000 starting balance is that figure rounded down ({1}). Inflation: consumer prices have risen 3.17% a year on average since 1913, which is the 3.2% used for the today's-dollars line ({2}). A 3% raise, a 4% withdrawal rate and a 7% 401(k) return are common planning assumptions. They are only examples, so replace them with your own numbers.",
+  $('about-body').innerHTML = tr("Salary: the median full-time U.S. worker earned $1,232 a week in the third quarter of 2026, about $64,000 a year ({0}). 401(k): Vanguard's How America Saves 2026 reports a median employee contribution of 6.6% of pay, a most-common match of 50 cents per dollar on the first 6% of pay, and a median balance of $18,732 for savers aged 25 to 34; the $18,000 starting balance is that figure rounded down ({1}). Inflation: consumer prices have risen 3.17% a year on average since 1913, which is the 3.2% used for the today's-dollars line ({2}). A 3% raise, a 4% withdrawal rate and a 7% 401(k) return are common planning assumptions. They are only examples, so replace them with your own numbers.",
     link('https://www.bls.gov/news.release/wkyeng.nr0.htm', 'BLS'),
     link('https://workplace.vanguard.com/content/dam/inst/iig-transformation/has/2026/pdf/HowAmericaSaves2026.pdf', 'Vanguard'),
     link('https://www.officialdata.org/us/inflation/1913', 'Official Data'));
