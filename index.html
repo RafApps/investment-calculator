@@ -537,7 +537,7 @@
             <label for="p-starting">Starting balance</label>
             <div class="ctl"><span class="box"><span class="unit">$</span><input type="text" inputmode="decimal" data-money autocomplete="off" min="0" max="5000000" value="0" id="p-starting" class="num wide"></span></div>
           </div>
-          <p class="hint" id="p-start-note" hidden>Your starting balance is split using the percentages in Allocation, and your contributions follow the same split.</p>
+          <p class="hint" id="p-start-note" hidden>Your starting balance is split using the percentages in Allocation.</p>
         </div>
 
         <div class="section">
@@ -1047,7 +1047,7 @@ const ES = {
   "Dividends buy more shares, so your balance compounds faster.": "Los dividendos compran más acciones, así que tu saldo crece más rápido.",
   "Dividends are paid out as cash instead of buying shares, so they don't compound. They show as Cash in your results.": "Los dividendos se pagan en efectivo en vez de comprar acciones, así que no se acumulan. Aparecen como Efectivo en tus resultados.",
   "Mix on": "Mezcla activa",
-  "Your starting balance is split using the percentages in Allocation, and your contributions follow the same split.": "Tu saldo inicial se divide según los porcentajes de Distribución, y tus aportaciones siguen la misma división.",
+  "Your starting balance is split using the percentages in Allocation.": "Tu saldo inicial se divide según los porcentajes de Distribución.",
   "Dividends off": "Dividendos en efectivo",
   "Mostly the S&P 500, with extra Nasdaq-100 for growth and a little dividend income.": "Sobre todo el S&P 500, con más Nasdaq-100 para crecer y un poco de ingresos por dividendos.",
   "An even blend of core, growth and dividend stocks.": "Una mezcla pareja de acciones base, de crecimiento y de dividendos.",
@@ -1115,7 +1115,7 @@ const ES = {
   "More info": "Más información",
   "i": "i",
   "The same plan with returns {0} and +{1} points a year from the base case. A sensitivity check, not a forecast.": "El mismo plan con rendimientos {0} y +{1} puntos al año respecto al caso base. Una prueba de sensibilidad, no un pronóstico.",
-  "= about {0} / month on average (26 paychecks a year). Stays fixed each year.": "= unos {0} / mes en promedio (26 cheques al año). Se mantiene fijo cada año.",
+  "About {0} / month on average": "Unos {0} / mes en promedio",
   "= {0} / month. Stays fixed each year.": "= {0} / mes. Se mantiene fijo cada año.",
   "= {0} / month now (about {1} per bi-weekly paycheck), from a {2} salary growing {3}% a year": "= {0} / mes ahora (unos {1} por cheque cada dos semanas), de un salario de {2} que crece {3}% al año",
   "Rates are assumptions based on long-run history, not guarantees.": "Las tasas son supuestos basados en la historia a largo plazo, no garantías.",
@@ -2320,7 +2320,7 @@ function computePersonal(s) {
   const perCheck = (baseMonthly * 12) / 26;
   $('p-effective-monthly').textContent = pMode === 'dollar'
     ? (perYear === 26
-        ? tr('= about {0} / month on average (26 paychecks a year). Stays fixed each year.', fmt(baseMonthly))
+        ? tr('About {0} / month on average', fmt(baseMonthly))
         : tr('= {0} / month. Stays fixed each year.', fmt(baseMonthly)))
     : tr('= {0} / month now (about {1} per bi-weekly paycheck), from a {2} salary growing {3}% a year', fmt(baseMonthly), fmt(perCheck), fmt(s.salary), s.raise);
 
