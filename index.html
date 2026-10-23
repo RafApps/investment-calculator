@@ -623,7 +623,7 @@
           </div>
           <p class="a-desc" id="a-qqq-desc"></p>
           <div class="a-vals">
-            <label class="a-val"><span>Total return</span><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.1" value="14.25" id="a-qqq-total" class="num"><span class="unit">%</span></span></label>
+            <label class="a-val"><span>Total return</span><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.1" value="10.65" id="a-qqq-total" class="num"><span class="unit">%</span></span></label>
             <label class="a-val"><span>Dividend yield</span><span class="box"><input type="number" inputmode="decimal" min="0" max="15" step="0.1" value="0.45" id="a-qqq-div" class="num"><span class="unit">%</span></span></label>
           </div>
         </div>
@@ -875,12 +875,12 @@
 // the fund shown in each slot is chosen from CATALOG, or set to CUSTOM with the person's own numbers.
 const FUNDS = ['voo', 'qqq', 'schd'];
 const DEFAULT_FUND = { voo: 'VOO', qqq: 'QQQM', schd: 'SCHD' };
-// total = documented long-run annual return with dividends reinvested, after the fund's expense ratio (published fund returns already include it). Basis per fund is in fundNote(): issuer since-launch return for older funds, a longer index record for VOO, QQQM and SCHD, the yield for BND; div = dividend yield; fee = expense ratio, shown for reference only and not subtracted again (all %); since = launch year
+// total = documented long-run annual return with dividends reinvested, after the fund's expense ratio (published fund returns already include it). Basis per fund is in fundNote(): issuer since-launch return for older funds, a longer index record for VOO, QQQM and SCHD, the yield for BND, and QQQ's record for QQQM (same index, launched 1999); div = dividend yield; fee = expense ratio, shown for reference only and not subtracted again (all %); since = launch year
 const CATALOG = {
   VOO:  { name: 'S&P 500',                      group: 'Core U.S. stocks',   total: 10.47, div: 1.06, fee: 0.03, since: 2010 },
   VTI:  { name: 'Total U.S. stock market',      group: 'Core U.S. stocks',   total: 9.48, div: 1.05,   fee: 0.03, since: 2001 },
   VUG:  { name: 'U.S. large-company growth',    group: 'Growth',             total: 12.15, div: 0.4, fee: 0.03, since: 2004 },
-  QQQM: { name: 'Nasdaq-100',                   group: 'Growth',             total: 14.25, div: 0.45, fee: 0.15, since: 2020 },
+  QQQM: { name: 'Nasdaq-100',                   group: 'Growth',             total: 10.65, div: 0.45, fee: 0.15, since: 2020 },
   SCHD: { name: 'Quality dividend stocks',      group: 'Dividend stocks',    total: 10.22, div: 3.24, fee: 0.06, since: 2011 },
   VYM:  { name: 'High dividend yield',          group: 'Dividend stocks',    total: 9.13, div: 2.26, fee: 0.04, since: 2006 },
   VIG:  { name: 'Dividend growers',             group: 'Dividend stocks',    total: 10.18, div: 1.49, fee: 0.04, since: 2006 },
@@ -1025,8 +1025,8 @@ const ES = {
   "Years to invest": "Años para invertir",
   "Annual salary": "Salario anual",
   "Annual raise": "Aumento anual",
+  "QQQM holds the same stocks as QQQ, which tracks the same Nasdaq-100 and launched in 1999, so the calculator uses QQQ's record: {0}% a year since March 1999 with dividends reinvested ({1}). That span includes the 2000 to 2002 crash, when the index fell about 82% ({2}). The index itself returned 14.25% a year since 1985 ({3}). QQQM launched in 2020, with a {4}% expense ratio (QQQ: 0.18%) and a {5}% yield ({6}).": "QQQM tiene las mismas acciones que QQQ, que sigue el mismo Nasdaq-100 y se lanzó en 1999, así que el calculador usa el récord de QQQ: {0}% al año desde marzo de 1999 con dividendos reinvertidos ({1}). Ese período incluye la caída de 2000 a 2002, cuando el índice bajó cerca de 82% ({2}). El índice mismo rindió 14.25% al año desde 1985 ({3}). QQQM se lanzó en 2020, con una razón de gastos de {4}% (QQQ: 0.18%) y un rendimiento de {5}% ({6}).",
   "The S&amp;P 500 returned 10.47% a year with dividends reinvested from 1926 through 2026 ({0}). VOO itself returned {1}% a year since its 2010 launch, a strong stretch for stocks, so the calculator uses the longer record ({2}, as of {3}). Yield {4}% ({5}), expense ratio {6}%.": "El S&amp;P 500 rindió 10.47% al año con dividendos reinvertidos de 1926 a 2026 ({0}). VOO mismo rindió {1}% al año desde su lanzamiento en 2010, un período fuerte para las acciones, así que el calculador usa el récord más largo ({2}, al {3}). Rendimiento por dividendos {4}% ({5}), razón de gastos {6}%.",
-  "The Nasdaq-100 returned 14.25% a year from its 1985 start ({0}). That record includes the 1990s tech boom, and the index fell about 82% from 2000 to 2002 ({1}), so expect a bumpier ride than the S&amp;P 500. QQQM launched in 2020, with a {2}% expense ratio and a {3}% yield ({4}).": "El Nasdaq-100 rindió 14.25% al año desde su inicio en 1985 ({0}). Ese récord incluye el auge tecnológico de los 90, y el índice cayó cerca de 82% de 2000 a 2002 ({1}), así que espera un camino más irregular que el S&amp;P 500. QQQM se lanzó en 2020, con una razón de gastos de {2}% y un rendimiento de {3}% ({4}).",
   "Dividend-growing and dividend-initiating stocks in the S&amp;P 500 returned 10.22% a year from 1973 to 2025 ({0}). SCHD itself returned 13.11% a year since its 2011 launch and 12.44% over 10 years, a strong stretch for stocks ({1}, as of {2}). Yield {3}% over the trailing 12 months, expense ratio {4}%.": "Las acciones del S&amp;P 500 que aumentan o inician dividendos rindieron 10.22% al año de 1973 a 2025 ({0}). SCHD mismo rindió 13.11% al año desde su lanzamiento en 2011 y 12.44% en 10 años, un período fuerte para las acciones ({1}, al {2}). Rendimiento por dividendos {3}% en los últimos 12 meses, razón de gastos {4}%.",
   "A bond fund's future return is close to its starting yield, so the calculator uses BND's yield of {0}% ({1}). Since its 2007 launch BND returned {2}% a year, held down by the 2022 rate jump ({3}, as of {4}). Expense ratio {5}%.": "El rendimiento futuro de un fondo de bonos se acerca a su rendimiento inicial, así que el calculador usa el rendimiento de BND, {0}% ({1}). Desde su lanzamiento en 2007 BND rindió {2}% al año, frenado por el salto de tasas de 2022 ({3}, al {4}). Razón de gastos {5}%.",
   "{0}% a year since the fund launched in {1}, with dividends reinvested ({2}, as of {3}). Yield {4}%, expense ratio {5}% ({6}).": "{0}% al año desde que el fondo se lanzó en {1}, con dividendos reinvertidos ({2}, al {3}). Rendimiento por dividendos {4}%, razón de gastos {5}% ({6}).",
@@ -2618,9 +2618,10 @@ function fundNote(code, label) {
   }
   if (code === 'QQQM') {
     return para(head,
-      tr('The Nasdaq-100 returned 14.25% a year from its 1985 start ({0}). That record includes the 1990s tech boom, and the index fell about 82% from 2000 to 2002 ({1}), so expect a bumpier ride than the S&amp;P 500. QQQM launched in 2020, with a {2}% expense ratio and a {3}% yield ({4}).',
-        link('https://www.nasdaq.com/press-release/celebrating-40-years-nasdaq-100-indexr-ndxr-2025-01-31', 'Nasdaq'),
+      tr("QQQM holds the same stocks as QQQ, which tracks the same Nasdaq-100 and launched in 1999, so the calculator uses QQQ's record: {0}% a year since March 1999 with dividends reinvested ({1}). That span includes the 2000 to 2002 crash, when the index fell about 82% ({2}). The index itself returned 14.25% a year since 1985 ({3}). QQQM launched in 2020, with a {4}% expense ratio (QQQ: 0.18%) and a {5}% yield ({6}).",
+        c.total, link('https://stockanalysis.com/etf/qqq/', 'StockAnalysis'),
         link('https://www.cmegroup.com/insights/economic-research/2024/nasdaqs-stellar-returns-potential-risks-ahead.html', 'CME Group'),
+        link('https://www.nasdaq.com/press-release/celebrating-40-years-nasdaq-100-indexr-ndxr-2025-01-31', 'Nasdaq'),
         c.fee, c.div, yieldSrc));
   }
   if (code === 'SCHD') {
