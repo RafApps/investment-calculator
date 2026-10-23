@@ -308,6 +308,7 @@
   .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
   @media (min-width: 560px) { .stats { grid-template-columns: repeat(3, 1fr); } }
   .stat { background: var(--surface-2); border-radius: 10px; padding: 12px; }
+  @media (max-width: 559px) { .stats.reinv .stat.green { grid-column: 1 / -1; } }
   .stat.hero { grid-column: 1 / -1; background: var(--accent-bg); }
   .stat-label { font-size: 12px; color: var(--text-2); margin: 0 0 2px; }
   .stat-value { font-size: 17px; font-weight: 600; margin: 0; }
@@ -401,6 +402,12 @@
   .nudge { background: var(--green-bg); border: 1px solid var(--border); color: var(--green-ink); border-radius: 8px; padding: 10px 12px; font-size: 13px; line-height: 1.45; margin: 0 0 10px; }
   .ss-alt:empty { display: none; }
   .ss-field { min-height: 40px; }
+  /* when the summary is narrow the label and its box land on two rows; keep the box under the label instead of floating in the middle */
+  .shared-summary { container-type: inline-size; }
+  @container (max-width: 340px) {
+    .ss-field .ctl { margin-left: 0; justify-content: flex-start; }
+    .ss-field .unit:empty { display: none; }
+  }
   .ss-income .ss-field { margin-top: 6px; }
   .shared-summary .box { width: var(--ctl-w); }
   .shared-summary .box .num, .shared-summary .box .num.wide { flex: 1; width: auto; min-width: 0; }
@@ -2580,6 +2587,10 @@ function computePersonal(s) {
   const cashStat = $('p-stat-cash');
   cashStat.textContent = fmt(finalCash);
   cashStat.style.color = pReinvest ? '' : CASH_COLOR;
+  // with dividends reinvested these two just repeat the total and a zero, so they only show when they differ
+  $('p-stat-invested').parentElement.hidden = pReinvest;
+  cashStat.parentElement.hidden = pReinvest;
+  $('p-stat-gain').closest('.stats').classList.toggle('reinv', pReinvest);
 
   if (pGrowthChart) {
     const idx = Array.from({ length: N + 1 }, (_, y) => y);
