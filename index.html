@@ -439,7 +439,7 @@
      <div class="shared-inputs">
       <div class="field">
         <label for="s-age">Your age</label>
-        <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="16" max="90" value="35" id="s-age" class="num"></span><span class="unit">yrs</span></div>
+        <div class="ctl"><span class="box"><input type="number" inputmode="numeric" min="16" max="90" value="30" id="s-age" class="num"></span><span class="unit">yrs</span></div>
       </div>
       <div class="field">
         <label for="s-years">Years to invest</label>
@@ -1085,7 +1085,7 @@ const ES = {
   "These are typical starting numbers for a U.S. worker. Replace them with your own.": "Estas son cifras iniciales típicas de un trabajador en EE. UU. Reemplázalas con las tuyas.",
   "You're leaving about {0} a year of free employer match unused. Raising your contribution from {1}% to {2}% would add about {3} to your balance by age {4}, including your own extra savings.": "Estás dejando sin usar unos {0} al año de aportación gratuita de tu patrono. Subir tu aportación de {1}% a {2}% sumaría unos {3} a tu balance a los {4} años, incluyendo tus ahorros adicionales.",
   "About the starting numbers": "Sobre las cifras iniciales",
-  "Salary: the median full-time U.S. worker earned $1,232 a week in the third quarter of 2026, about $64,000 a year ({0}). 401(k): Vanguard's How America Saves 2026 reports a median employee contribution of 6.6% of pay, a most-common match of 50 cents per dollar on the first 6% of pay, and a median balance of $44,115 across all ages; the $40,000 starting balance is rounded down for a saver in their mid-30s ({1}). Inflation: consumer prices have risen 3.17% a year on average since 1913, which is the 3.2% used for the today's-dollars line ({2}). A 3% raise, a 4% withdrawal rate and a 7% 401(k) return are common planning assumptions. They are only examples, so replace them with your own numbers.": "Salario: el trabajador a tiempo completo mediano en EE. UU. ganó $1,232 a la semana en el tercer trimestre de 2026, unos $64,000 al año ({0}). 401(k): el informe How America Saves 2026 de Vanguard indica una aportación mediana del empleado de 6.6% del salario, una aportación equivalente del patrono, la más común, de 50 centavos por dólar sobre el primer 6% del salario, y un balance mediano de $44,115 entre todas las edades; el balance inicial de $40,000 está redondeado hacia abajo para alguien de unos 35 años ({1}). Inflación: los precios al consumidor han subido 3.17% al año en promedio desde 1913, que es el 3.2% usado para la línea de dólares de hoy ({2}). Un aumento de 3%, una tasa de retiro de 4% y un rendimiento de 7% en el 401(k) son supuestos comunes de planificación. Son solo ejemplos, así que reemplázalos con tus propias cifras.",
+  "Salary: the median full-time U.S. worker earned $1,232 a week in the third quarter of 2026, about $64,000 a year ({0}). 401(k): Vanguard's How America Saves 2026 reports a median employee contribution of 6.6% of pay, a most-common match of 50 cents per dollar on the first 6% of pay, and a median balance of $44,115 across all ages; the $40,000 starting balance is that figure rounded down ({1}). Inflation: consumer prices have risen 3.17% a year on average since 1913, which is the 3.2% used for the today's-dollars line ({2}). A 3% raise, a 4% withdrawal rate and a 7% 401(k) return are common planning assumptions. They are only examples, so replace them with your own numbers.": "Salario: el trabajador a tiempo completo mediano en EE. UU. ganó $1,232 a la semana en el tercer trimestre de 2026, unos $64,000 al año ({0}). 401(k): el informe How America Saves 2026 de Vanguard indica una aportación mediana del empleado de 6.6% del salario, una aportación equivalente del patrono, la más común, de 50 centavos por dólar sobre el primer 6% del salario, y un balance mediano de $44,115 entre todas las edades; el balance inicial de $40,000 es esa cifra redondeada hacia abajo ({1}). Inflación: los precios al consumidor han subido 3.17% al año en promedio desde 1913, que es el 3.2% usado para la línea de dólares de hoy ({2}). Un aumento de 3%, una tasa de retiro de 4% y un rendimiento de 7% en el 401(k) son supuestos comunes de planificación. Son solo ejemplos, así que reemplázalos con tus propias cifras.",
   "Promotion 2 raise": "Segundo aumento por ascenso",
   "Promotion 2 year": "Año del segundo ascenso",
   "Promotion 3 raise": "Tercer aumento por ascenso",
@@ -1908,7 +1908,7 @@ $('pdf-btn').addEventListener('click', () => { buildReport(); window.print(); })
 function collectState() {
   const inputs = {};
   document.querySelectorAll('input[type=number], input[type=text], select').forEach((el) => { inputs[el.id] = el.hasAttribute('data-money') ? el.value.replace(/,/g, '') : el.value; });
-  return { v: 3, inputs, pAlloc, iAlloc, iAllocEdited, pMix, mixAlloc, pMode, pReinvest, pView, tab: currentTab, lang: LANG };
+  return { v: 4, inputs, pAlloc, iAlloc, iAllocEdited, pMix, mixAlloc, pMode, pReinvest, pView, tab: currentTab, lang: LANG };
 }
 
 function saveState() {
@@ -1980,7 +1980,8 @@ function readShare() {
     const d = JSON.parse(unb64url(m[1]));
     if (!d || typeof d !== 'object') return null;
     // links made before the defaults changed (no version) leave out values that matched the old defaults, so restore those
-    d.inputs = Object.assign({}, DEFAULT_INPUTS, d.v ? {} : LEGACY_DEFAULTS, d.inputs && typeof d.inputs === 'object' ? d.inputs : {});
+    // links made before the default age moved from 35 to 30 (version 4) leave out an age of 35, so restore it
+    d.inputs = Object.assign({}, DEFAULT_INPUTS, d.v ? (d.v < 4 ? { 's-age': '35' } : {}) : LEGACY_DEFAULTS, d.inputs && typeof d.inputs === 'object' ? d.inputs : {});
     return d;
   } catch (e) { return null; }
 }
@@ -2169,7 +2170,7 @@ function showChartFallback(canvasId) {
 const LEGENDS = {};
 function refreshLegend(id) { if (LEGENDS[id]) LEGENDS[id](); }
 
-// items: { label, color, dash, box, idx: [dataset indexes], group, avail: () => bool }
+// items: { label, color, dash, box, idx: [dataset indexes], group, avail: () => bool, off: true to start hidden }
 function buildLegend(containerId, chart, items, hint) {
   const el = $(containerId);
   if (!el) return;
@@ -2207,7 +2208,7 @@ function buildLegend(containerId, chart, items, hint) {
     b.appendChild(sw);
     const txt = document.createTextNode(typeof it.label === 'function' ? it.label() : it.label);
     b.appendChild(txt);
-    const st = { it, btn: b, on: true, txt };
+    const st = { it, btn: b, on: !it.off, txt };
     b.addEventListener('click', () => { st.on = !st.on; refresh(); chart.update(); });
     groups.get(g).pills.appendChild(b);
     state.push(st);
@@ -2260,9 +2261,9 @@ function initCharts() {
       { group: tr('Portfolio'), label: () => (pReinvest ? 'Portfolio value' : 'Invested value'), color: t.total, idx: [0] },
       { group: tr('Portfolio'), label: tr('Dividend cash'), color: CASH_COLOR, idx: [1], avail: () => !pReinvest },
       { group: tr('Portfolio'), label: tr('Low / high range'), title: tr('The same plan with returns {0} and +{1} points a year from the base case. A sensitivity check, not a forecast.', LOW_DELTA, HIGH_DELTA), color: t.muted, dash: 'dotted', idx: [6, 7] },
-      { group: tr('By fund'), label: RATES.voo.label, color: RATES.voo.color, dash: 'dashed', idx: [3], avail: fundOn('voo') },
-      { group: tr('By fund'), label: RATES.qqq.label, color: RATES.qqq.color, dash: 'dashed', idx: [4], avail: fundOn('qqq') },
-      { group: tr('By fund'), label: RATES.schd.label, color: RATES.schd.color, dash: 'dashed', idx: [5], avail: fundOn('schd') },
+      { group: tr('By fund'), label: RATES.voo.label, color: RATES.voo.color, dash: 'dashed', idx: [3], avail: fundOn('voo'), off: true },
+      { group: tr('By fund'), label: RATES.qqq.label, color: RATES.qqq.color, dash: 'dashed', idx: [4], avail: fundOn('qqq'), off: true },
+      { group: tr('By fund'), label: RATES.schd.label, color: RATES.schd.color, dash: 'dashed', idx: [5], avail: fundOn('schd'), off: true },
     ], tr('Tap a label to show or hide it.'));
 
     pDivChart = new Chart($('p-div-chart').getContext('2d'), {
@@ -2323,14 +2324,19 @@ function initCharts() {
           { label: tr('Your contributions'), endLabel: tr('Contributed'), data: [], borderColor: CONTRIB_COLOR, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, fill: false, tension: 0 },
           { label: tr('Low case'), endLabel: tr('Low'), swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: withAlpha(t.muted, 0.16), borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, fill: 3, tension: 0.15 },
           { label: tr('High case'), endLabel: tr('High'), swDash: 'dotted', data: [], borderColor: withAlpha(t.muted, 0.9), backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [2, 4], pointRadius: 0, fill: false, tension: 0.15 },
+          // one line per fund slot (indexes 4 to 6); their names follow the funds the IRA is using
+          ...FUNDS.map((f) => ({ label: RATES[f].label, endLabel: RATES[f].label, swDash: 'dashed', data: [], borderColor: RATES[f].color, backgroundColor: 'transparent', borderWidth: 1.75, borderDash: [6, 3], pointRadius: 0, fill: false, tension: 0.15 })),
         ],
       },
       options: baseOptions(t, false, false, true, true),
     });
+    const iFundOn = (f) => () => iraAlloc()[f] > 0;
+    const iFundName = (f) => () => iraRates()[f].label;
     buildLegend('i-growth-legend', iGrowthChart, [
-      { label: tr('Your contributions'), color: CONTRIB_COLOR, idx: [1] },
-      { label: tr('Portfolio value'), color: t.total, idx: [0] },
-      { label: tr('Low / high range'), title: tr('The same plan with returns {0} and +{1} points a year from the base case. A sensitivity check, not a forecast.', LOW_DELTA, HIGH_DELTA), color: t.muted, dash: 'dotted', idx: [2, 3] },
+      { group: tr('Portfolio'), label: tr('Your contributions'), color: CONTRIB_COLOR, idx: [1] },
+      { group: tr('Portfolio'), label: tr('Portfolio value'), color: t.total, idx: [0] },
+      { group: tr('Portfolio'), label: tr('Low / high range'), title: tr('The same plan with returns {0} and +{1} points a year from the base case. A sensitivity check, not a forecast.', LOW_DELTA, HIGH_DELTA), color: t.muted, dash: 'dotted', idx: [2, 3] },
+      ...FUNDS.map((f, i) => ({ group: tr('By fund'), label: iFundName(f), color: RATES[f].color, dash: 'dashed', idx: [4 + i], avail: iFundOn(f), off: true })),
     ], tr('Tap a label to show or hide it.'));
   } catch (e) {
     console.error('IRA chart init failed', e);
@@ -2638,6 +2644,14 @@ function computeIRA(s) {
     iGrowthChart.data.datasets[1].data = idx.map((y) => Math.round(start + base.realContrib[y]));
     iGrowthChart.data.datasets[2].data = idx.map((y) => Math.round(low.invested[y] * d(y)));
     iGrowthChart.data.datasets[3].data = idx.map((y) => Math.round(high.invested[y] * d(y)));
+    const iR = iraRates();
+    FUNDS.forEach((f, i) => {
+      const ds = iGrowthChart.data.datasets[4 + i];
+      ds.label = iR[f].label;
+      ds.endLabel = iR[f].label;
+      ds.data = idx.map((y) => Math.round(base.fund[f][y] * d(y)));
+    });
+    refreshLegend('i-growth-legend');
     iGrowthChart.update();
   }
   $('i-footnote').textContent =
@@ -2699,7 +2713,7 @@ function updateHeadline(s, P, K, I) {
     : '';
 }
 function renderAbout() {
-  $('about-body').innerHTML = tr("Salary: the median full-time U.S. worker earned $1,232 a week in the third quarter of 2026, about $64,000 a year ({0}). 401(k): Vanguard's How America Saves 2026 reports a median employee contribution of 6.6% of pay, a most-common match of 50 cents per dollar on the first 6% of pay, and a median balance of $44,115 across all ages; the $40,000 starting balance is rounded down for a saver in their mid-30s ({1}). Inflation: consumer prices have risen 3.17% a year on average since 1913, which is the 3.2% used for the today's-dollars line ({2}). A 3% raise, a 4% withdrawal rate and a 7% 401(k) return are common planning assumptions. They are only examples, so replace them with your own numbers.",
+  $('about-body').innerHTML = tr("Salary: the median full-time U.S. worker earned $1,232 a week in the third quarter of 2026, about $64,000 a year ({0}). 401(k): Vanguard's How America Saves 2026 reports a median employee contribution of 6.6% of pay, a most-common match of 50 cents per dollar on the first 6% of pay, and a median balance of $44,115 across all ages; the $40,000 starting balance is that figure rounded down ({1}). Inflation: consumer prices have risen 3.17% a year on average since 1913, which is the 3.2% used for the today's-dollars line ({2}). A 3% raise, a 4% withdrawal rate and a 7% 401(k) return are common planning assumptions. They are only examples, so replace them with your own numbers.",
     link('https://www.bls.gov/news.release/wkyeng.nr0.htm', 'BLS'),
     link('https://workplace.vanguard.com/content/dam/inst/iig-transformation/has/2026/pdf/HowAmericaSaves2026.pdf', 'Vanguard'),
     link('https://www.officialdata.org/us/inflation/1913', 'Official Data'));
