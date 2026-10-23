@@ -346,7 +346,6 @@
   .a-slot.is-custom .a-edit { display: none; }
   .a-links { display: flex; flex-wrap: wrap; gap: 0 18px; margin-top: 2px; }
   .a-links .link-btn { padding: 6px 0; }
-  .a-slot:not(.is-single) .a-mixlink { display: none; }
   .a-share { display: flex; align-items: center; gap: 4px; flex: none; }
   .a-share .box .num { width: 56px; }
   .a-slot.is-single .a-share { display: none; }
@@ -591,7 +590,6 @@
           <p class="a-desc" id="a-voo-desc"></p>
           <div class="a-links">
             <button class="link-btn a-edit" type="button" data-slot="voo" aria-expanded="false">Edit return and yield</button>
-            <button class="link-btn a-mixlink" id="fund-mix-link" type="button">Mix several funds instead</button>
           </div>
           <div class="a-vals">
             <label class="a-val"><span>Total return</span><span class="box"><input type="number" inputmode="decimal" min="0" max="30" step="0.1" value="10.5" id="a-voo-total" class="num"><span class="unit">%</span></span></label>
@@ -603,7 +601,7 @@
           <button class="link-btn" id="fund-edit-mix" type="button" hidden>Edit mix</button>
         </div>
 
-        <details class="adv" id="adv-personal">
+        <details class="adv" id="adv-personal" open>
           <summary>Advanced options <span class="badge" id="assump-badge" hidden></span></summary>
           <div class="adv-body">
         <div class="section">
@@ -1053,7 +1051,6 @@ const ES = {
   "An even blend of core, growth and dividend stocks.": "Una mezcla pareja de acciones base, de crecimiento y de dividendos.",
   "Leans on dividend stocks for more cash payouts.": "Se apoya en acciones de dividendos para recibir más efectivo.",
   "Mix several funds": "Combinar varios fondos",
-  "Mix several funds instead": "Combinar varios fondos",
   "Edit mix": "Editar mezcla",
   "Mixing several funds: {0}.": "Combinando varios fondos: {0}.",
   "Pick a ready-made mix, or choose your own funds and percentages. The three always add up to 100%.": "Elige una mezcla lista o escoge tus propios fondos y porcentajes. Los tres siempre suman 100%.",
@@ -1556,7 +1553,6 @@ function applyPreset(key) {
   recomputeAll();
 }
 $('p-mix-switch').addEventListener('click', () => setMix(!pMix));
-$('fund-mix-link').addEventListener('click', () => { setMix(true); $('adv-personal').open = true; $('p-mix-switch').scrollIntoView({ block: 'center' }); });
 $('fund-edit-mix').addEventListener('click', () => { $('adv-personal').open = true; $('p-mix-switch').scrollIntoView({ block: 'center' }); });
 document.querySelectorAll('#p-strategies .strat-btn').forEach((btn) => btn.addEventListener('click', () => applyPreset(btn.dataset.preset)));
 FUNDS.forEach((f) => {
