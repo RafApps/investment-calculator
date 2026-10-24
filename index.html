@@ -199,6 +199,9 @@
   .shared-inputs .box .num, .shared-inputs .box .num.wide, .inputs-col .field .box.money .num { flex: 1; width: auto; min-width: 0; }
   .page-foot { margin: 24px auto 0; max-width: 640px; text-align: center; }
   .page-foot .link-btn { margin-top: 4px; }
+  .foot-links { margin: 8px 0 0; font-size: 13px; }
+  .foot-links a { color: var(--text-2); display: inline-flex; align-items: center; min-height: 40px; }
+  .foot-links a:hover { color: var(--accent-ink); }
   .disclaimer { margin: 0 0 6px; font-size: 12px; line-height: 1.5; color: var(--text-2); }
   .shared-summary {
     min-width: 0; align-self: start; display: flex; flex-direction: column; gap: 12px; padding: 14px 16px;
@@ -981,6 +984,7 @@
     <p class="disclaimer">For education and estimates only, not financial, tax or legal advice. Results come from the assumed returns shown and are not guarantees; real markets rise and fall from year to year. Figures are in future dollars, with the today's-dollar equivalent shown under the main total, and they don't include taxes. Fund returns are already after each fund's expense ratio; other account or advisory fees aren't included. Your inputs are saved only in this browser and are never sent anywhere.</p>
     <details class="why about" id="about-defaults"><summary>About the starting numbers</summary><p class="footnote" id="about-body"></p></details>
     <button class="link-btn quiet" id="reset-btn" type="button"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M4 12a8 8 0 1 0 2.5-5.8M4 4v4.5h4.5"/></svg>Reset all inputs to defaults</button>
+    <p class="foot-links"><a href="privacy.html">Privacy policy</a></p>
   </footer>
 </main>
 
@@ -1320,6 +1324,7 @@ const ES = {
   "Assumes the full match is yours immediately. Your plan may have a vesting schedule.": "Supone que la aportación completa del patrono es tuya de inmediato. Tu plan puede tener un calendario de adquisición de derechos (vesting).",
   "For education and estimates only, not financial, tax or legal advice. Results come from the assumed returns shown and are not guarantees; real markets rise and fall from year to year. Figures are in future dollars, with the today's-dollar equivalent shown under the main total, and they don't include taxes. Fund returns are already after each fund's expense ratio; other account or advisory fees aren't included. Your inputs are saved only in this browser and are never sent anywhere.": "Solo con fines educativos y de estimación; no es asesoría financiera, contributiva ni legal. Los resultados provienen de los rendimientos supuestos que se muestran y no son garantías; los mercados reales suben y bajan de un año a otro. Las cifras están en dólares futuros, con el equivalente en dólares de hoy debajo del total principal, y no incluyen impuestos. Los rendimientos de los fondos ya son después de la razón de gastos de cada fondo; no se incluyen otras comisiones de cuenta o de asesoría. Tus datos se guardan solo en este navegador y nunca se envían a ningún sitio.",
   "Reset all inputs to defaults": "Restablecer todos los datos a los valores por defecto",
+  "Privacy policy": "Política de privacidad",
   "Language": "Idioma",
   "Summary": "Resumen",
   "Personal investing inputs": "Datos de inversión personal",

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>Privacy Policy | Investment Growth Calculator</title>
+<meta name="description" content="How the Investment Growth Calculator handles your data: your inputs stay in your browser, with no cookies, analytics or ads.">
+<meta name="theme-color" content="#f3f4f6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e1116" media="(prefers-color-scheme: dark)">
+<link rel="canonical" href="https://rafapps.github.io/investment-calculator/privacy.html">
+<style>
+  :root {
+    --bg: #f3f4f6; --surface: #ffffff; --border: #e3e6ea;
+    --text: #14181f; --text-2: #5b6472;
+    --accent: #2a78d6; --accent-ink: #1d4ed8; --accent-bg: #eaf2fd;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e1116; --surface: #171b22; --border: #2b323d;
+      --text: #eceff4; --text-2: #a4adbb;
+      --accent: #5b9bf0; --accent-ink: #8db8f7; --accent-bg: #19283d;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6; -webkit-text-size-adjust: 100%;
+  }
+  .page { max-width: 760px; margin: 0 auto; padding: 20px 16px 56px; }
+  .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .back { color: var(--accent-ink); text-decoration: none; font-size: 14px; min-height: 40px; display: inline-flex; align-items: center; gap: 4px; }
+  .back:hover { text-decoration: underline; }
+  .lang { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
+  .lang button { min-height: 36px; min-width: 44px; border: none; background: transparent; color: var(--text-2); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .lang button + button { border-left: 1px solid var(--border); }
+  .lang button[aria-pressed=true] { background: var(--accent-bg); color: var(--accent-ink); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px 20px; }
+  h1 { font-size: 1.6rem; line-height: 1.25; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 28px 0 6px; padding-top: 20px; border-top: 1px solid var(--border); }
+  .updated { color: var(--text-2); font-size: 14px; margin: 0 0 16px; }
+  .summary { background: var(--accent-bg); border-radius: 8px; padding: 12px 14px; margin: 0 0 8px; }
+  p, li { font-size: 15px; }
+  ul { padding-left: 20px; margin: 6px 0; }
+  a { color: var(--accent-ink); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="top">
+    <a class="back" href="./" id="back">&larr; <span data-en>Back to the calculator</span><span data-es hidden>Volver a la calculadora</span></a>
+    <div class="lang" role="group" aria-label="Language / Idioma">
+      <button type="button" id="lang-en" aria-pressed="true" lang="en">EN</button>
+      <button type="button" id="lang-es" aria-pressed="false" lang="es">ES</button>
+    </div>
+  </div>
+
+  <!-- ======================= ENGLISH ======================= -->
+  <main class="card" data-en lang="en">
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: October 23, 2026</p>
+    <p class="summary"><strong>The short version:</strong> the calculator runs entirely in your browser. Your numbers are never sent to us, and the site uses no cookies, analytics or ads.</p>
+    <p>This policy covers the Investment Growth Calculator at rafapps.github.io/investment-calculator (the "site"), operated by RafApps in Puerto Rico.</p>
+
+    <h2>1. The numbers you enter</h2>
+    <p>Everything you type into the calculator (contributions, salary, returns, fund choices and similar values) is processed on your own device. It is not sent to us or to any server.</p>
+    <p>To remember your inputs between visits, the site saves them in your browser's local storage. That copy stays on your device. You can erase it at any time with the "Reset all inputs to defaults" button on the calculator or by clearing your browser's site data.</p>
+
+    <h2>2. Share links</h2>
+    <p>If you use the share feature, your inputs are packed into the link itself, after the "#" sign. Browsers don't send that part of a link to the website's server, so we never receive it. Anyone you give the link to can see the numbers in it, so share it only with people you choose.</p>
+
+    <h2>3. Hosting</h2>
+    <p>The site is hosted on GitHub Pages. Like any web host, GitHub may automatically log technical details when you visit, such as your IP address, browser type and the page requested, to deliver and secure the site. We don't receive or use those logs. See <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" rel="noopener">GitHub's Privacy Statement</a> for how GitHub handles that data.</p>
+
+    <h2>4. Cookies, analytics and advertising</h2>
+    <p>The site does not set cookies and does not use analytics, advertising, tracking pixels or affiliate links. We don't collect, sell or share personal information.</p>
+    <p>If we add any of these in the future, we'll update this page before they go live and describe what is collected and how to opt out.</p>
+
+    <h2>5. Children's privacy</h2>
+    <p>The site is not directed to children under 13, and we don't knowingly collect personal information from anyone.</p>
+
+    <h2>6. Not financial advice</h2>
+    <p>The calculator is for education and estimates only. Results depend on the assumptions shown and are not a guarantee of future returns or a recommendation to buy or sell any investment. Consider talking with a licensed financial professional before making decisions.</p>
+
+    <h2>7. Changes to this policy</h2>
+    <p>If this policy changes, we'll update the "Last updated" date at the top of this page.</p>
+
+    <h2>8. Contact</h2>
+    <p>Questions or requests about this policy? Open an issue on the <a href="https://github.com/rafapps/investment-calculator/issues" rel="noopener">project's GitHub page</a>.</p>
+  </main>
+
+  <!-- ======================= ESPAÑOL ======================= -->
+  <main class="card" data-es lang="es" hidden>
+    <h1>Política de privacidad</h1>
+    <p class="updated">Última actualización: 23 de octubre de 2026</p>
+    <p class="summary"><strong>En resumen:</strong> la calculadora funciona por completo en tu navegador. Tus números nunca se nos envían, y el sitio no usa cookies, analíticas ni anuncios.</p>
+    <p>Esta política aplica a la calculadora de crecimiento de inversiones en rafapps.github.io/investment-calculator (el "sitio"), operada por RafApps en Puerto Rico.</p>
+
+    <h2>1. Los números que ingresas</h2>
+    <p>Todo lo que escribes en la calculadora (aportaciones, salario, rendimientos, fondos y valores similares) se procesa en tu propio dispositivo. No se nos envía ni a nosotros ni a ningún servidor.</p>
+    <p>Para recordar tus datos entre visitas, el sitio los guarda en el almacenamiento local de tu navegador. Esa copia se queda en tu dispositivo. Puedes borrarla cuando quieras con el botón "Restablecer todos los datos a los valores por defecto" de la calculadora o borrando los datos del sitio en tu navegador.</p>
+
+    <h2>2. Enlaces para compartir</h2>
+    <p>Si usas la función de compartir, tus datos se guardan dentro del mismo enlace, después del signo "#". Los navegadores no envían esa parte del enlace al servidor del sitio, así que nunca la recibimos. Cualquier persona con el enlace puede ver los números, así que compártelo solo con quien tú decidas.</p>
+
+    <h2>3. Alojamiento</h2>
+    <p>El sitio está alojado en GitHub Pages. Como cualquier servicio de alojamiento, GitHub puede registrar automáticamente datos técnicos cuando lo visitas, como tu dirección IP, el tipo de navegador y la página solicitada, para servir y proteger el sitio. Nosotros no recibimos ni usamos esos registros. Consulta la <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" rel="noopener">Declaración de privacidad de GitHub</a> para saber cómo GitHub maneja esos datos.</p>
+
+    <h2>4. Cookies, analíticas y publicidad</h2>
+    <p>El sitio no usa cookies, analíticas, publicidad, píxeles de rastreo ni enlaces de afiliados. No recopilamos, vendemos ni compartimos información personal.</p>
+    <p>Si en el futuro añadimos alguno de estos, actualizaremos esta página antes de activarlos y explicaremos qué se recopila y cómo excluirte.</p>
+
+    <h2>5. Privacidad de menores</h2>
+    <p>El sitio no está dirigido a menores de 13 años, y no recopilamos a sabiendas información personal de nadie.</p>
+
+    <h2>6. No es asesoría financiera</h2>
+    <p>La calculadora es solo para fines educativos y estimados. Los resultados dependen de los supuestos que se muestran y no garantizan rendimientos futuros ni son una recomendación para comprar o vender ninguna inversión. Considera hablar con un profesional financiero licenciado antes de tomar decisiones.</p>
+
+    <h2>7. Cambios a esta política</h2>
+    <p>Si esta política cambia, actualizaremos la fecha de "Última actualización" al principio de esta página.</p>
+
+    <h2>8. Contacto</h2>
+    <p>¿Preguntas o solicitudes sobre esta política? Abre un "issue" en la <a href="https://github.com/rafapps/investment-calculator/issues" rel="noopener">página del proyecto en GitHub</a>.</p>
+  </main>
+</div>
+<script>
+(function () {
+  // Match the calculator's language: its saved choice first, then the browser's language.
+  var lang = /^es\b/i.test(navigator.language || '') ? 'es' : 'en';
+  try {
+    var saved = JSON.parse(localStorage.getItem('investcalc.v1') || 'null');
+    if (saved && (saved.lang === 'en' || saved.lang === 'es')) lang = saved.lang;
+  } catch (e) { /* storage unavailable: fall back to the browser language */ }
+  var m = /[?&]lang=(en|es)\b/.exec(location.search);
+  if (m) lang = m[1];
+
+  function setLang(l) {
+    lang = l;
+    document.documentElement.lang = l;
+    document.title = l === 'es' ? 'Política de privacidad | Calculadora de crecimiento de inversiones' : 'Privacy Policy | Investment Growth Calculator';
+    document.querySelectorAll('[data-en]').forEach(function (el) { el.hidden = l !== 'en'; });
+    document.querySelectorAll('[data-es]').forEach(function (el) { el.hidden = l !== 'es'; });
+    document.getElementById('lang-en').setAttribute('aria-pressed', String(l === 'en'));
+    document.getElementById('lang-es').setAttribute('aria-pressed', String(l === 'es'));
+  }
+  document.getElementById('lang-en').addEventListener('click', function () { setLang('en'); });
+  document.getElementById('lang-es').addEventListener('click', function () { setLang('es'); });
+  setLang(lang);
+})();
+</script>
+</body>
+</html>
